@@ -13,12 +13,7 @@ const STATIC_EVENTS = [
   { id: 'e7', title: 'Çocuk Kanseri Destek Bağışı', category: 'Sağlık', targetAmount: 400000, raisedAmount: 400000, daysLeft: 0, imageUrl: 'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?auto=format&fit=crop&w=80&q=60' },
 ];
 
-function formatMoney(val) {
-  return '₺' + new Intl.NumberFormat('tr-TR', { maximumFractionDigits: 0 }).format(val);
-}
-
 export default function EventsManagement() {
-
   return (
     <AdminLayout>
       <div className="space-y-8 max-w-6xl mx-auto">
@@ -31,7 +26,7 @@ export default function EventsManagement() {
           </div>
           <Link
             to="/admin/new-event"
-            className="flex items-center gap-1.5 px-4 py-2.5 bg-pine-teal hover:bg-emerald-800 text-white font-extrabold rounded-xl text-xs transition-all shadow-md shadow-pine-teal/10 hover:shadow-lg cursor-pointer"
+            className="btn btn-primary px-4 py-2.5 flex items-center gap-1.5"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
@@ -41,19 +36,19 @@ export default function EventsManagement() {
         </div>
 
         {/* Filters and List */}
-        <div className="bg-white border border-slate-100 shadow-xl shadow-slate-200/20 rounded-[2rem] overflow-hidden text-left">
+        <div className="card-base shadow-xl shadow-slate-200/20 text-left p-0 overflow-hidden">
           
           {/* Table Header & Search */}
           <div className="px-6 py-5 border-b border-slate-100 bg-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
             <h3 className="text-xs font-black text-inst-navy uppercase tracking-wider">TÜM ETKİNLİKLER LİSTESİ</h3>
             
-            <div className="relative w-full sm:w-64">
+            <div className="search-input-wrapper w-full sm:w-64">
               <input
                 type="text"
                 placeholder="Etkinlik veya kategori ara..."
-                className="w-full pl-9 pr-4 py-2 bg-slate-50 hover:bg-slate-100 focus:bg-white border border-slate-200 focus:border-pine-teal rounded-xl text-xs font-semibold text-slate-700 placeholder-slate-400 outline-none transition-all"
+                className="search-input w-full"
               />
-              <svg className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="search-input-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
@@ -71,6 +66,7 @@ export default function EventsManagement() {
                   <th scope="col" className="px-6 py-4 min-w-[160px]">İLERLEME</th>
                   <th scope="col" className="px-6 py-4">KALAN SÜRE</th>
                   <th scope="col" className="px-6 py-4 text-center">DURUM</th>
+                  <th scope="col" className="px-6 py-4 text-center">AKSİYONLAR</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 font-medium">
@@ -84,6 +80,16 @@ export default function EventsManagement() {
                   <td className="px-6 py-3 min-w-[160px]"><div className="flex items-center gap-2"><div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden"><div className="h-full rounded-full bg-pine-teal" style={{width:'75%'}} /></div><span className="text-[10px] font-mono font-bold text-pine-teal shrink-0 w-8 text-right">75%</span></div></td>
                   <td className="px-6 py-3 text-slate-500 font-mono">45 Gün</td>
                   <td className="px-6 py-3 text-center"><span className="inline-flex px-2.5 py-0.5 rounded-full text-[9px] font-extrabold border bg-emerald-50 text-emerald-700 border-emerald-100/50">AKTİF</span></td>
+                  <td className="px-6 py-3">
+                    <div className="flex justify-center items-center gap-1.5">
+                      <Link to="/admin/edit-event/e1" className="btn btn-secondary py-1 px-2 text-[10px]">
+                        Düzenle
+                      </Link>
+                      <button type="button" className="btn btn-danger py-1 px-2 text-[10px] bg-red-50 hover:bg-red-100 text-red-600 border-red-200">
+                        Sil
+                      </button>
+                    </div>
+                  </td>
                 </tr>
                 {/* Satır 2 */}
                 <tr className="hover:bg-slate-50/40 transition-colors">
@@ -95,6 +101,16 @@ export default function EventsManagement() {
                   <td className="px-6 py-3 min-w-[160px]"><div className="flex items-center gap-2"><div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden"><div className="h-full rounded-full bg-pine-teal" style={{width:'84%'}} /></div><span className="text-[10px] font-mono font-bold text-pine-teal shrink-0 w-8 text-right">84%</span></div></td>
                   <td className="px-6 py-3 text-slate-500 font-mono">22 Gün</td>
                   <td className="px-6 py-3 text-center"><span className="inline-flex px-2.5 py-0.5 rounded-full text-[9px] font-extrabold border bg-emerald-50 text-emerald-700 border-emerald-100/50">AKTİF</span></td>
+                  <td className="px-6 py-3">
+                    <div className="flex justify-center items-center gap-1.5">
+                      <Link to="/admin/edit-event/e2" className="btn btn-secondary py-1 px-2 text-[10px]">
+                        Düzenle
+                      </Link>
+                      <button type="button" className="btn btn-danger py-1 px-2 text-[10px] bg-red-50 hover:bg-red-100 text-red-600 border-red-200">
+                        Sil
+                      </button>
+                    </div>
+                  </td>
                 </tr>
                 {/* Satır 3 */}
                 <tr className="hover:bg-slate-50/40 transition-colors">
@@ -106,6 +122,16 @@ export default function EventsManagement() {
                   <td className="px-6 py-3 min-w-[160px]"><div className="flex items-center gap-2"><div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden"><div className="h-full rounded-full bg-pine-teal" style={{width:'59%'}} /></div><span className="text-[10px] font-mono font-bold text-pine-teal shrink-0 w-8 text-right">59%</span></div></td>
                   <td className="px-6 py-3 text-slate-500 font-mono">60 Gün</td>
                   <td className="px-6 py-3 text-center"><span className="inline-flex px-2.5 py-0.5 rounded-full text-[9px] font-extrabold border bg-emerald-50 text-emerald-700 border-emerald-100/50">AKTİF</span></td>
+                  <td className="px-6 py-3">
+                    <div className="flex justify-center items-center gap-1.5">
+                      <Link to="/admin/edit-event/e3" className="btn btn-secondary py-1 px-2 text-[10px]">
+                        Düzenle
+                      </Link>
+                      <button type="button" className="btn btn-danger py-1 px-2 text-[10px] bg-red-50 hover:bg-red-100 text-red-600 border-red-200">
+                        Sil
+                      </button>
+                    </div>
+                  </td>
                 </tr>
                 {/* Satır 4 */}
                 <tr className="hover:bg-slate-50/40 transition-colors">
@@ -117,6 +143,16 @@ export default function EventsManagement() {
                   <td className="px-6 py-3 min-w-[160px]"><div className="flex items-center gap-2"><div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden"><div className="h-full rounded-full bg-pine-teal" style={{width:'60%'}} /></div><span className="text-[10px] font-mono font-bold text-pine-teal shrink-0 w-8 text-right">60%</span></div></td>
                   <td className="px-6 py-3 text-slate-500 font-mono">18 Gün</td>
                   <td className="px-6 py-3 text-center"><span className="inline-flex px-2.5 py-0.5 rounded-full text-[9px] font-extrabold border bg-emerald-50 text-emerald-700 border-emerald-100/50">AKTİF</span></td>
+                  <td className="px-6 py-3">
+                    <div className="flex justify-center items-center gap-1.5">
+                      <Link to="/admin/edit-event/e4" className="btn btn-secondary py-1 px-2 text-[10px]">
+                        Düzenle
+                      </Link>
+                      <button type="button" className="btn btn-danger py-1 px-2 text-[10px] bg-red-50 hover:bg-red-100 text-red-600 border-red-200">
+                        Sil
+                      </button>
+                    </div>
+                  </td>
                 </tr>
                 {/* Satır 5 */}
                 <tr className="hover:bg-slate-50/40 transition-colors">
@@ -128,6 +164,16 @@ export default function EventsManagement() {
                   <td className="px-6 py-3 min-w-[160px]"><div className="flex items-center gap-2"><div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden"><div className="h-full rounded-full bg-pine-teal" style={{width:'77%'}} /></div><span className="text-[10px] font-mono font-bold text-pine-teal shrink-0 w-8 text-right">77%</span></div></td>
                   <td className="px-6 py-3 text-slate-500 font-mono">12 Gün</td>
                   <td className="px-6 py-3 text-center"><span className="inline-flex px-2.5 py-0.5 rounded-full text-[9px] font-extrabold border bg-emerald-50 text-emerald-700 border-emerald-100/50">AKTİF</span></td>
+                  <td className="px-6 py-3">
+                    <div className="flex justify-center items-center gap-1.5">
+                      <Link to="/admin/edit-event/e5" className="btn btn-secondary py-1 px-2 text-[10px]">
+                        Düzenle
+                      </Link>
+                      <button type="button" className="btn btn-danger py-1 px-2 text-[10px] bg-red-50 hover:bg-red-100 text-red-600 border-red-200">
+                        Sil
+                      </button>
+                    </div>
+                  </td>
                 </tr>
                 {/* Satır 6 */}
                 <tr className="hover:bg-slate-50/40 transition-colors">
@@ -139,6 +185,16 @@ export default function EventsManagement() {
                   <td className="px-6 py-3 min-w-[160px]"><div className="flex items-center gap-2"><div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden"><div className="h-full rounded-full bg-pine-teal" style={{width:'51%'}} /></div><span className="text-[10px] font-mono font-bold text-pine-teal shrink-0 w-8 text-right">51%</span></div></td>
                   <td className="px-6 py-3 text-slate-500 font-mono">75 Gün</td>
                   <td className="px-6 py-3 text-center"><span className="inline-flex px-2.5 py-0.5 rounded-full text-[9px] font-extrabold border bg-emerald-50 text-emerald-700 border-emerald-100/50">AKTİF</span></td>
+                  <td className="px-6 py-3">
+                    <div className="flex justify-center items-center gap-1.5">
+                      <Link to="/admin/edit-event/e6" className="btn btn-secondary py-1 px-2 text-[10px]">
+                        Düzenle
+                      </Link>
+                      <button type="button" className="btn btn-danger py-1 px-2 text-[10px] bg-red-50 hover:bg-red-100 text-red-600 border-red-200">
+                        Sil
+                      </button>
+                    </div>
+                  </td>
                 </tr>
                 {/* Satır 7 */}
                 <tr className="hover:bg-slate-50/40 transition-colors">
@@ -150,6 +206,16 @@ export default function EventsManagement() {
                   <td className="px-6 py-3 min-w-[160px]"><div className="flex items-center gap-2"><div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden"><div className="h-full rounded-full bg-pine-teal" style={{width:'100%'}} /></div><span className="text-[10px] font-mono font-bold text-pine-teal shrink-0 w-8 text-right">100%</span></div></td>
                   <td className="px-6 py-3 text-slate-500 font-mono">0 Gün</td>
                   <td className="px-6 py-3 text-center"><span className="inline-flex px-2.5 py-0.5 rounded-full text-[9px] font-extrabold border bg-amber-50 text-amber-700 border-amber-100/50">TAMAMLANDI</span></td>
+                  <td className="px-6 py-3">
+                    <div className="flex justify-center items-center gap-1.5">
+                      <Link to="/admin/edit-event/e7" className="btn btn-secondary py-1 px-2 text-[10px]">
+                        Düzenle
+                      </Link>
+                      <button type="button" className="btn btn-danger py-1 px-2 text-[10px] bg-red-50 hover:bg-red-100 text-red-600 border-red-200">
+                        Sil
+                      </button>
+                    </div>
+                  </td>
                 </tr>
 
               </tbody>

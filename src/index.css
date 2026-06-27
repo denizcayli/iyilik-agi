@@ -126,11 +126,11 @@ body {
 }
 
 .nav-profile-btn {
-  @apply w-9 h-9 rounded-xl flex items-center justify-center border transition-all bg-white border-slate-200 hover:border-pine-teal text-slate-600 hover:text-pine-teal cursor-pointer;
+  @apply h-9 px-3.5 rounded-xl flex items-center justify-center gap-1.5 border transition-all bg-white border-slate-200 hover:border-pine-teal text-slate-600 hover:text-pine-teal cursor-pointer whitespace-nowrap;
 }
 
 .nav-profile-btn-active {
-  @apply w-9 h-9 rounded-xl flex items-center justify-center border transition-all bg-pine-teal border-pine-teal text-white cursor-pointer;
+  @apply h-9 px-3.5 rounded-xl flex items-center justify-center gap-1.5 border transition-all bg-pine-teal border-pine-teal text-white cursor-pointer whitespace-nowrap;
 }
 
 .nav-mobile-btn {
@@ -519,4 +519,76 @@ body {
 
 .table-cell-mono {
   @apply table-cell font-mono font-bold text-slate-700;
+}
+
+/* Custom Section/Header styles */
+.page-container {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10;
+}
+
+.header-wrapper {
+  @apply mb-10 text-center md:text-left;
+}
+
+.header-badge {
+  @apply text-xs font-bold uppercase tracking-wider text-pine-teal bg-pine-teal/5 px-3 py-1.5 rounded-full inline-block mb-3;
+}
+
+.header-title {
+  @apply text-2xl md:text-4xl font-extrabold text-inst-navy tracking-tight;
+}
+
+.header-desc {
+  @apply text-xs md:text-sm text-slate-400 mt-1 font-medium;
+}
+
+/* Card custom classes */
+.card-base {
+  @apply bg-white border border-slate-100 shadow-sm rounded-3xl p-6;
+}
+
+.grid-cols-responsive-4 {
+  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6;
+}
+
+.grid-cols-responsive-3 {
+  @apply grid grid-cols-1 md:grid-cols-3 gap-6;
+}
+
+.grid-cols-responsive-2 {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-6;
+}
+
+/* Category Filter bar & buttons */
+.filter-bar {
+  @apply bg-white border border-slate-100 shadow-sm rounded-2xl p-4 mb-8 flex flex-col xl:flex-row justify-between items-center gap-4;
+}
+
+.filter-btn-group {
+  @apply flex flex-wrap gap-1.5 w-full xl:w-auto;
+}
+
+.filter-btn {
+  @apply px-3.5 py-2 text-xs font-semibold rounded-xl border transition-all cursor-pointer bg-slate-50 border-slate-200/60 hover:bg-slate-100 text-slate-600;
+}
+
+.filter-btn-active {
+  @apply px-3.5 py-2 text-xs font-semibold rounded-xl border transition-all cursor-pointer bg-pine-teal border-pine-teal text-white shadow-sm;
+}
+
+.search-input-wrapper {
+  @apply relative w-full xl:w-56 shrink-0;
+}
+
+.search-input-icon {
+  @apply w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2;
+}
+
+.search-input {
+  @apply w-full pl-9 pr-4 py-2 bg-slate-50 hover:bg-slate-100/60 focus:bg-white border border-slate-200 focus:border-pine-teal rounded-xl text-xs font-semibold text-slate-700 outline-none transition-all;
+}
+
+/* Social Share classes */
+.share-btn {
+  @apply flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer;
 }

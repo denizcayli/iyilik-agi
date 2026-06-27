@@ -84,7 +84,7 @@ export default function Contact() {
               {/* Submit Button — görünür ama işlevsiz */}
               <button
                 type="button"
-                className="w-full py-3 px-4 bg-ember-coral hover:bg-[#c2422b] text-white font-bold rounded-xl shadow-md shadow-ember-coral/10 hover:shadow-lg transition-all text-center text-xs flex items-center justify-center gap-2 cursor-pointer border border-white/10"
+                className="btn btn-accent w-full py-3 border border-white/10"
               >
                 Mesajı İlet
               </button>

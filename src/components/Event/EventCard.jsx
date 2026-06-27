@@ -32,16 +32,16 @@ export default function EventCard({ event }) {
   };
 
   return (
-    <div className={`bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-md hover:border-slate-200/60 transition-all duration-300 flex flex-col overflow-hidden group text-left ${
+    <div className={`campaign-card text-left ${
       isCompleted ? 'opacity-85 saturate-[85%]' : isExpired ? 'opacity-75 grayscale-[20%]' : ''
     }`}>
 
       {/* Event Image */}
-      <div className="relative aspect-video overflow-hidden">
+      <div className="relative aspect-video overflow-hidden shrink-0">
         <img
           src={imageUrl}
           alt={title}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          className="campaign-card-image"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent"></div>
 
@@ -75,18 +75,18 @@ export default function EventCard({ event }) {
       </div>
 
       {/* Content */}
-      <div className="p-5 flex-1 flex flex-col justify-between">
+      <div className="campaign-card-body justify-between">
         <div>
           {/* Title — Link ile detay sayfasına */}
           <Link
             to={`/events/${id}`}
-            className="text-sm font-extrabold text-inst-navy mb-2 line-clamp-1 hover:text-pine-teal cursor-pointer transition-colors block"
+            className="campaign-card-title hover:text-pine-teal cursor-pointer transition-colors block"
           >
             {title}
           </Link>
 
           {/* Description */}
-          <p className="text-xs text-slate-500 mb-4 line-clamp-2 leading-relaxed font-medium">
+          <p className="campaign-card-desc">
             {description}
           </p>
         </div>
@@ -136,31 +136,31 @@ export default function EventCard({ event }) {
           </div>
 
           {/* Action Buttons */}
-          <div className="grid grid-cols-2 gap-2 mt-2">
+          <div className="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-slate-50">
             <Link
               to={`/events/${id}`}
-              className="px-3 py-2 text-xs font-bold rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-inst-navy transition-all text-center cursor-pointer font-sans font-semibold"
+              className="btn btn-secondary text-center"
             >
               Detaylar
             </Link>
             {isCompleted ? (
               <button
                 disabled
-                className="px-3 py-2 text-xs font-bold rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200/45 cursor-not-allowed text-center font-sans font-semibold"
+                className="btn btn-disabled bg-emerald-50 text-emerald-700 border-transparent text-center"
               >
                 Hedefe Ulaştı
               </button>
             ) : isExpired ? (
               <button
                 disabled
-                className="px-3 py-2 text-xs font-bold rounded-xl bg-slate-50 text-slate-400 border border-slate-200/45 cursor-not-allowed text-center font-sans font-semibold"
+                className="btn btn-disabled text-center"
               >
                 Süresi Bitti
               </button>
             ) : (
               <Link
                 to="/payment"
-                className="px-3 py-2 text-xs font-bold rounded-xl bg-ember-coral hover:bg-[#c2422b] text-white transition-all shadow-sm shadow-ember-coral/10 hover:shadow-md cursor-pointer border border-white/10 font-sans font-semibold text-center"
+                className="btn btn-accent text-center"
               >
                 Bağış Yap
               </Link>

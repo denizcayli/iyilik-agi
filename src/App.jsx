@@ -17,6 +17,7 @@ import UserProfile from './pages/UserProfile';
 // Import Admin Pages
 import AdminDashboard from './pages/Admin/AdminDashboard';
 import NewEvent from './pages/Admin/NewEvent';
+import EditEvent from './pages/Admin/EditEvent';
 import FinancialReports from './pages/Admin/FinancialReports';
 import Volunteers from './pages/Admin/Volunteers';
 import EventsManagement from './pages/Admin/EventsManagement';
@@ -39,6 +40,7 @@ export default function App() {
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/events" element={<EventsManagement />} />
         <Route path="/admin/new-event" element={<NewEvent />} />
+        <Route path="/admin/edit-event/:id" element={<EditEvent />} />
         <Route path="/admin/yeni-kampanya" element={<NewEvent />} />
         <Route path="/admin/reports" element={<FinancialReports />} />
         <Route path="/admin/finansal-raporlar" element={<FinancialReports />} />

@@ -32,24 +32,24 @@ function formatMoney(val) {
 
 export default function EventDetail() {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="page-container py-8">
 
       {/* Back button */}
       <Link
         to="/events"
-        className="flex items-center gap-1 text-slate-500 hover:text-pine-teal text-xs font-bold mb-6 group transition-colors cursor-pointer"
+        className="btn btn-secondary mb-6 inline-flex items-center gap-1.5"
       >
-        <svg className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
         </svg>
         Etkinliklere Geri Dön
       </Link>
 
       {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div className="bento-grid items-start">
 
         {/* Left Column: Details */}
-        <div className="lg:col-span-8 space-y-6">
+        <div className="md:col-span-8 space-y-6">
 
           {/* Banner */}
           <div className="relative aspect-video rounded-3xl overflow-hidden shadow-md border border-slate-100 bg-white">
@@ -68,8 +68,8 @@ export default function EventDetail() {
           </div>
 
           {/* Description */}
-          <div className="bg-white rounded-3xl border border-slate-100 p-6 md:p-8 shadow-sm space-y-6 text-slate-800">
-            <h1 className="text-xl md:text-3xl font-extrabold text-inst-navy leading-tight">
+          <div className="card-base md:p-8 space-y-6 text-slate-800">
+            <h1 className="text-xl md:text-3xl font-extrabold text-inst-navy tracking-tight leading-tight">
               {STATIC_EVENT.title}
             </h1>
             <div className="border-t border-slate-100 my-4"></div>
@@ -85,28 +85,28 @@ export default function EventDetail() {
           </div>
 
           {/* Social Share */}
-          <div className="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm space-y-4">
+          <div className="card-base space-y-4">
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Bu Etkinliği Paylaş</h3>
             <p className="text-xs text-slate-500">Daha fazla insana ulaşarak iyilik zincirini büyütmemize yardımcı olabilirsiniz.</p>
             <div className="flex flex-col sm:flex-row items-center gap-4">
               <div className="flex flex-wrap gap-2 w-full sm:w-auto justify-center">
                 {/* Instagram */}
-                <button className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-pink-50 border border-pink-200/50 hover:bg-pink-100/60 text-pink-700 text-xs font-semibold transition-all cursor-pointer">
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.051.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" /></svg>
+                <button className="share-btn bg-pink-50 border border-pink-200/50 hover:bg-pink-100/60 text-pink-700">
+                  <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.051.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" /></svg>
                   Instagram
                 </button>
                 {/* WhatsApp */}
-                <a href="https://api.whatsapp.com/send?text=İyilik%20Ağı" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-50 border border-emerald-200/50 hover:bg-emerald-100/60 text-emerald-700 text-xs font-semibold transition-all cursor-pointer">
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.73-1.45L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.625 1.451 5.403.002 9.803-4.389 9.805-9.801.002-2.623-1.023-5.086-2.88-6.946C16.32 1.999 13.861.979 11.23.979 5.827.979 1.425 5.378 1.422 10.791c-.001 1.516.4 3.003 1.161 4.33l-.955 3.486 3.58-.934z" /></svg>
+                <a href="https://api.whatsapp.com/send?text=İyilik%20Ağı" target="_blank" rel="noopener noreferrer" className="share-btn bg-emerald-50 border border-emerald-200/50 hover:bg-emerald-100/60 text-emerald-700">
+                  <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.73-1.45L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.625 1.451 5.403.002 9.803-4.389 9.805-9.801.002-2.623-1.023-5.086-2.88-6.946C16.32 1.999 13.861.979 11.23.979 5.827.979 1.425 5.378 1.422 10.791c-.001 1.516.4 3.003 1.161 4.33l-.955 3.486 3.58-.934z" /></svg>
                   WhatsApp
                 </a>
                 {/* X */}
-                <a href="https://twitter.com/intent/tweet?text=İyilik%20Ağı" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-900 border border-slate-950 hover:bg-black text-white text-xs font-semibold transition-all cursor-pointer">
-                  <span className="font-bold font-sans">X</span> Twitter
+                <a href="https://twitter.com/intent/tweet?text=İyilik%20Ağı" target="_blank" rel="noopener noreferrer" className="share-btn bg-slate-900 border border-slate-950 text-white hover:bg-black">
+                  X Twitter
                 </a>
                 {/* Facebook */}
-                <a href="https://www.facebook.com/sharer/sharer.php?u=iyilikagi.org" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-blue-50 border border-blue-200/50 hover:bg-blue-100/60 text-blue-700 text-xs font-semibold transition-all cursor-pointer">
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" /></svg>
+                <a href="https://www.facebook.com/sharer/sharer.php?u=iyilikagi.org" target="_blank" rel="noopener noreferrer" className="share-btn bg-blue-50 border border-blue-200/50 hover:bg-blue-100/60 text-blue-700">
+                  <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" /></svg>
                   Facebook
                 </a>
               </div>
@@ -126,10 +126,10 @@ export default function EventDetail() {
         </div>
 
         {/* Right Column */}
-        <div className="lg:col-span-4 space-y-6">
+        <div className="md:col-span-4 space-y-6">
 
           {/* Progress Card */}
-          <div className="bg-white rounded-3xl border border-slate-100 p-6 shadow-md space-y-6">
+          <div className="card-base shadow-md space-y-6">
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Etkinlik Durumu</h3>
 
             <div>
@@ -162,13 +162,21 @@ export default function EventDetail() {
               </div>
             </div>
 
-            {/* Donate Button */}
-            <Link
-              to="/payment"
-              className="w-full py-3.5 px-4 bg-ember-coral hover:bg-[#c2422b] text-white font-bold rounded-2xl shadow-lg shadow-ember-coral/10 hover:shadow-xl transition-all text-center text-sm cursor-pointer border border-white/10 block"
-            >
-              Bu Etkinliğe Bağış Yap
-            </Link>
+            {/* Donate & Participate Buttons */}
+            <div className="space-y-3 pt-2">
+              <Link
+                to="/payment"
+                className="btn btn-accent w-full py-3.5 text-center block"
+              >
+                Bu Etkinliğe Bağış Yap
+              </Link>
+              <button
+                type="button"
+                className="btn btn-primary w-full py-3.5 text-center"
+              >
+                Gönüllü Olarak Katıl
+              </button>
+            </div>
           </div>
 
           {/* Son Bağışlar — 6 sabit satır */}

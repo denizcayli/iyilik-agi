@@ -19,17 +19,17 @@ const STATIC_CARD = {
 
 export default function PaymentSimulation() {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div className="page-container">
 
       {/* Header */}
-      <div className="mb-10 text-center max-w-xl mx-auto">
-        <span className="text-xs font-bold uppercase tracking-wider text-pine-teal bg-pine-teal/5 px-3 py-1.5 rounded-full inline-block mb-3">
+      <div className="header-wrapper max-w-xl mx-auto text-center">
+        <span className="header-badge">
           Güvenli Ödeme
         </span>
-        <h1 className="text-2xl md:text-4xl font-extrabold text-inst-navy tracking-tight">
+        <h1 className="header-title">
           Bağış Ödeme Simülasyonu
         </h1>
-        <p className="text-xs md:text-sm text-slate-400 mt-1 font-medium">
+        <p className="header-desc">
           "{STATIC_EVENT.title}" etkinliğine doğrudan bağış yapmak için kredi kartı bilgilerini girin.
         </p>
       </div>
@@ -43,7 +43,7 @@ export default function PaymentSimulation() {
         <div className="lg:col-span-5 space-y-6 flex flex-col justify-center">
 
           {/* Bakiye Kartı */}
-          <div className="bg-white border border-slate-100 shadow-sm rounded-3xl p-6 text-center">
+          <div className="card-base text-center">
             <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-1">Cüzdan Güncel Bakiyeniz</span>
             <span className="text-3xl font-black font-mono text-pine-teal">₺15.000</span>
             <p className="text-[10px] text-slate-400 mt-1 font-medium">Kart ile ödeme yaptığınızda cüzdan bakiyeniz artacaktır.</p>
@@ -61,7 +61,7 @@ export default function PaymentSimulation() {
 
         {/* Sağ: Ödeme Formu */}
         <div className="lg:col-span-7">
-          <div className="bg-white border border-slate-100 shadow-xl shadow-slate-200/20 p-6 md:p-8 rounded-[2rem] text-left space-y-5">
+          <div className="card-base md:p-8 space-y-5 shadow-xl shadow-slate-200/20 text-left">
             <h3 className="text-xs font-black text-inst-navy uppercase tracking-wider border-b border-slate-100 pb-4">KART BİLGİLERİ</h3>
 
             {/* Etkinlik bilgisi */}
@@ -75,9 +75,8 @@ export default function PaymentSimulation() {
               <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Kart Numarası *</label>
               <input
                 type="text"
-                defaultValue=""
                 placeholder="1234 5678 9012 3456"
-                className="w-full px-3.5 py-3 bg-slate-50 hover:bg-slate-100/70 focus:bg-white border border-slate-200 focus:border-pine-teal rounded-xl text-xs font-mono font-bold text-slate-800 outline-none transition-all tracking-widest"
+                className="form-input font-mono font-bold tracking-widest w-full"
                 maxLength={19}
               />
             </div>
@@ -87,9 +86,8 @@ export default function PaymentSimulation() {
               <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Kart Üzerindeki İsim *</label>
               <input
                 type="text"
-                defaultValue=""
                 placeholder="AD SOYAD"
-                className="w-full px-3.5 py-3 bg-slate-50 hover:bg-slate-100/70 focus:bg-white border border-slate-200 focus:border-pine-teal rounded-xl text-xs font-semibold text-slate-800 uppercase outline-none transition-all"
+                className="form-input font-semibold uppercase w-full"
               />
             </div>
 
@@ -99,9 +97,8 @@ export default function PaymentSimulation() {
                 <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Son Kullanma *</label>
                 <input
                   type="text"
-                  defaultValue=""
                   placeholder="AA/YY"
-                  className="w-full px-3.5 py-3 bg-slate-50 hover:bg-slate-100/70 focus:bg-white border border-slate-200 focus:border-pine-teal rounded-xl text-xs font-mono font-bold text-slate-800 outline-none transition-all"
+                  className="form-input font-mono font-bold w-full"
                   maxLength={5}
                 />
               </div>
@@ -109,9 +106,8 @@ export default function PaymentSimulation() {
                 <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">CVV *</label>
                 <input
                   type="text"
-                  defaultValue=""
                   placeholder="•••"
-                  className="w-full px-3.5 py-3 bg-slate-50 hover:bg-slate-100/70 focus:bg-white border border-slate-200 focus:border-pine-teal rounded-xl text-xs font-mono font-bold text-slate-800 outline-none transition-all"
+                  className="form-input font-mono font-bold w-full"
                   maxLength={4}
                 />
               </div>
@@ -124,9 +120,8 @@ export default function PaymentSimulation() {
                 <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">₺</span>
                 <input
                   type="number"
-                  defaultValue=""
                   placeholder="500"
-                  className="w-full pl-7 pr-3.5 py-3 bg-slate-50 hover:bg-slate-100/70 focus:bg-white border border-slate-200 focus:border-pine-teal rounded-xl text-xs font-mono font-bold text-slate-800 outline-none transition-all"
+                  className="form-input font-mono font-bold pl-7 w-full"
                 />
               </div>
             </div>
@@ -146,7 +141,7 @@ export default function PaymentSimulation() {
             {/* Ödeme Butonu */}
             <button
               type="button"
-              className="w-full py-4 mt-2 bg-pine-teal hover:bg-emerald-800 text-white font-extrabold rounded-2xl shadow-lg shadow-pine-teal/20 hover:shadow-xl transition-all text-sm cursor-pointer border border-white/10 flex items-center justify-center gap-2"
+              className="btn btn-primary w-full py-4 mt-2 flex items-center justify-center gap-2"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -167,7 +162,7 @@ export default function PaymentSimulation() {
             📱 3D Secure — SMS Doğrulama Ekranı (Tasarım Önizleme)
           </span>
         </div>
-        <div className="w-full p-6 md:p-8 rounded-3xl shadow-2xl border border-slate-100 bg-white text-slate-800">
+        <div className="card-base md:p-8 shadow-2xl text-slate-800 text-left">
           {/* Visa Secure ve Mastercard logoları */}
           <div className="flex justify-between items-center border-b border-slate-100 pb-4 mb-4">
             <div className="flex items-center gap-2">
@@ -201,9 +196,8 @@ export default function PaymentSimulation() {
             <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Onay Şifresi (SMS Şifresi) *</label>
             <input
               type="text"
-              defaultValue=""
               placeholder="_ _ _ _ _ _"
-              className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 focus:border-pine-teal rounded-xl text-center text-xl font-mono font-black text-slate-800 tracking-[0.5em] outline-none transition-all"
+              className="form-input text-center text-xl font-mono font-black tracking-[0.5em] w-full"
               maxLength={6}
             />
             {/* Zamanlayıcı */}
@@ -216,7 +210,7 @@ export default function PaymentSimulation() {
           {/* OTP Submit Button */}
           <button
             type="button"
-            className="w-full py-3.5 mt-5 bg-pine-teal hover:bg-emerald-800 text-white font-extrabold rounded-2xl shadow-md shadow-pine-teal/10 hover:shadow-lg transition-all text-sm cursor-pointer"
+            className="btn btn-primary w-full py-3.5 mt-5"
           >
             Onayla ve Ödemeyi Bitir
           </button>
@@ -270,11 +264,65 @@ export default function PaymentSimulation() {
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <button type="button" className="py-2.5 px-4 bg-emerald-50 border border-emerald-200 text-emerald-700 font-bold rounded-xl text-xs hover:bg-emerald-100 transition-all cursor-pointer">
+            <button type="button" className="btn btn-secondary py-2.5 px-4 text-xs">
               Ana Sayfaya Dön
             </button>
-            <button type="button" className="py-2.5 px-4 bg-pine-teal text-white font-bold rounded-xl text-xs hover:bg-emerald-700 transition-all cursor-pointer">
+            <button type="button" className="btn btn-primary py-2.5 px-4 text-xs">
               Etkinliklere Git
+            </button>
+          </div>
+        </GlassCard>
+      </div>
+
+      {/* ============================================================ */}
+      {/* BÖLÜM 4: HATA EKRANI — Sayfada her zaman görünür */}
+      {/* ============================================================ */}
+      <div className="min-h-[300px] flex items-center justify-center py-12 px-4">
+        <div className="mb-4">
+          <div className="mb-4 text-center">
+            <span className="inline-block text-[10px] font-bold uppercase tracking-widest text-red-600 bg-red-50 px-3 py-1.5 rounded-full border border-red-200">
+              ❌ Hata Ekranı (Tasarım Önizleme)
+            </span>
+          </div>
+        </div>
+      </div>
+      <div className="flex justify-center pb-16">
+        <GlassCard
+          variant="solid"
+          className="w-full max-w-md p-8 text-center shadow-2xl border-red-200 ring-2 ring-red-100/50 rounded-3xl"
+        >
+          {/* Hata ikon */}
+          <div className="flex justify-center mb-5">
+            <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center text-red-600">
+              <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+          </div>
+
+          <h2 className="text-xl font-black text-red-700 mb-2">Bağış İşlemi Başarısız Oldu!</h2>
+          <p className="text-xs text-slate-500 mb-5 leading-relaxed font-medium">
+            Ödeme bankanız tarafından onaylanmadı veya yetersiz bakiye sebebiyle işlem gerçekleştirilemedi.
+            Lütfen kart bilgilerinizi kontrol edip tekrar deneyin.
+          </p>
+
+          <div className="bg-red-50 border border-red-200/50 rounded-2xl p-4 mb-6 text-left space-y-2">
+            <div className="flex justify-between text-xs text-red-800">
+              <span className="text-slate-500 font-medium">Hata Kodu</span>
+              <span className="font-mono font-bold">51 - Yetersiz Bakiye</span>
+            </div>
+            <div className="flex justify-between text-xs text-red-800">
+              <span className="text-slate-500 font-medium">İşlem Saati</span>
+              <span className="font-mono text-slate-600">26 Haz 2026 22:15</span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <button type="button" className="btn btn-secondary py-2.5 px-4 text-xs">
+              Vazgeç
+            </button>
+            <button type="button" className="btn btn-danger py-2.5 px-4 text-xs bg-red-600 text-white border-transparent">
+              Tekrar Dene
             </button>
           </div>
         </GlassCard>

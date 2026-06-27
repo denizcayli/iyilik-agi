@@ -96,26 +96,26 @@ const STATIC_EVENTS = [
 
 export default function Events() {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div className="page-container">
 
       {/* Header */}
-      <div className="mb-10 text-center md:text-left flex flex-col md:flex-row md:items-end justify-between gap-6">
+      <div className="header-wrapper flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <span className="text-xs font-bold uppercase tracking-wider text-pine-teal bg-pine-teal/5 px-3 py-1.5 rounded-full inline-block mb-3">
+          <span className="header-badge">
             Aktif Projeler
           </span>
-          <h1 className="text-2xl md:text-4xl font-extrabold text-inst-navy tracking-tight">
+          <h1 className="header-title">
             Sosyal Sorumluluk Etkinlikleri
           </h1>
-          <p className="text-xs md:text-sm text-slate-400 mt-1 font-medium max-w-xl">
+          <p className="header-desc max-w-xl">
             Seçtiğiniz kategorilere göre filtreleyebilir, dilediğiniz etkinliğe bağış yapabilir veya gönüllü olarak katılabilirsiniz.
           </p>
         </div>
         <Link
           to="/payment"
-          className="flex items-center gap-1.5 px-5 py-2.5 bg-ember-coral hover:bg-[#c2422b] text-white font-bold rounded-xl text-xs shadow-md shadow-ember-coral/15 hover:shadow-lg transition-all border border-white/10 shrink-0 cursor-pointer"
+          className="btn btn-accent shrink-0"
         >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
           </svg>
           Cüzdana Para Yükle
@@ -123,36 +123,36 @@ export default function Events() {
       </div>
 
       {/* Filter and Search Bar Row */}
-      <div className="bg-white border border-slate-100 shadow-sm rounded-2xl p-4 mb-8 flex flex-col xl:flex-row justify-between items-center gap-4">
+      <div className="filter-bar">
 
         {/* Category Filters — Statik Butonlar */}
-        <div className="flex flex-wrap gap-1.5 w-full xl:w-auto">
-          <button className="px-3.5 py-2 text-xs font-semibold rounded-xl border transition-all cursor-pointer bg-pine-teal border-pine-teal text-white shadow-sm">Tümü</button>
-          <button className="px-3.5 py-2 text-xs font-semibold rounded-xl border transition-all cursor-pointer bg-slate-50 border-slate-200/60 hover:bg-slate-100 text-slate-600">Çevre</button>
-          <button className="px-3.5 py-2 text-xs font-semibold rounded-xl border transition-all cursor-pointer bg-slate-50 border-slate-200/60 hover:bg-slate-100 text-slate-600">Eğitim</button>
-          <button className="px-3.5 py-2 text-xs font-semibold rounded-xl border transition-all cursor-pointer bg-slate-50 border-slate-200/60 hover:bg-slate-100 text-slate-600">Sağlık</button>
-          <button className="px-3.5 py-2 text-xs font-semibold rounded-xl border transition-all cursor-pointer bg-slate-50 border-slate-200/60 hover:bg-slate-100 text-slate-600">Hayvanlar</button>
-          <button className="px-3.5 py-2 text-xs font-semibold rounded-xl border transition-all cursor-pointer bg-slate-50 border-slate-200/60 hover:bg-slate-100 text-slate-600">Afet</button>
-          <button className="px-3.5 py-2 text-xs font-semibold rounded-xl border transition-all cursor-pointer bg-slate-50 border-slate-200/60 hover:bg-slate-100 text-slate-600">Çocuk</button>
-          <button className="px-3.5 py-2 text-xs font-semibold rounded-xl border transition-all cursor-pointer bg-slate-50 border-slate-200/60 hover:bg-slate-100 text-slate-600">Yaşlı</button>
-          <button className="px-3.5 py-2 text-xs font-semibold rounded-xl border transition-all cursor-pointer bg-slate-50 border-slate-200/60 hover:bg-slate-100 text-slate-600">Su</button>
+        <div className="filter-btn-group">
+          <button className="filter-btn-active">Tümü</button>
+          <button className="filter-btn">Çevre</button>
+          <button className="filter-btn">Eğitim</button>
+          <button className="filter-btn">Sağlık</button>
+          <button className="filter-btn">Hayvanlar</button>
+          <button className="filter-btn">Afet</button>
+          <button className="filter-btn">Çocuk</button>
+          <button className="filter-btn">Yaşlı</button>
+          <button className="filter-btn">Su</button>
         </div>
 
         {/* Search Input — uncontrolled */}
-        <div className="relative w-full xl:w-56 shrink-0">
-          <svg className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div className="search-input-wrapper">
+          <svg className="search-input-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
           <input
             type="text"
             placeholder="Etkinlik ara..."
-            className="w-full pl-9 pr-4 py-2 bg-slate-50 hover:bg-slate-100/60 focus:bg-white border border-slate-200 focus:border-pine-teal rounded-xl text-xs font-semibold text-slate-700 outline-none transition-all"
+            className="search-input"
           />
         </div>
       </div>
 
       {/* Events Grid — 8 sabit kart */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid-cols-responsive-4">
         <EventCard event={STATIC_EVENTS[0]} />
         <EventCard event={STATIC_EVENTS[1]} />
         <EventCard event={STATIC_EVENTS[2]} />

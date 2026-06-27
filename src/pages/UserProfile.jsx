@@ -41,26 +41,26 @@ function formatMoney(val) {
 
 export default function UserProfile() {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div className="page-container">
 
       {/* Header */}
-      <div className="mb-10 text-center md:text-left">
-        <span className="text-xs font-bold uppercase tracking-wider text-pine-teal bg-pine-teal/5 px-3 py-1.5 rounded-full inline-block mb-3">
+      <div className="header-wrapper">
+        <span className="header-badge">
           Hesabım
         </span>
-        <h1 className="text-2xl md:text-4xl font-extrabold text-inst-navy tracking-tight">
+        <h1 className="header-title">
           Gönüllü Profil Bilgileri
         </h1>
-        <p className="text-xs md:text-sm text-slate-400 mt-1 font-medium">
+        <p className="header-desc">
           Kişisel bağış cüzdanınızı yönetin, gerçekleştirdiğiniz sosyal sorumluluk katkılarını ve geçmiş bağışlarınızı inceleyin.
         </p>
       </div>
 
       {/* Profil Kartları */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+      <div className="grid-cols-responsive-3 mb-10">
 
         {/* Kullanıcı Kartı */}
-        <div className="bg-white border border-slate-100 shadow-sm rounded-3xl p-6 flex items-center gap-4">
+        <div className="card-base flex items-center gap-4">
           <div className="w-16 h-16 rounded-2xl bg-pine-teal flex items-center justify-center text-white text-xl font-black shadow-md shadow-pine-teal/15 border border-white/10 shrink-0">
             OB
           </div>
@@ -77,7 +77,7 @@ export default function UserProfile() {
         <WalletCard walletBalance={STATIC_WALLET} />
 
         {/* Katkı Kartı */}
-        <div className="bg-white border border-slate-100 shadow-sm rounded-3xl p-6 flex items-center gap-4">
+        <div className="card-base flex items-center gap-4">
           <div className="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-600 shrink-0">
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -94,7 +94,7 @@ export default function UserProfile() {
       </div>
 
       {/* Ana Tab Bölümü */}
-      <div className="bg-white border border-slate-100 shadow-sm rounded-3xl p-6 space-y-6">
+      <div className="card-base space-y-6">
 
         {/* Tab Bar + Export Butonları */}
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 border-b border-slate-100 pb-4">
@@ -110,13 +110,13 @@ export default function UserProfile() {
 
           {/* Export Butonları — görünür, işlevsiz */}
           <div className="flex gap-2 w-full lg:w-auto">
-            <button type="button" className="flex-1 lg:flex-none flex items-center justify-center gap-1.5 px-4 py-2.5 bg-pine-teal border border-[#09574b] text-white font-bold rounded-xl shadow-sm text-xs cursor-pointer">
+            <button type="button" className="btn btn-primary flex-1 lg:flex-none gap-1.5">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
               </svg>
               Excel (CSV) Kaydet
             </button>
-            <button type="button" className="flex-1 lg:flex-none flex items-center justify-center gap-1.5 px-4 py-2.5 bg-ember-coral border border-[#bd442e] text-white font-bold rounded-xl shadow-sm text-xs cursor-pointer">
+            <button type="button" className="btn btn-accent flex-1 lg:flex-none gap-1.5">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>

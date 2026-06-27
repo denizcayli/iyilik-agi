@@ -25,8 +25,6 @@ const STATIC_DONATIONS = [
   { id: 'd5', donorName: 'Ali Çelik', campaignTitle: 'Deprem Bölgesi Okul', amount: 750, timeAgo: '1 gün önce' },
 ];
 
-
-
 export default function AdminDashboard() {
   return (
     <AdminLayout>
@@ -40,18 +38,18 @@ export default function AdminDashboard() {
           </div>
           <div className="flex items-center gap-3 w-full sm:w-auto self-stretch sm:self-auto justify-end">
             {/* Arama */}
-            <div className="relative w-64">
+            <div className="search-input-wrapper w-64">
               <input
                 type="text"
                 placeholder="Ara..."
-                className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200/80 rounded-xl text-xs font-semibold text-slate-700 placeholder-slate-400 focus:border-pine-teal focus:ring-1 focus:ring-pine-teal/20 outline-none transition-all"
+                className="search-input w-full bg-white"
               />
-              <svg className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="search-input-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
             {/* Bildirim Zili */}
-            <button className="p-2 bg-white border border-slate-200/80 hover:border-slate-300 text-slate-500 rounded-xl transition-all relative shrink-0 cursor-pointer">
+            <button className="btn btn-secondary p-2.5 relative shrink-0">
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
               </svg>
@@ -67,7 +65,7 @@ export default function AdminDashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
           {/* Aylık Trend Grafiği */}
-          <div className="lg:col-span-8 bg-white border border-slate-100 rounded-3xl p-6 shadow-sm space-y-4">
+          <div className="lg:col-span-8 card-base p-6 space-y-4">
             <div>
               <h3 className="text-xs font-black text-inst-navy uppercase tracking-wider">AYLIK BAĞIŞ TRENDİ</h3>
               <p className="text-[10px] text-slate-400 font-medium">Aylara göre toplanan toplam bağış verisi.</p>
@@ -93,7 +91,7 @@ export default function AdminDashboard() {
           </div>
 
           {/* Son Bağışlar — 5 sabit satır */}
-          <div className="lg:col-span-4 bg-white border border-slate-100 rounded-3xl p-6 shadow-sm space-y-4">
+          <div className="lg:col-span-4 card-base p-6 space-y-4">
             <div>
               <h3 className="text-xs font-black text-inst-navy uppercase tracking-wider">SON BAĞIŞLAR</h3>
               <p className="text-[10px] text-slate-400 font-medium">Sistem üzerinden yeni yapılan son işlemler.</p>

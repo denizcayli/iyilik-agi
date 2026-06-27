@@ -137,13 +137,13 @@ export default function Home() {
             <div className="flex flex-wrap justify-center lg:justify-start gap-4 pt-2">
               <Link
                 to="/events"
-                className="px-6 py-3 bg-ember-coral hover:bg-[#c2422b] text-white font-bold rounded-xl shadow-lg shadow-ember-coral/20 hover:shadow-xl transition-all text-sm cursor-pointer border border-white/10"
+                className="btn btn-accent px-6 py-3 border border-white/10"
               >
                 Etkinlikleri Keşfet
               </Link>
               <a
                 href="#how-it-works"
-                className="px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold rounded-xl backdrop-blur-md transition-all text-sm flex items-center gap-2"
+                className="btn btn-secondary px-6 py-3 border border-white/20 text-white bg-white/10 backdrop-blur-md"
               >
                 Nasıl Çalışır?
               </a>
@@ -202,13 +202,13 @@ export default function Home() {
               <div className="grid grid-cols-2 gap-3">
                 <Link
                   to="/events/evt-1"
-                  className="py-2.5 text-xs font-bold rounded-xl bg-white/10 hover:bg-white/20 border border-white/25 text-white transition-all text-center cursor-pointer font-sans"
+                  className="btn btn-secondary bg-white/10 border-white/25 text-white"
                 >
                   Detayları Gör
                 </Link>
                 <Link
                   to="/payment"
-                  className="py-2.5 text-xs font-bold rounded-xl bg-ember-coral hover:bg-[#c2422b] text-white shadow-md shadow-ember-coral/15 transition-all text-center cursor-pointer border border-white/10 font-sans"
+                  className="btn btn-accent border-white/10"
                 >
                   Hemen Bağışla
                 </Link>
@@ -245,7 +245,7 @@ export default function Home() {
         <ScrollReveal className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             <div className="lg:col-span-6 space-y-6 text-left">
-              <span className="text-xs font-bold uppercase tracking-wider text-pine-teal bg-pine-teal/5 px-3 py-1.5 rounded-full inline-block">
+              <span className="header-badge">
                 Vizyon & Değerlerimiz
               </span>
               <h2 className="text-3xl font-extrabold text-inst-navy tracking-tight leading-tight">
@@ -272,14 +272,14 @@ export default function Home() {
               </div>
             </div>
             <div className="lg:col-span-6 grid grid-cols-1 sm:grid-cols-2 gap-6 text-left">
-              <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all space-y-3">
+              <div className="card-base hover:shadow-md hover:border-slate-200/60 transition-all space-y-3">
                 <div className="w-10 h-10 rounded-xl bg-pine-teal/10 flex items-center justify-center text-pine-teal">
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
                 </div>
                 <h4 className="text-sm font-bold text-inst-navy uppercase tracking-wider">Misyonumuz</h4>
                 <p className="text-[11px] text-slate-500 leading-relaxed font-medium">Bağışçı ile sahada ter döken sivil toplum kuruluşlarını dürüstlük prensibi çerçevesinde buluşturarak her yardımın tam yerini bulmasını sağlamak.</p>
               </div>
-              <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all space-y-3">
+              <div className="card-base hover:shadow-md hover:border-slate-200/60 transition-all space-y-3">
                 <div className="w-10 h-10 rounded-xl bg-ember-coral/10 flex items-center justify-center text-ember-coral">
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                 </div>
@@ -294,35 +294,35 @@ export default function Home() {
       {/* NASIL ÇALIŞIR */}
       <section id="how-it-works" className="bg-white py-20 px-4 sm:px-6 lg:px-8 border-b border-slate-100">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center max-w-xl mx-auto mb-16">
-            <span className="text-xs font-bold uppercase tracking-wider text-pine-teal bg-pine-teal/5 px-3 py-1.5 rounded-full inline-block mb-3">Süreç Nasıl İşler?</span>
-            <h2 className="text-2xl md:text-3xl font-bold text-inst-navy">4 Basit Adımda İyilik Akışı</h2>
-            <p className="text-xs md:text-sm text-slate-400 mt-2 font-medium">Sistemimiz şeffaflık, hız ve güven esasına dayalı bir dijital simülasyon olarak kurgulanmıştır.</p>
+          <div className="header-wrapper max-w-xl mx-auto mb-16 text-center">
+            <span className="header-badge">Süreç Nasıl İşler?</span>
+            <h2 className="header-title">4 Basit Adımda İyilik Akışı</h2>
+            <p className="header-desc">Sistemimiz şeffaflık, hız ve güven esasına dayalı bir dijital simülasyon olarak kurgulanmıştır.</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
+          <div className="grid-cols-responsive-4 text-center">
             {/* Adım 1 */}
-            <ScrollReveal className="bg-slate-50/50 p-6 rounded-3xl border border-slate-100/60 shadow-sm space-y-4 hover:bg-white hover:shadow-md transition-all duration-300">
+            <ScrollReveal className="card-base bg-slate-50/50 hover:bg-white hover:shadow-md hover:border-slate-200/60 transition-all duration-300 space-y-4">
               <div className="w-12 h-12 rounded-xl bg-pine-teal/10 text-pine-teal flex items-center justify-center mx-auto font-bold text-lg">1</div>
               <h3 className="text-xs font-black text-inst-navy uppercase tracking-wider">Etkinliği Keşfet</h3>
               <p className="text-[11px] text-slate-500 leading-relaxed font-medium">Çevre korumadan köy okullarına, temiz su kuyularından sokak hayvanları rehabilitasyonuna kadar uzanan 8 farklı kategorideki aktif etkinliklerimizi listeleyin.</p>
             </ScrollReveal>
 
             {/* Adım 2 */}
-            <ScrollReveal className="bg-slate-50/50 p-6 rounded-3xl border border-slate-100/60 shadow-sm space-y-4 hover:bg-white hover:shadow-md transition-all duration-300">
+            <ScrollReveal className="card-base bg-slate-50/50 hover:bg-white hover:shadow-md hover:border-slate-200/60 transition-all duration-300 space-y-4">
               <div className="w-12 h-12 rounded-xl bg-ember-coral/10 text-ember-coral flex items-center justify-center mx-auto font-bold text-lg">2</div>
               <h3 className="text-xs font-black text-inst-navy uppercase tracking-wider">Bağış Yap veya Gönüllü Ol</h3>
               <p className="text-[11px] text-slate-500 leading-relaxed font-medium">Katkıda bulunmak istediğiniz bütçeyi seçerek cüzdanınızdan doğrudan hedeflere aktarın veya sahada görev almak için gönüllülük talebi oluşturun.</p>
             </ScrollReveal>
 
             {/* Adım 3 */}
-            <ScrollReveal className="bg-slate-50/50 p-6 rounded-3xl border border-slate-100/60 shadow-sm space-y-4 hover:bg-white hover:shadow-md transition-all duration-300">
+            <ScrollReveal className="card-base bg-slate-50/50 hover:bg-white hover:shadow-md hover:border-slate-200/60 transition-all duration-300 space-y-4">
               <div className="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center mx-auto font-bold text-lg">3</div>
               <h3 className="text-xs font-black text-inst-navy uppercase tracking-wider">Şeffaf Raporları İncele</h3>
               <p className="text-[11px] text-slate-500 leading-relaxed font-medium">Sistem üzerindeki anlık finansal veri dökümleriyle fon birikimini izleyin. Yönetici panelinden hazırlanan Excel ve PDF fatura kayıtlarını şeffafça denetleyin.</p>
             </ScrollReveal>
 
             {/* Adım 4 */}
-            <ScrollReveal className="bg-slate-50/50 p-6 rounded-3xl border border-slate-100/60 shadow-sm space-y-4 hover:bg-white hover:shadow-md transition-all duration-300">
+            <ScrollReveal className="card-base bg-slate-50/50 hover:bg-white hover:shadow-md hover:border-slate-200/60 transition-all duration-300 space-y-4">
               <div className="w-12 h-12 rounded-xl bg-purple-500/10 text-purple-600 flex items-center justify-center mx-auto font-bold text-lg">4</div>
               <h3 className="text-xs font-black text-inst-navy uppercase tracking-wider">Sosyal Etkini Profilde Gör</h3>
               <p className="text-[11px] text-slate-500 leading-relaxed font-medium">Yaptığınız bağışlar ve katıldığınız görevler profil sayfanıza anlık olarak işlenir. Toplumsal fayda puanınızı ve kazandığınız teşekkür rozetlerini sergileyin.</p>
@@ -363,13 +363,13 @@ export default function Home() {
       {/* AKTİF ETKİNLİKLER — 8 sabit kart */}
       <section id="active-campaigns" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 bg-white">
         <ScrollReveal>
-          <div className="text-center max-w-xl mx-auto mb-12">
-            <span className="text-xs font-bold uppercase tracking-wider text-pine-teal bg-pine-teal/5 px-3 py-1.5 rounded-full inline-block mb-3">Öne Çıkan Çalışmalarımız</span>
-            <h2 className="text-2xl md:text-3xl font-bold text-inst-navy">Aktif Sosyal Sorumluluk Etkinliklerimiz</h2>
-            <p className="text-xs md:text-sm text-slate-400 mt-2 font-medium">Sivil toplum kuruluşlarımız tarafından sahada bizzat koordine edilen ve desteklerinizi bekleyen en güncel projeler.</p>
+          <div className="header-wrapper max-w-xl mx-auto mb-12 text-center">
+            <span className="header-badge">Öne Çıkan Çalışmalarımız</span>
+            <h2 className="header-title">Aktif Sosyal Sorumluluk Etkinliklerimiz</h2>
+            <p className="header-desc">Sivil toplum kuruluşlarımız tarafından sahada bizzat koordine edilen ve desteklerinizi bekleyen en güncel projeler.</p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid-cols-responsive-4">
             <EventCard event={STATIC_EVENTS[0]} />
             <EventCard event={STATIC_EVENTS[1]} />
             <EventCard event={STATIC_EVENTS[2]} />
@@ -383,7 +383,7 @@ export default function Home() {
           <div className="text-center mt-10">
             <Link
               to="/events"
-              className="inline-flex items-center gap-1.5 px-6 py-3 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-bold rounded-xl text-xs shadow-sm transition-all cursor-pointer"
+              className="btn btn-secondary px-6 py-3"
             >
               Tüm Etkinlikleri Gör
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
@@ -395,15 +395,15 @@ export default function Home() {
       {/* BAŞARI HİKAYELERİ */}
       <section className="bg-slate-50/70 py-20 px-4 sm:px-6 lg:px-8 border-t border-b border-slate-100">
         <ScrollReveal className="max-w-7xl mx-auto">
-          <div className="text-center max-w-xl mx-auto mb-12">
-            <span className="text-xs font-bold uppercase tracking-wider text-pine-teal bg-pine-teal/5 px-3 py-1.5 rounded-full inline-block mb-3">Hayat Veren Dokunuşlar</span>
-            <h2 className="text-2xl md:text-3xl font-bold text-inst-navy">İyilik Ağı ile Gerçekleşen Değişimler</h2>
-            <p className="text-xs md:text-sm text-slate-400 mt-2 font-medium">Platformumuz üzerinden toplanan bağışlar ve gönüllülerimizin özverili çalışmalarıyla hayata geçen ilham verici hikayelerimiz.</p>
+          <div className="header-wrapper max-w-xl mx-auto mb-12 text-center">
+            <span className="header-badge">Hayat Veren Dokunuşlar</span>
+            <h2 className="header-title">İyilik Ağı ile Gerçekleşen Değişimler</h2>
+            <p className="header-desc">Platformumuz üzerinden toplanan bağışlar ve gönüllülerimizin özverili çalışmalarıyla hayata geçen ilham verici hikayelerimiz.</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid-cols-responsive-2">
             {/* Story 1 */}
-            <div className="bg-white rounded-3xl border border-slate-100 p-6 md:p-8 flex flex-col md:flex-row gap-6 items-center shadow-sm">
-              <div className="w-full md:w-1/3 aspect-[4/3] rounded-2xl overflow-hidden shadow-sm border border-slate-200 bg-white">
+            <div className="card-base flex flex-col md:flex-row gap-6 items-center">
+              <div className="w-full md:w-1/3 aspect-[4/3] rounded-2xl overflow-hidden shadow-sm border border-slate-200 bg-white shrink-0">
                 <img src="https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=400&q=80" alt="Fidan Dikimi" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
               </div>
               <div className="w-full md:w-2/3 space-y-3 text-left">
@@ -414,8 +414,8 @@ export default function Home() {
               </div>
             </div>
             {/* Story 2 */}
-            <div className="bg-white rounded-3xl border border-slate-100 p-6 md:p-8 flex flex-col md:flex-row gap-6 items-center shadow-sm">
-              <div className="w-full md:w-1/3 aspect-[4/3] rounded-2xl overflow-hidden shadow-sm border border-slate-200 bg-white">
+            <div className="card-base flex flex-col md:flex-row gap-6 items-center">
+              <div className="w-full md:w-1/3 aspect-[4/3] rounded-2xl overflow-hidden shadow-sm border border-slate-200 bg-white shrink-0">
                 <img src="https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=400&q=80" alt="Köy Okulu" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
               </div>
               <div className="w-full md:w-2/3 space-y-3 text-left">
@@ -432,10 +432,10 @@ export default function Home() {
       {/* SIKÇA SORULAN SORULAR — sabit accordion (ilki açık görünür) */}
       <section className="bg-white py-20 px-4 sm:px-6 lg:px-8 border-b border-slate-100">
         <ScrollReveal className="max-w-4xl mx-auto">
-          <div className="text-center max-w-xl mx-auto mb-12">
-            <span className="text-xs font-bold uppercase tracking-wider text-pine-teal bg-pine-teal/5 px-3 py-1.5 rounded-full inline-block mb-3">Merak Edilenler</span>
-            <h2 className="text-2xl md:text-3xl font-bold text-inst-navy">Sıkça Sorulan Sorular</h2>
-            <p className="text-xs md:text-sm text-slate-400 mt-2 font-medium">Platformumuza, bağış süreçlerine ve denetim mekanizmalarımıza ilişkin aklınıza takılabilecek temel konular.</p>
+          <div className="header-wrapper max-w-xl mx-auto mb-12 text-center">
+            <span className="header-badge">Merak Edilenler</span>
+            <h2 className="header-title">Sıkça Sorulan Sorular</h2>
+            <p className="header-desc">Platformumuza, bağış süreçlerine ve denetim mekanizmalarımıza ilişkin aklınıza takılabilecek temel konular.</p>
           </div>
           <div className="space-y-4 text-left">
             {/* SSS 1 (Açık) */}

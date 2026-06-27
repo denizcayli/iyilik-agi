@@ -25,7 +25,7 @@ export default function ReportTable() {
       </div>
 
       {/* Finansal Tablo */}
-      <div className="bg-white border border-slate-100 shadow-xl shadow-slate-200/20 rounded-[2rem] overflow-hidden">
+      <div className="card-base shadow-xl shadow-slate-200/20 p-0 overflow-hidden">
         <div className="px-6 py-5 border-b border-slate-100 bg-white">
           <h3 className="text-xs font-black text-inst-navy uppercase tracking-wider">FİNANSAL ÖZET TABLOSU</h3>
         </div>
@@ -47,7 +47,7 @@ export default function ReportTable() {
                 <td className="px-6 py-4 font-mono text-slate-600">₺2.500.000</td>
                 <td className="px-6 py-4 font-mono font-bold text-pine-teal">₺7.450.000</td>
                 <td className="px-6 py-4 font-mono text-slate-700">₺5.900.000</td>
-                <td className="px-6 py-4 text-center"><span className="inline-flex px-2.5 py-0.5 rounded-full text-[9px] font-extrabold border bg-emerald-50 text-emerald-700 border-emerald-100/50">Onayandı</span></td>
+                <td className="px-6 py-4 text-center"><span className="inline-flex px-2.5 py-0.5 rounded-full text-[9px] font-extrabold border bg-emerald-50 text-emerald-700 border-emerald-100/50">Onaylandı</span></td>
               </tr>
               {/* Satır 2 */}
               <tr className="hover:bg-slate-50/40 transition-colors">
@@ -55,7 +55,7 @@ export default function ReportTable() {
                 <td className="px-6 py-4 font-mono text-slate-600">₺150.000</td>
                 <td className="px-6 py-4 font-mono font-bold text-pine-teal">₺420.000</td>
                 <td className="px-6 py-4 font-mono text-slate-700">₺310.000</td>
-                <td className="px-6 py-4 text-center"><span className="inline-flex px-2.5 py-0.5 rounded-full text-[9px] font-extrabold border bg-emerald-50 text-emerald-700 border-emerald-100/50">Onayandı</span></td>
+                <td className="px-6 py-4 text-center"><span className="inline-flex px-2.5 py-0.5 rounded-full text-[9px] font-extrabold border bg-emerald-50 text-emerald-700 border-emerald-100/50">Onaylandı</span></td>
               </tr>
               {/* Satır 3 */}
               <tr className="hover:bg-slate-50/40 transition-colors">
@@ -71,7 +71,7 @@ export default function ReportTable() {
                 <td className="px-6 py-4 font-mono text-slate-600">₺50.000</td>
                 <td className="px-6 py-4 font-mono font-bold text-pine-teal">₺210.000</td>
                 <td className="px-6 py-4 font-mono text-slate-700">₺175.000</td>
-                <td className="px-6 py-4 text-center"><span className="inline-flex px-2.5 py-0.5 rounded-full text-[9px] font-extrabold border bg-emerald-50 text-emerald-700 border-emerald-100/50">Onayandı</span></td>
+                <td className="px-6 py-4 text-center"><span className="inline-flex px-2.5 py-0.5 rounded-full text-[9px] font-extrabold border bg-emerald-50 text-emerald-700 border-emerald-100/50">Onaylandı</span></td>
               </tr>
               {/* Satır 5 */}
               <tr className="hover:bg-slate-50/40 transition-colors">
@@ -87,7 +87,7 @@ export default function ReportTable() {
                 <td className="px-6 py-4 font-mono text-slate-600">₺100.000</td>
                 <td className="px-6 py-4 font-mono font-bold text-pine-teal">₺400.000</td>
                 <td className="px-6 py-4 font-mono text-slate-700">₺398.000</td>
-                <td className="px-6 py-4 text-center"><span className="inline-flex px-2.5 py-0.5 rounded-full text-[9px] font-extrabold border bg-emerald-50 text-emerald-700 border-emerald-100/50">Onayandı</span></td>
+                <td className="px-6 py-4 text-center"><span className="inline-flex px-2.5 py-0.5 rounded-full text-[9px] font-extrabold border bg-emerald-50 text-emerald-700 border-emerald-100/50">Onaylandı</span></td>
               </tr>
             </tbody>
           </table>
@@ -95,7 +95,7 @@ export default function ReportTable() {
       </div>
 
       {/* Manuel Bağış Formu — uncontrolled */}
-      <div className="bg-white border border-slate-100 shadow-xl shadow-slate-200/20 p-6 md:p-8 rounded-[2rem]">
+      <div className="card-base shadow-xl shadow-slate-200/20 md:p-8">
         <h3 className="text-xs font-black text-inst-navy uppercase tracking-wider border-b border-slate-100 pb-4 mb-6">MANUEL BAĞIŞ KAYDI</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
@@ -103,12 +103,12 @@ export default function ReportTable() {
             <input
               type="text"
               placeholder="Ad Soyad"
-              className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 focus:border-pine-teal rounded-xl text-xs font-semibold text-slate-800 outline-none transition-all"
+              className="form-input w-full"
             />
           </div>
           <div>
             <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Etkinlik *</label>
-            <select className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 focus:border-pine-teal rounded-xl text-xs font-semibold text-slate-700 outline-none transition-all cursor-pointer">
+            <select className="form-input w-full cursor-pointer">
               <option>Geleceğe Nefes: Orman Yangını</option>
               <option>Köy Okullarına Bilgisayar Lab.</option>
               <option>Sokak Hayvanları Mobil Klinik</option>
@@ -120,22 +120,22 @@ export default function ReportTable() {
             <input
               type="number"
               placeholder="500"
-              className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 focus:border-pine-teal rounded-xl text-xs font-semibold text-slate-800 outline-none transition-all"
+              className="form-input w-full"
             />
           </div>
         </div>
-        <div className="mt-4 flex justify-end gap-3">
+        <div className="mt-6 flex justify-end gap-3">
           <button
             type="button"
-            className="px-5 py-2.5 bg-pine-teal hover:bg-emerald-700 text-white font-bold rounded-xl text-xs shadow-md shadow-pine-teal/10 cursor-pointer transition-all"
+            className="btn btn-secondary px-5 py-2.5"
           >
-            Bağışı Kaydet
+            Excel'e Aktar
           </button>
           <button
             type="button"
-            className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs cursor-pointer transition-all"
+            className="btn btn-primary px-5 py-2.5"
           >
-            Excel'e Aktar
+            Bağışı Kaydet
           </button>
         </div>
       </div>

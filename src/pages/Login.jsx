@@ -1,6 +1,18 @@
 import React from 'react';
 
 export default function Login() {
+  const handleVolunteerLogin = () => {
+    sessionStorage.setItem('isLoggedIn', 'true');
+    sessionStorage.setItem('user', JSON.stringify({ name: 'Onur Baha Koç', email: 'koconurbaha@gmail.com', role: 'gönüllü' }));
+    window.location.href = '/';
+  };
+
+  const handleAdminLogin = () => {
+    sessionStorage.setItem('isLoggedIn', 'true');
+    sessionStorage.setItem('user', JSON.stringify({ name: 'Onur Baha (Admin)', email: 'admin@iyilikagi.com', role: 'admin' }));
+    window.location.href = '/admin';
+  };
+
   return (
     <div className="min-h-[750px] md:min-h-[800px] flex items-center justify-center py-16 px-4 sm:px-6 lg:px-8 relative bg-slate-900">
       <div
@@ -24,8 +36,8 @@ export default function Login() {
             <p className="text-xs text-slate-500 mt-1 font-semibold">Sosyal sorumluluk projelerinin dijital dünyası</p>
           </div>
 
-          {/* Form — uncontrolled, no onSubmit */}
-          <form className="space-y-5">
+          {/* Form */}
+          <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
 
             {/* Email Input */}
             <div>
@@ -33,8 +45,8 @@ export default function Login() {
               <input
                 type="email"
                 placeholder="ornek@mail.com"
-                defaultValue=""
-                className="w-full px-4 py-3 bg-slate-50/85 hover:bg-slate-100/80 focus:bg-white border border-slate-200 focus:border-pine-teal focus:ring-2 focus:ring-pine-teal/10 rounded-xl text-xs font-semibold text-slate-800 placeholder-slate-400 outline-none transition-all"
+                defaultValue="koconurbaha@gmail.com"
+                className="form-input w-full"
               />
             </div>
 
@@ -44,15 +56,16 @@ export default function Login() {
               <input
                 type="password"
                 placeholder="••••••••"
-                defaultValue=""
-                className="w-full px-4 py-3 bg-slate-50/85 hover:bg-slate-100/80 focus:bg-white border border-slate-200 focus:border-pine-teal focus:ring-2 focus:ring-pine-teal/10 rounded-xl text-xs font-semibold text-slate-800 placeholder-slate-400 outline-none transition-all"
+                defaultValue="123456"
+                className="form-input w-full"
               />
             </div>
 
-            {/* Submit Button — görünür ama işlevsiz */}
+            {/* Submit Button */}
             <button
               type="button"
-              className="w-full py-3.5 px-4 bg-ember-coral hover:bg-[#c2422b] text-white font-bold rounded-xl shadow-lg shadow-ember-coral/20 hover:shadow-xl transition-all text-xs flex items-center justify-center gap-2 cursor-pointer border border-white/10"
+              onClick={handleVolunteerLogin}
+              className="btn btn-accent w-full py-3.5"
             >
               Giriş Yap
             </button>
@@ -69,17 +82,19 @@ export default function Login() {
             </div>
           </div>
 
-          {/* Demo Buttons — görünür ama işlevsiz */}
+          {/* Demo Buttons */}
           <div className="grid grid-cols-2 gap-3">
             <button
               type="button"
-              className="py-2.5 px-2 bg-pine-teal hover:bg-emerald-700 border border-emerald-800 rounded-xl text-[10px] font-extrabold text-white transition-all text-center cursor-pointer shadow-sm hover:shadow"
+              onClick={handleVolunteerLogin}
+              className="btn btn-primary py-2.5 px-2 text-[10px]"
             >
               Gönüllü Giriş
             </button>
             <button
               type="button"
-              className="py-2.5 px-2 bg-amber-600 hover:bg-amber-700 border border-amber-700 rounded-xl text-[10px] font-extrabold text-white transition-all text-center cursor-pointer shadow-sm hover:shadow"
+              onClick={handleAdminLogin}
+              className="btn py-2.5 px-2 text-[10px] bg-amber-600 hover:bg-amber-700 text-white border-transparent"
             >
               Admin Giriş
             </button>
@@ -89,7 +104,7 @@ export default function Login() {
 
         {/* Info label */}
         <div className="text-center text-[10px] text-white font-medium">
-          Gönüllü şifresi: <strong className="text-white font-mono">123456</strong> | Yönetici şifresi: <strong className="text-white font-mono">123456</strong>
+          Gönüllü Giriş veya Giriş Yap butonu ile <strong className="text-white">Gönüllü</strong>, Admin Giriş butonu ile <strong className="text-white">Yönetici</strong> paneline erişebilirsiniz.
         </div>
 
       </div>
