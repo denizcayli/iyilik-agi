@@ -1,19 +1,21 @@
+// react kütüphanesini içeri alıyoruz
 import React from 'react';
+// bakiye gösteren cüzdan kartını ve geçmiş işlemler tablosunu çağırıyoruz
 import WalletCard from '../components/Wallet/WalletCard';
 import TransactionTable from '../components/Wallet/TransactionTable';
 
-// Sabit kullanıcı
+// oturum açılmamışsa yedek olarak duracak statik kullanıcı verisi
 const STATIC_USER = { name: 'Onur Baha Koç', email: 'koconurbaha@gmail.com', role: 'gönüllü' };
 const STATIC_WALLET = 15000;
 
-// Sabit bağış işlemleri
+// kullanıcının geçmiş bağışlarını gösteren mock listesi
 const STATIC_DONATIONS = [
   { id: 'd1', donorName: 'Onur Baha Koç', campaignTitle: 'Geleceğe Nefes: Orman Yangını', category: 'Çevre', amount: 500, date: '2026-06-26T22:14:00Z' },
   { id: 'd2', donorName: 'Onur Baha Koç', campaignTitle: 'Köy Okullarına Bilgisayar Laboratuvarı', category: 'Eğitim', amount: 250, date: '2026-06-15T14:30:00Z' },
   { id: 'd3', donorName: 'Onur Baha Koç', campaignTitle: 'Kırsal Bölgelere Temiz Su Kuyusu', category: 'Su', amount: 2000, date: '2026-06-01T09:45:00Z' },
 ];
 
-// Sabit katılınan etkinlikler
+// kullanıcının gönüllü katıldığı etkinliklerin mock listesi
 const STATIC_PARTICIPATED = [
   {
     id: 'evt-1',
@@ -40,10 +42,45 @@ function formatMoney(val) {
 }
 
 export default function UserProfile() {
+  // giriş yapmış kullanıcının bilgilerini tarayıcı hafızasından güvenle çekiyoruz
+  const currentUser = React.useMemo(() => {
+    try {
+      const rawUser = sessionStorage.getItem('user');
+      return rawUser ? JSON.parse(rawUser) : STATIC_USER;
+    } catch (e) {
+      return STATIC_USER;
+    }
+  }, []);
+
+  const [balance, setBalance] = React.useState(0);
+
+  // kullanıcının cüzdan bakiyesini sessionStorage üzerinden bulup güncelliyoruz
+  React.useEffect(() => {
+    const key = 'wallet_' + currentUser.email;
+    const stored = sessionStorage.getItem(key);
+    if (stored !== null) {
+      setBalance(Number(stored) || 0);
+    } else {
+      sessionStorage.setItem(key, '0');
+      setBalance(0);
+    }
+  }, [currentUser]);
+
+  // kullanıcının adının baş harflerini profil resmi gibi göstermek için ayırıyoruz
+  const initials = React.useMemo(() => {
+    if (!currentUser.name) return 'GN';
+    return currentUser.name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .slice(0, 2)
+      .toUpperCase();
+  }, [currentUser.name]);
+
   return (
     <div className="page-container">
 
-      {/* Header */}
+      {/* sayfa başlığı ve tanıtım yazısı */}
       <div className="header-wrapper">
         <span className="header-badge">
           Hesabım
@@ -56,17 +93,17 @@ export default function UserProfile() {
         </p>
       </div>
 
-      {/* Profil Kartları */}
+      {/* kullanıcının adını, cüzdanını ve toplam katkısını gösteren kartlar */}
       <div className="grid-cols-responsive-3 mb-10">
 
         {/* Kullanıcı Kartı */}
         <div className="card-base flex items-center gap-4">
           <div className="w-16 h-16 rounded-2xl bg-pine-teal flex items-center justify-center text-white text-xl font-black shadow-md shadow-pine-teal/15 border border-white/10 shrink-0">
-            OB
+            {initials}
           </div>
           <div className="min-w-0">
-            <h3 className="text-base font-bold text-inst-navy truncate">{STATIC_USER.name}</h3>
-            <p className="text-xs text-slate-400 truncate">{STATIC_USER.email}</p>
+            <h3 className="text-base font-bold text-inst-navy truncate">{currentUser.name}</h3>
+            <p className="text-xs text-slate-400 truncate">{currentUser.email}</p>
             <span className="inline-block text-[9px] font-bold px-2 py-0.5 rounded-md mt-1 border text-emerald-600 bg-emerald-50 border-emerald-100/50">
               Aktif Gönüllü
             </span>
@@ -74,9 +111,9 @@ export default function UserProfile() {
         </div>
 
         {/* Cüzdan Kartı */}
-        <WalletCard walletBalance={STATIC_WALLET} />
+        <WalletCard walletBalance={balance} />
 
-        {/* Katkı Kartı */}
+        {/* kullanıcının toplam yaptığı bağış miktarını gösteren kutu */}
         <div className="card-base flex items-center gap-4">
           <div className="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-600 shrink-0">
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -93,10 +130,10 @@ export default function UserProfile() {
         </div>
       </div>
 
-      {/* Ana Tab Bölümü */}
+      {/* sekmeli alan ve veri tablosunun olduğu kısım */}
       <div className="card-base space-y-6">
 
-        {/* Tab Bar + Export Butonları */}
+        {/* sekme geçişleri ve dışa aktarma butonlarının satırı */}
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 border-b border-slate-100 pb-4">
           {/* Tab Switcher — "Bağış Geçmişim" sabit aktif */}
           <div className="flex gap-2 p-1 bg-slate-100 rounded-xl border border-slate-200/60 w-full lg:w-auto">
@@ -127,7 +164,7 @@ export default function UserProfile() {
 
         {/* TAB 1: Bağış Geçmişi — aktif gösterilen */}
         <div className="space-y-4">
-          {/* Filtreler */}
+          {/* kategoriye göre ve isme göre arama filtreleri */}
           <div className="flex flex-col sm:flex-row gap-3 justify-end">
             <div className="flex flex-wrap gap-1 bg-slate-50 border border-slate-200/60 p-1 rounded-xl">
               <button className="px-3 py-1 text-[9px] font-bold rounded-lg transition-all cursor-pointer bg-white text-pine-teal shadow-sm">Tümü</button>
@@ -148,7 +185,7 @@ export default function UserProfile() {
           <TransactionTable />
         </div>
 
-        {/* TAB 2: Katılınan Etkinlikler — altında statik göster */}
+        {/* kullanıcının katıldığı projelerin listelendiği alt bölüm */}
         <div className="border-t border-slate-100 pt-6">
           <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Katıldığım Etkinlikler</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

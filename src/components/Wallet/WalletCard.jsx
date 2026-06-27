@@ -1,18 +1,23 @@
+
 import React from 'react';
+// buton tıklandığında ödeme sayfasına yönlendirme yapabilmek için navigate kancasını alıyoruz
 import { useNavigate } from 'react-router-dom';
 
+// kullanıcının cüzdan bakiyesini kutu şeklinde gösteren bileşen
 export default function WalletCard({ walletBalance }) {
+  // sayfa yönlendirmesi için react router hook'u
   const navigate = useNavigate();
-  const formatMoney = (val) => {
-    return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', maximumFractionDigits: 0 }).format(val);
-  };
+
+  // sayıyı Türk Lirası para birimine çeviren yardımcı fonksiyon
+  const formatMoney = (val) => `₺${val.toLocaleString('tr-TR')}`;
 
   return (
+    // cüzdan bakiyesini gösteren gri renkli kart kutusu
     <div className="bg-slate-50 border border-slate-100 rounded-3xl p-6 flex flex-col justify-between h-40 text-left">
       <div className="flex justify-between items-start">
         <div>
           <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider block mb-0.5">CÜZDAN BAKİYEM</span>
-          <span className="text-2xl font-black font-mono text-pine-teal">{formatMoney(walletBalance)}</span>
+          <span className="text-2xl font-black text-pine-teal">{formatMoney(walletBalance)}</span>
         </div>
         <div className="w-10 h-10 rounded-xl bg-pine-teal/5 flex items-center justify-center text-pine-teal shadow-inner">
           <svg className="w-5.5 h-5.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

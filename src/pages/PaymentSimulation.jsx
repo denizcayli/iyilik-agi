@@ -1,333 +1,520 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import CreditCardVisual from '../components/Wallet/CreditCardVisual';
 import GlassCard from '../components/GlassCard';
 
-// Sabit örnek etkinlik
-const STATIC_EVENT = {
-  title: 'Geleceğe Nefes: Orman Yangını Sonrası Rehabilitasyon',
-  targetAmount: 10000000,
-  raisedAmount: 7450000,
-};
 
-// Sabit kart verisi — görsel gösterim için
-const STATIC_CARD = {
-  cardNumber: '4532 1234 5678 9012',
-  cardHolder: 'ONUR BAHA KOÇ',
-  expiry: '12/27',
-  cvv: '***',
-};
+
+// Sayısal değeri ₺ para birimi formatına çevirir
+const formatCurrency = (value) => `₺${Number(value).toLocaleString('tr-TR')}`;
 
 export default function PaymentSimulation() {
-  return (
-    <div className="page-container">
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [step, setStep] = useState('form');
+  const [mode, setMode] = useState(() => {
+    return location.state?.eventTitle ? 'donate' : 'topup';
+  });
+  const [balance, setBalance] = useState(0);
+  const [cardNumber, setCardNumber] = useState('');
+  const [cardHolder, setCardHolder] = useState('');
+  const [expiryDate, setExpiryDate] = useState('');
+  const [cvv, setCvv] = useState('');
+  const [amount, setAmount] = useState('');
+  const [otpCode, setOtpCode] = useState('');
+  const [transactionAmount, setTransactionAmount] = useState(0);
+  const [resultBalance, setResultBalance] = useState(0);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [secondsLeft, setSecondsLeft] = useState(167);
+  const [isCardFlipped, setIsCardFlipped] = useState(false);
 
-      {/* Header */}
-      <div className="header-wrapper max-w-xl mx-auto text-center">
-        <span className="header-badge">
-          Güvenli Ödeme
-        </span>
-        <h1 className="header-title">
-          Bağış Ödeme Simülasyonu
-        </h1>
-        <p className="header-desc">
-          "{STATIC_EVENT.title}" etkinliğine doğrudan bağış yapmak için kredi kartı bilgilerini girin.
-        </p>
-      </div>
 
-      {/* ============================================================ */}
-      {/* BÖLÜM 1: ANA ÖDEME FORMU */}
-      {/* ============================================================ */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start max-w-5xl mx-auto mb-16">
+  useEffect(() => { localStorage.setItem('pay_amount', amount); }, [amount]);
 
-        {/* Sol: Kart Görseli + Bakiye */}
-        <div className="lg:col-span-5 space-y-6 flex flex-col justify-center">
+  // Giriş yapan aktif kullanıcı bilgisini okur
+  const currentUser = useMemo(() => {
+    try {
+      const rawUser = localStorage.getItem('user');
+      return rawUser ? JSON.parse(rawUser) : null;
+    } catch (e) {
+      return null;
+    }
+  }, []);
 
-          {/* Bakiye Kartı */}
-          <div className="card-base text-center">
-            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-1">Cüzdan Güncel Bakiyeniz</span>
-            <span className="text-3xl font-black font-mono text-pine-teal">₺15.000</span>
-            <p className="text-[10px] text-slate-400 mt-1 font-medium">Kart ile ödeme yaptığınızda cüzdan bakiyeniz artacaktır.</p>
-          </div>
+  const walletKey = useMemo(() => `wallet_${currentUser?.email || 'guest'}`, [currentUser]);
 
-          {/* 3D Kart Görseli */}
-          <CreditCardVisual
-            cardNumber={STATIC_CARD.cardNumber}
-            cardHolder={STATIC_CARD.cardHolder}
-            expiry={STATIC_CARD.expiry}
-            cvv={STATIC_CARD.cvv}
-            isFlipped={false}
-          />
-        </div>
+  // Yönlendirme tipine göre mod tespiti yapar
+  useEffect(() => {
+    setMode(location.state?.eventTitle ? 'donate' : 'topup');
+  }, [location.state]);
 
-        {/* Sağ: Ödeme Formu */}
-        <div className="lg:col-span-7">
-          <div className="card-base md:p-8 space-y-5 shadow-xl shadow-slate-200/20 text-left">
-            <h3 className="text-xs font-black text-inst-navy uppercase tracking-wider border-b border-slate-100 pb-4">KART BİLGİLERİ</h3>
+  const currentEventTitle = useMemo(() => {
+    if (mode === 'topup') return 'Cüzdan Bakiye Yükleme';
+    return location.state?.eventTitle || 'Genel Bağış';
+  }, [mode, location.state]);
 
-            {/* Etkinlik bilgisi */}
-            <div className="bg-pine-teal/5 border border-pine-teal/10 rounded-xl p-3 text-xs flex justify-between items-center text-slate-700 font-bold mb-2">
-              <span className="text-slate-500 font-medium">Hedef Etkinlik</span>
-              <span className="text-pine-teal truncate max-w-[200px]">{STATIC_EVENT.title}</span>
-            </div>
+  // Cüzdan bakiyesini getirir
+  useEffect(() => {
+    const storedBalance = Number(sessionStorage.getItem(walletKey) || 0);
+    setBalance(Number.isFinite(storedBalance) ? storedBalance : 0);
+  }, [walletKey]);
 
-            {/* Kart Numarası */}
-            <div>
-              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Kart Numarası *</label>
-              <input
-                type="text"
-                placeholder="1234 5678 9012 3456"
-                className="form-input font-mono font-bold tracking-widest w-full"
-                maxLength={19}
-              />
-            </div>
+  // 3D Secure SMS kodu geri sayım sayacı
+  useEffect(() => {
+    let timer;
+    if (step === 'otp') {
+      setSecondsLeft(167);
+      timer = setInterval(() => {
+        setSecondsLeft((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => { if (timer) clearInterval(timer); };
+  }, [step]);
 
-            {/* Kart Sahibi */}
-            <div>
-              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Kart Üzerindeki İsim *</label>
-              <input
-                type="text"
-                placeholder="AD SOYAD"
-                className="form-input font-semibold uppercase w-full"
-              />
-            </div>
+  const formattedTime = `${String(Math.floor(secondsLeft / 60)).padStart(2, '0')}:${String(secondsLeft % 60).padStart(2, '0')}`;
 
-            {/* Son Kullanma + CVV */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Son Kullanma *</label>
-                <input
-                  type="text"
-                  placeholder="AA/YY"
-                  className="form-input font-mono font-bold w-full"
-                  maxLength={5}
-                />
-              </div>
-              <div>
-                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">CVV *</label>
-                <input
-                  type="text"
-                  placeholder="•••"
-                  className="form-input font-mono font-bold w-full"
-                  maxLength={4}
-                />
-              </div>
-            </div>
+  // Cüzdan bakiyesini yerel depolama ve state üzerinde günceller
+  const updateBalance = (nextBalance) => {
+    setBalance(nextBalance);
+    sessionStorage.setItem(walletKey, String(nextBalance));
+    window.dispatchEvent(new Event('auth-state-changed'));
+  };
 
-            {/* Tutar */}
-            <div>
-              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Bağış Tutarı (₺) *</label>
-              <div className="relative">
-                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">₺</span>
-                <input
-                  type="number"
-                  placeholder="500"
-                  className="form-input font-mono font-bold pl-7 w-full"
-                />
-              </div>
-            </div>
+  // Kart numarası girdisini formatlar
+  const handleCardNumberChange = (e) => {
+    const cleanValue = e.target.value.replace(/[^\d\s]/g, '').replace(/\s/g, '');
+    let formatted = '';
+    for (let i = 0; i < Math.min(cleanValue.length, 16); i++) {
+      if (i > 0 && i % 4 === 0) formatted += ' ';
+      formatted += cleanValue[i];
+    }
+    setCardNumber(formatted);
+  };
 
-            {/* Hızlı Tutar Butonları */}
-            <div className="flex gap-2 flex-wrap">
-              <button type="button" className="px-3 py-1.5 bg-slate-50 hover:bg-pine-teal/5 border border-slate-200 hover:border-pine-teal/20 rounded-lg text-[10px] font-bold text-slate-600 hover:text-pine-teal transition-all cursor-pointer">₺50</button>
-              <button type="button" className="px-3 py-1.5 bg-slate-50 hover:bg-pine-teal/5 border border-slate-200 hover:border-pine-teal/20 rounded-lg text-[10px] font-bold text-slate-600 hover:text-pine-teal transition-all cursor-pointer">₺100</button>
-              <button type="button" className="px-3 py-1.5 bg-slate-50 hover:bg-pine-teal/5 border border-slate-200 hover:border-pine-teal/20 rounded-lg text-[10px] font-bold text-slate-600 hover:text-pine-teal transition-all cursor-pointer">₺250</button>
-              <button type="button" className="px-3 py-1.5 bg-slate-50 hover:bg-pine-teal/5 border border-slate-200 hover:border-pine-teal/20 rounded-lg text-[10px] font-bold text-slate-600 hover:text-pine-teal transition-all cursor-pointer">₺500</button>
-              <button type="button" className="px-3 py-1.5 bg-slate-50 hover:bg-pine-teal/5 border border-slate-200 hover:border-pine-teal/20 rounded-lg text-[10px] font-bold text-slate-600 hover:text-pine-teal transition-all cursor-pointer">₺1.000</button>
-              <button type="button" className="px-3 py-1.5 bg-slate-50 hover:bg-pine-teal/5 border border-slate-200 hover:border-pine-teal/20 rounded-lg text-[10px] font-bold text-slate-600 hover:text-pine-teal transition-all cursor-pointer">₺2.000</button>
-              <button type="button" className="px-3 py-1.5 bg-slate-50 hover:bg-pine-teal/5 border border-slate-200 hover:border-pine-teal/20 rounded-lg text-[10px] font-bold text-slate-600 hover:text-pine-teal transition-all cursor-pointer">₺5.000</button>
-              <button type="button" className="px-3 py-1.5 bg-slate-50 hover:bg-pine-teal/5 border border-slate-200 hover:border-pine-teal/20 rounded-lg text-[10px] font-bold text-slate-600 hover:text-pine-teal transition-all cursor-pointer">₺10.000</button>
-            </div>
+  // Kart sahibinin ismini harf kısıtlamasıyla günceller
+  const handleCardHolderChange = (e) => {
+    setCardHolder(e.target.value.replace(/[^a-zA-ZğüşıöçĞÜŞİÖÇ\s]/g, ''));
+  };
 
-            {/* Ödeme Butonu */}
-            <button
-              type="button"
-              className="btn btn-primary w-full py-4 mt-2 flex items-center justify-center gap-2"
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              Güvenli Ödeme Yap ve SMS Onayla
-            </button>
+  // Son kullanma tarihini AA/YY formatına getirir
+  const handleExpiryChange = (e) => {
+    const cleanValue = e.target.value.replace(/\D/g, '');
+    let formatted = '';
+    if (cleanValue.length > 0) formatted += cleanValue.substring(0, 2);
+    if (cleanValue.length > 2) formatted += '/' + cleanValue.substring(2, 4);
+    setExpiryDate(formatted);
+  };
 
-          </div>
-        </div>
-      </div>
+  // Güvenlik kodunu günceller
+  const handleCvvChange = (e) => {
+    setCvv(e.target.value.replace(/\D/g, '').substring(0, 3));
+  };
 
-      {/* ============================================================ */}
-      {/* BÖLÜM 2: 3D SECURE OTP MODAL — Sayfada her zaman görünür */}
-      {/* ============================================================ */}
-      <div className="max-w-md mx-auto mb-16">
-        <div className="mb-4 text-center">
-          <span className="inline-block text-[10px] font-bold uppercase tracking-widest text-amber-600 bg-amber-50 px-3 py-1.5 rounded-full border border-amber-200">
-            📱 3D Secure — SMS Doğrulama Ekranı (Tasarım Önizleme)
-          </span>
-        </div>
-        <div className="card-base md:p-8 shadow-2xl text-slate-800 text-left">
-          {/* Visa Secure ve Mastercard logoları */}
-          <div className="flex justify-between items-center border-b border-slate-100 pb-4 mb-4">
-            <div className="flex items-center gap-2">
-              <div className="bg-blue-600 text-white font-black text-[10px] px-2 py-1 rounded">VISA</div>
-              <span className="text-[10px] font-bold text-blue-700">Verified by Visa</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="bg-red-600 text-white font-black text-[10px] px-2 py-1 rounded">MC</div>
-              <span className="text-[10px] font-bold text-red-700">SecureCode</span>
-            </div>
-          </div>
+  // SMS onay şifresini günceller
+  const handleOtpChange = (e) => {
+    setOtpCode(e.target.value.replace(/\D/g, '').substring(0, 4));
+  };
 
-          {/* İşlem Bilgisi */}
-          <div className="bg-slate-50 border border-slate-100 rounded-xl p-4 mb-5 space-y-2">
-            <div className="flex justify-between items-center text-xs">
-              <span className="text-slate-500 font-medium">İşlem Tutarı</span>
-              <span className="font-mono font-black text-slate-800">₺500,00</span>
-            </div>
-            <div className="flex justify-between items-center text-xs">
-              <span className="text-slate-500 font-medium">Kart</span>
-              <span className="font-mono font-bold text-slate-700">**** **** **** 9012</span>
-            </div>
-            <div className="flex justify-between items-center text-xs">
-              <span className="text-slate-500 font-medium">Alıcı</span>
-              <span className="font-bold text-pine-teal truncate max-w-[160px]">İyilik Ağı Vakfı</span>
-            </div>
-          </div>
+  // Hızlı tutar seçme butonlarının atamasını yapar
+  const handleAmountQuickPick = (value) => {
+    setAmount(String(value));
+  };
 
-          {/* OTP Kod Girişi */}
-          <div>
-            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Onay Şifresi (SMS Şifresi) *</label>
-            <input
-              type="text"
-              placeholder="_ _ _ _ _ _"
-              className="form-input text-center text-xl font-mono font-black tracking-[0.5em] w-full"
-              maxLength={6}
-            />
-            {/* Zamanlayıcı */}
-            <div className="flex justify-between items-center mt-2 text-[10px] font-semibold text-slate-400">
-              <span>Kalan Süre: <strong className="font-mono text-slate-600">02:47</strong></span>
-              <button type="button" className="text-pine-teal hover:underline cursor-pointer font-bold">Yeniden Gönder</button>
-            </div>
-          </div>
+  // Ödeme tutarını kontrol eder ve SMS onay ekranına geçer
+  const handleSubmitPayment = () => {
+    if (!amount || Number(amount) <= 0) {
+      setErrorMessage('Lütfen geçerli bir tutar girin.');
+      setStep('error');
+      return;
+    }
+    setStep('otp');
+    setErrorMessage('');
+  };
 
-          {/* OTP Submit Button */}
+  // SMS onay kodunu kontrol eder ve işlemi gerçekleştirir
+  const handleOtpConfirm = () => {
+    if (otpCode.length !== 4) {
+      setErrorMessage('Lütfen 4 haneli SMS şifrenizi girin.');
+      setStep('error');
+      return;
+    }
+    const safeAmount = Number(amount) || 0;
+
+    if (mode === 'donate') {
+      if (safeAmount > balance) {
+        setTransactionAmount(safeAmount);
+        setResultBalance(balance);
+        setErrorMessage('Yetersiz Bakiye');
+        setStep('error');
+        return;
+      }
+      const nextBalance = balance - safeAmount;
+      updateBalance(nextBalance);
+
+      // İlgili etkinliğin bütçe ve bağış listesini günceller
+      const eventId = location.state?.eventId;
+      if (eventId) {
+        const stored = localStorage.getItem('events_list');
+        let eventsList = [];
+        if (stored) {
+          try {
+            eventsList = JSON.parse(stored);
+          } catch (e) {
+            eventsList = [];
+          }
+        }
+
+        const updateEventInList = (list) => {
+          return list.map((evt) => {
+            if (evt.id === eventId) {
+              const updatedRaised = evt.raisedAmount + safeAmount;
+              const isCompleted = updatedRaised >= evt.targetAmount;
+              const newDonation = {
+                id: 'rd-' + Date.now(),
+                donorName: currentUser?.name || 'Gönüllü Bağışçı',
+                amount: safeAmount,
+                timeAgo: 'Az önce'
+              };
+              return {
+                ...evt,
+                raisedAmount: updatedRaised,
+                status: isCompleted ? 'TAMAMLANDI' : evt.status,
+                donorCount: (evt.donorCount || 0) + 1,
+                donations: [newDonation, ...(evt.donations || [])]
+              };
+            }
+            return evt;
+          });
+        };
+
+        if (eventsList.length > 0) {
+          const updatedList = updateEventInList(eventsList);
+          localStorage.setItem('events_list', JSON.stringify(updatedList));
+          window.dispatchEvent(new Event('dashboard-data-updated'));
+        } else {
+          fetch('/events.json')
+            .then((res) => res.json())
+            .then((data) => {
+              const updatedList = updateEventInList(data);
+              localStorage.setItem('events_list', JSON.stringify(updatedList));
+              window.dispatchEvent(new Event('dashboard-data-updated'));
+            });
+        }
+      }
+
+      setTransactionAmount(safeAmount);
+      setResultBalance(nextBalance);
+      setStep('success');
+      return;
+    }
+
+    const nextBalance = balance + safeAmount;
+    updateBalance(nextBalance);
+    setTransactionAmount(safeAmount);
+    setResultBalance(nextBalance);
+    setStep('success');
+  };
+
+  // İşlem akışını başa döndürür
+  const resetFlow = () => {
+    setStep('form');
+    setOtpCode('');
+    setErrorMessage('');
+    setTransactionAmount(0);
+    setResultBalance(0);
+  };
+
+  // Kart form alanları şablonu
+  const formFields = [
+    { id: 'cardNumber', label: 'Kart Numarası', placeholder: '1234 5678 9012 3456', maxLength: 19, value: cardNumber, onChange: handleCardNumberChange, className: 'col-span-2' },
+    { id: 'cardHolder', label: 'Kart Üzerindeki İsim', placeholder: 'AD SOYAD', value: cardHolder, onChange: handleCardHolderChange, className: 'col-span-2' },
+    { id: 'expiryDate', label: 'Son Kullanma', placeholder: 'AA/YY', maxLength: 5, value: expiryDate, onChange: handleExpiryChange, className: 'col-span-1' },
+    { id: 'cvv', label: 'CVV', placeholder: '•••', maxLength: 3, value: cvv, onChange: handleCvvChange, className: 'col-span-1', onFocus: () => setIsCardFlipped(true), onBlur: () => setIsCardFlipped(false) }
+  ];
+
+  // Ana ödeme formu ekranını çizer
+  const renderForm = () => (
+    <div className="card-base md:p-8 space-y-5 shadow-xl shadow-slate-200/20 text-left">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
+        <h3 className="text-xs font-black text-inst-navy uppercase tracking-wider">KART BİLGİLERİ</h3>
+        <div className="flex rounded-xl border border-slate-200 bg-slate-50 p-1">
           <button
             type="button"
-            className="btn btn-primary w-full py-3.5 mt-5"
+            onClick={() => { setMode('topup'); setStep('form'); setErrorMessage(''); }}
+            className={`rounded-lg px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider transition-all ${mode === 'topup' ? 'bg-white text-pine-teal shadow-sm' : 'text-slate-500'}`}
           >
-            Onayla ve Ödemeyi Bitir
+            Cüzdana Para Yükle
+          </button>
+          <button
+            type="button"
+            onClick={() => { setMode('donate'); setStep('form'); setErrorMessage(''); }}
+            className={`rounded-lg px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider transition-all ${mode === 'donate' ? 'bg-white text-pine-teal shadow-sm' : 'text-slate-500'}`}
+          >
+            Bağış Yap
           </button>
         </div>
       </div>
 
-      {/* ============================================================ */}
-      {/* BÖLÜM 3: BAŞARI EKRANI — Sayfada her zaman görünür */}
-      {/* ============================================================ */}
-      <div className="min-h-[300px] flex items-center justify-center py-12 px-4">
-        <div className="mb-4">
-          <div className="mb-4 text-center">
-            <span className="inline-block text-[10px] font-bold uppercase tracking-widest text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-200">
-              ✅ Başarı Ekranı (Tasarım Önizleme)
-            </span>
+      <div className="bg-pine-teal/5 border border-pine-teal/10 rounded-xl p-3 text-xs flex justify-between items-center text-slate-700 font-bold mb-2">
+        <span className="text-slate-500 font-medium">Hedef Etkinlik</span>
+        <span className="text-pine-teal truncate max-w-[200px]">{currentEventTitle}</span>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        {formFields.map((field) => (
+          <div key={field.id} className={field.className}>
+            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">{field.label}</label>
+            <input
+              type="text"
+              placeholder={field.placeholder}
+              value={field.value}
+              onChange={field.onChange}
+              maxLength={field.maxLength}
+              onFocus={field.onFocus}
+              onBlur={field.onBlur}
+              className={`form-input w-full ${field.id === 'cardHolder' ? 'font-semibold uppercase' : 'font-mono font-bold'}`}
+            />
           </div>
+        ))}
+      </div>
+
+      <div>
+        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">{mode === 'donate' ? 'Bağış Tutarı' : 'Yükleme Tutarı'} *</label>
+        <div className="relative">
+          <input
+            type="text"
+            inputMode="decimal"
+            placeholder="500"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value.replace(/[^\d]/g, ''))}
+            className="form-input font-bold text-right pr-16 w-full block"
+          />
+          <span className="absolute right-1.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-500 select-none pointer-events-none">₺</span>
         </div>
       </div>
-      <div className="flex justify-center pb-16">
-        <GlassCard
-          variant="solid"
-          className="w-full max-w-md p-8 text-center shadow-2xl border-emerald-200 ring-2 ring-emerald-100/50 rounded-3xl"
+
+      <div className="flex gap-2 flex-wrap">
+        {[100, 200, 500, 1000].map((value) => (
+          <button
+            key={value}
+            type="button"
+            onClick={() => handleAmountQuickPick(value)}
+            className="px-3 py-1.5 bg-slate-50 hover:bg-pine-teal/5 border border-slate-200 hover:border-pine-teal/20 rounded-lg text-[10px] font-bold text-slate-600 hover:text-pine-teal transition-all cursor-pointer"
+          >
+            {formatCurrency(value)}
+          </button>
+        ))}
+      </div>
+
+      <button
+        type="button"
+        onClick={handleSubmitPayment}
+        className="btn btn-primary w-full py-4 mt-2 flex items-center justify-center gap-2"
+      >
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        Güvenli Ödeme Yap
+      </button>
+    </div>
+  );
+
+  // 3D Secure onay ekranını çizer
+  const renderOtp = () => (
+    <div className="max-w-md mx-auto w-full">
+      <div className="card-base md:p-8 shadow-2xl text-slate-800 text-left">
+        <div className="flex justify-between items-center border-b border-slate-100 pb-4 mb-4">
+          <div className="flex items-center gap-2">
+            <div className="bg-blue-600 text-white font-black text-[10px] px-2 py-1 rounded">VISA</div>
+            <span className="text-[10px] font-bold text-blue-700">Verified by Visa</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="bg-red-600 text-white font-black text-[10px] px-2 py-1 rounded">MC</div>
+            <span className="text-[10px] font-bold text-red-700">SecureCode</span>
+          </div>
+        </div>
+
+        <div className="bg-slate-50 border border-slate-100 rounded-xl p-4 mb-5 space-y-2">
+          <div className="flex justify-between items-center text-xs">
+            <span className="text-slate-500 font-medium">İşlem Tutarı</span>
+            <span className="font-mono font-black text-slate-800">{formatCurrency(Number(amount || 0))}</span>
+          </div>
+          <div className="flex justify-between items-center text-xs">
+            <span className="text-slate-500 font-medium">Kart</span>
+            <span className="font-mono font-bold text-slate-700">{cardNumber ? `**** **** **** ${cardNumber.replace(/\s/g, '').slice(-4)}` : '**** **** **** ****'}</span>
+          </div>
+          <div className="flex justify-between items-center text-xs">
+            <span className="text-slate-500 font-medium">Alıcı</span>
+            <span className="font-bold text-pine-teal truncate max-w-[160px]">İyilik Ağı Vakfı</span>
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Onay Şifresi (4 Haneli SMS Şifresi) *</label>
+          <input
+            type="text"
+            placeholder="_ _ _ _"
+            value={otpCode}
+            onChange={handleOtpChange}
+            className="form-input text-center text-xl font-mono font-black tracking-[0.5em] w-full"
+            maxLength={4}
+          />
+          <div className="flex justify-between items-center mt-2 text-[10px] font-semibold text-slate-400">
+            <span>Kalan Süre: <strong className="font-mono text-slate-600">{formattedTime}</strong></span>
+            <button type="button" onClick={() => setSecondsLeft(167)} className="text-pine-teal hover:underline cursor-pointer font-bold">Yeniden Gönder</button>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={handleOtpConfirm}
+          className="btn btn-primary w-full py-3.5 mt-5"
         >
-          {/* Checkmark animasyonu */}
-          <div className="flex justify-center mb-5">
-            <svg className="success-checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
-              <circle className="checkmark-circle checkmark-circle-fill" cx="26" cy="26" r="25" fill="none" />
-              <path className="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
+          Onayla ve Ödemeyi Bitir
+        </button>
+      </div>
+    </div>
+  );
+
+  // Başarılı ödeme bildirim ekranını çizer
+  const renderSuccess = () => (
+    <div className="flex justify-center w-full">
+      <GlassCard
+        variant="solid"
+        className="w-full max-w-md p-8 text-center shadow-2xl border-emerald-200 ring-2 ring-emerald-100/50 rounded-3xl"
+      >
+        <div className="flex justify-center mb-5">
+          <svg className="success-checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+            <circle className="checkmark-circle checkmark-circle-fill" cx="26" cy="26" r="25" fill="none" />
+            <path className="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
+          </svg>
+        </div>
+
+        <h2 className="text-xl font-black text-emerald-700 mb-2">
+          {mode === 'donate' ? 'Ödeme başarılı!' : 'Para yükleme başarılı!'}
+        </h2>
+        <p className="text-xs text-slate-500 mb-5 leading-relaxed font-medium">
+          {mode === 'donate'
+            ? 'Bağışınız güvenli şekilde işlendi ve cüzdan bakiyeniz güncellendi.'
+            : 'İşlem başarıyla tamamlandı ve bakiyenize eklendi.'}
+        </p>
+
+        <div className="bg-emerald-50 border border-emerald-200/50 rounded-2xl p-4 mb-6 text-left space-y-2">
+          <div className="flex justify-between text-xs">
+            <span className="text-slate-500 font-medium">İşlenen Tutar</span>
+            <span className="font-mono font-black text-emerald-700">{mode === 'donate' ? '-' : '+'}{formatCurrency(transactionAmount)}</span>
+          </div>
+          <div className="flex justify-between text-xs">
+            <span className="text-slate-500 font-medium">Yeni Bakiye</span>
+            <span className="font-black text-slate-800">{formatCurrency(resultBalance)}</span>
+          </div>
+          <div className="flex justify-between text-xs">
+            <span className="text-slate-500 font-medium">İşlem Tarihi</span>
+            <span className="font-mono text-slate-600">{new Date().toLocaleString('tr-TR')}</span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <button type="button" onClick={() => navigate('/')} className="btn btn-secondary py-2.5 px-4 text-xs">
+            Ana Sayfaya Dön
+          </button>
+          <button type="button" onClick={() => navigate('/events')} className="btn btn-primary py-2.5 px-4 text-xs">
+            Etkinliklere Git
+          </button>
+        </div>
+      </GlassCard>
+    </div>
+  );
+
+  // Hata bildirim ekranını çizer
+  const renderError = () => (
+    <div className="flex justify-center w-full">
+      <GlassCard
+        variant="solid"
+        className="w-full max-w-md p-8 text-center shadow-2xl border-red-200 ring-2 ring-red-100/50 rounded-3xl"
+      >
+        <div className="flex justify-center mb-5">
+          <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center text-red-600">
+            <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
           </div>
+        </div>
 
-          <h2 className="text-xl font-black text-emerald-700 mb-2">Bağış Başarıyla Tamamlandı!</h2>
-          <p className="text-xs text-slate-500 mb-5 leading-relaxed font-medium">
-            Bağışınız güvenli şekilde işlendi ve cüzdanınıza yansıtıldı.
-            Sosyal sorumluluk zincirimize katkınız için teşekkür ederiz.
-          </p>
+        <h2 className="text-xl font-black text-red-700 mb-2">İşlem Başarısız Oldu!</h2>
+        <p className="text-xs text-slate-500 mb-5 leading-relaxed font-medium">
+          {errorMessage === 'Yetersiz Bakiye'
+            ? 'Bu işlem için yeterli bakiye bulunmuyor. Bakiyenizi artırıp tekrar deneyin.'
+            : 'Ödeme bankanız tarafından onaylanmadı. Lütfen bilgilerinizi kontrol edip tekrar deneyin.'}
+        </p>
 
-          <div className="bg-emerald-50 border border-emerald-200/50 rounded-2xl p-4 mb-6 text-left space-y-2">
-            <div className="flex justify-between text-xs">
-              <span className="text-slate-500 font-medium">Yüklenen Tutar</span>
-              <span className="font-mono font-black text-emerald-700">+₺500</span>
-            </div>
-            <div className="flex justify-between text-xs">
-              <span className="text-slate-500 font-medium">Yeni Bakiye</span>
-              <span className="font-mono font-black text-slate-800">₺15.500</span>
-            </div>
-            <div className="flex justify-between text-xs">
-              <span className="text-slate-500 font-medium">İşlem Tarihi</span>
-              <span className="font-mono text-slate-600">26 Haz 2026 22:14</span>
-            </div>
+        <div className="bg-red-50 border border-red-200/50 rounded-2xl p-4 mb-6 text-left space-y-2">
+          <div className="flex justify-between text-xs text-red-800">
+            <span className="text-slate-500 font-medium">Hata</span>
+            <span className="font-mono font-bold">{errorMessage || 'İşlem Başarısız'}</span>
           </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <button type="button" className="btn btn-secondary py-2.5 px-4 text-xs">
-              Ana Sayfaya Dön
-            </button>
-            <button type="button" className="btn btn-primary py-2.5 px-4 text-xs">
-              Etkinliklere Git
-            </button>
-          </div>
-        </GlassCard>
-      </div>
-
-      {/* ============================================================ */}
-      {/* BÖLÜM 4: HATA EKRANI — Sayfada her zaman görünür */}
-      {/* ============================================================ */}
-      <div className="min-h-[300px] flex items-center justify-center py-12 px-4">
-        <div className="mb-4">
-          <div className="mb-4 text-center">
-            <span className="inline-block text-[10px] font-bold uppercase tracking-widest text-red-600 bg-red-50 px-3 py-1.5 rounded-full border border-red-200">
-              ❌ Hata Ekranı (Tasarım Önizleme)
-            </span>
+          <div className="flex justify-between text-xs text-red-800">
+            <span className="text-slate-500 font-medium">Mevcut Bakiye</span>
+            <span className="text-slate-600">{formatCurrency(balance)}</span>
           </div>
         </div>
-      </div>
-      <div className="flex justify-center pb-16">
-        <GlassCard
-          variant="solid"
-          className="w-full max-w-md p-8 text-center shadow-2xl border-red-200 ring-2 ring-red-100/50 rounded-3xl"
-        >
-          {/* Hata ikon */}
-          <div className="flex justify-center mb-5">
-            <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center text-red-600">
-              <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-            </div>
-          </div>
 
-          <h2 className="text-xl font-black text-red-700 mb-2">Bağış İşlemi Başarısız Oldu!</h2>
-          <p className="text-xs text-slate-500 mb-5 leading-relaxed font-medium">
-            Ödeme bankanız tarafından onaylanmadı veya yetersiz bakiye sebebiyle işlem gerçekleştirilemedi.
-            Lütfen kart bilgilerinizi kontrol edip tekrar deneyin.
-          </p>
+        <div className="grid grid-cols-2 gap-3">
+          <button type="button" onClick={resetFlow} className="btn btn-secondary py-2.5 px-4 text-xs">
+            Vazgeç
+          </button>
+          <button type="button" onClick={() => setStep('form')} className="btn btn-danger py-2.5 px-4 text-xs bg-red-600 text-white border-transparent">
+            Tekrar Dene
+          </button>
+        </div>
+      </GlassCard>
+    </div>
+  );
 
-          <div className="bg-red-50 border border-red-200/50 rounded-2xl p-4 mb-6 text-left space-y-2">
-            <div className="flex justify-between text-xs text-red-800">
-              <span className="text-slate-500 font-medium">Hata Kodu</span>
-              <span className="font-mono font-bold">51 - Yetersiz Bakiye</span>
-            </div>
-            <div className="flex justify-between text-xs text-red-800">
-              <span className="text-slate-500 font-medium">İşlem Saati</span>
-              <span className="font-mono text-slate-600">26 Haz 2026 22:15</span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            <button type="button" className="btn btn-secondary py-2.5 px-4 text-xs">
-              Vazgeç
-            </button>
-            <button type="button" className="btn btn-danger py-2.5 px-4 text-xs bg-red-600 text-white border-transparent">
-              Tekrar Dene
-            </button>
-          </div>
-        </GlassCard>
+  return (
+    <div className="page-container">
+      <div className="header-wrapper max-w-xl mx-auto text-center">
+        <span className="header-badge">Güvenli Ödeme</span>
+        <h1 className="header-title">Bağış Ödeme</h1>
+        <p className="header-desc">
+          {mode === 'topup'
+            ? 'Hesap cüzdanınıza para yüklemek için kredi kartı bilgilerinizi girin.'
+            : `“${currentEventTitle}” etkinliğine destek vermek için kredi kartı bilgilerini girin.`}
+        </p>
       </div>
 
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start max-w-5xl mx-auto mb-16">
+        <div className="lg:col-span-5 space-y-6 flex flex-col justify-center">
+          <div className="card-base text-center">
+            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-1">Cüzdan Güncel Bakiyeniz</span>
+            <span className="text-3xl font-black text-pine-teal">{formatCurrency(balance)}</span>
+            <p className="text-[10px] text-slate-400 mt-1 font-medium">
+              {mode === 'donate' ? 'Bağış yaptığınızda bakiye düşer.' : 'Para yüklediğinizde bakiye artar.'}
+            </p>
+          </div>
+
+          <CreditCardVisual
+            cardNumber={cardNumber}
+            cardHolder={cardHolder ? cardHolder.toUpperCase() : ''}
+            expiry={expiryDate}
+            cvv={cvv}
+            isFlipped={isCardFlipped}
+          />
+        </div>
+
+        <div className="lg:col-span-7">
+          {step === 'form' && renderForm()}
+          {step === 'otp' && renderOtp()}
+          {step === 'success' && renderSuccess()}
+          {step === 'error' && renderError()}
+        </div>
+      </div>
     </div>
   );
 }
