@@ -1,22 +1,160 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import AdminLayout from '../../components/AdminLayout';
 
-// 7 sabit etkinlik satırı
-const STATIC_EVENTS = [
-  { id: 'e1', title: 'Geleceğe Nefes: Orman Yangını Rehabilitasyonu', category: 'Çevre', targetAmount: 10000000, raisedAmount: 7450000, daysLeft: 45, imageUrl: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=80&q=60' },
-  { id: 'e2', title: 'Köy Okullarına Bilgisayar Laboratuvarı', category: 'Eğitim', targetAmount: 500000, raisedAmount: 420000, daysLeft: 22, imageUrl: 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=80&q=60' },
-  { id: 'e3', title: 'Sokak Hayvanları Mobil Klinik', category: 'Hayvanlar', targetAmount: 250000, raisedAmount: 148000, daysLeft: 60, imageUrl: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=80&q=60' },
-  { id: 'e4', title: 'Kırsal Bölgelere Temiz Su Kuyusu', category: 'Su', targetAmount: 350000, raisedAmount: 210000, daysLeft: 18, imageUrl: 'https://images.unsplash.com/photo-1509140973433-35e9f77f57b8?auto=format&fit=crop&w=80&q=60' },
-  { id: 'e5', title: 'Deprem Bölgesi Çocukları için Geçici Okul', category: 'Afet', targetAmount: 750000, raisedAmount: 580000, daysLeft: 12, imageUrl: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=80&q=60' },
-  { id: 'e6', title: 'Yaşlı Bakım Merkezi Rehabilitasyon', category: 'Yaşlı', targetAmount: 180000, raisedAmount: 92000, daysLeft: 75, imageUrl: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=80&q=60' },
-  { id: 'e7', title: 'Çocuk Kanseri Destek Bağışı', category: 'Sağlık', targetAmount: 400000, raisedAmount: 400000, daysLeft: 0, imageUrl: 'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?auto=format&fit=crop&w=80&q=60' },
-];
-
 export default function EventsManagement() {
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+  // Silinecek etkinlik id'si (onay kartı için)
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  // Bildirim: { message, visible }
+  const [notification, setNotification] = useState({ message: '', visible: false });
+
+  const showNotification = (msg) => {
+    setNotification({ message: msg, visible: true });
+    setTimeout(() => setNotification((n) => ({ ...n, visible: false })), 2200);
+    setTimeout(() => setNotification({ message: '', visible: false }), 2600);
+  };
+
+  // Etkinlik listesini sunucudan/dosyadan ve yerel depolamadan getirir
+  const fetchEvents = () => {
+    const stored = localStorage.getItem('events_list');
+    if (stored) {
+      try {
+        setEvents(JSON.parse(stored));
+        setLoading(false);
+      } catch (error) {
+        fetch('/events.json')
+          .then((res) => res.json())
+          .then((data) => {
+            setEvents(data);
+            setLoading(false);
+          });
+      }
+    } else {
+      fetch('/events.json')
+        .then((res) => res.json())
+        .then((data) => {
+          localStorage.setItem('events_list', JSON.stringify(data));
+          setEvents(data);
+          setLoading(false);
+        });
+    }
+  };
+
+  useEffect(() => {
+    fetchEvents();
+    const handleUpdate = () => {
+      fetchEvents();
+    };
+    window.addEventListener('dashboard-data-updated', handleUpdate);
+
+    // EditEvent'ten gelen bekleyen toast mesajı varsa göster
+    const pendingMsg = sessionStorage.getItem('pending_toast');
+    if (pendingMsg) {
+      sessionStorage.removeItem('pending_toast');
+      // Kısa gecikmeyle göster (bileşen tam mount olduktan sonra)
+      setTimeout(() => showNotification(pendingMsg), 100);
+    }
+
+    return () => {
+      window.removeEventListener('dashboard-data-updated', handleUpdate);
+    };
+  }, []);
+
+  // Seçilen etkinliği siler ve bildirim gösterir
+  const confirmDelete = (id) => {
+    setDeleteTarget(id);
+  };
+
+  const handleDelete = () => {
+    if (!deleteTarget) return;
+    const updated = events.filter((e) => e.id !== deleteTarget);
+    localStorage.setItem('events_list', JSON.stringify(updated));
+    setEvents(updated);
+    setDeleteTarget(null);
+    window.dispatchEvent(new Event('dashboard-data-updated'));
+    showNotification('Etkinlik silindi');
+  };
+
+  // Arama filtresine uyan etkinlikleri süzer
+  const filteredEvents = events.filter((e) =>
+    e.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    e.category.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Sayfalama hesabı
+  const totalPages = Math.ceil(filteredEvents.length / itemsPerPage);
+  const paginatedEvents = filteredEvents.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
+  if (loading) {
+    return (
+      <AdminLayout>
+        <div className="py-20 text-center text-slate-500 font-bold text-sm">Yükleniyor...</div>
+      </AdminLayout>
+    );
+  }
+
   return (
     <AdminLayout>
-      <div className="space-y-8 max-w-6xl mx-auto">
+      <div className="space-y-8 max-w-6xl mx-auto relative">
+
+        {/* Fade Bildirim - Alt Orta */}
+        <div
+          style={{
+            opacity: notification.visible ? 1 : 0,
+            transform: notification.visible ? 'translateY(0)' : 'translateY(12px)',
+            transition: 'opacity 0.35s ease, transform 0.35s ease',
+            pointerEvents: 'none'
+          }}
+          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-emerald-500 text-white font-bold text-xs px-5 py-3 rounded-2xl shadow-xl flex items-center gap-2 whitespace-nowrap"
+        >
+          <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+          </svg>
+          <span>{notification.message}</span>
+        </div>
+
+        {/* Silme Onay Kartı */}
+        {deleteTarget && (
+          <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/20 backdrop-blur-sm">
+            <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-xs w-full mx-4 text-center">
+              <div className="w-12 h-12 rounded-full bg-rose-50 flex items-center justify-center mx-auto mb-4">
+                <svg className="w-6 h-6 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </div>
+              <h3 className="text-sm font-extrabold text-slate-800 mb-1">Etkinliği Sil</h3>
+              <p className="text-xs text-slate-500 mb-5">Bu etkinliği silmek istediğinize emin misiniz? Bu işlem geri alınamaz.</p>
+              <div className="flex gap-2 justify-center">
+                <button
+                  onClick={() => setDeleteTarget(null)}
+                  className="btn btn-secondary px-4 py-2 text-xs"
+                >
+                  Vazgeç
+                </button>
+                <button
+                  onClick={handleDelete}
+                  className="btn px-4 py-2 text-xs bg-rose-500 hover:bg-rose-600 text-white border-rose-500 font-bold rounded-xl transition-colors"
+                >
+                  Evet, Sil
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
         
         {/* Header bar with Add Event button */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -46,6 +184,11 @@ export default function EventsManagement() {
               <input
                 type="text"
                 placeholder="Etkinlik veya kategori ara..."
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1);
+                }}
                 className="search-input w-full"
               />
               <svg className="search-input-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -70,154 +213,64 @@ export default function EventsManagement() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 font-medium">
-                {/* Satır 1 */}
-                <tr className="hover:bg-slate-50/40 transition-colors">
-                  <td className="px-6 py-3"><img src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=80&q=60" alt="Orman" className="w-12 h-9 rounded-lg object-cover bg-slate-100 shrink-0 border border-slate-100" /></td>
-                  <td className="px-6 py-3 font-bold text-pine-teal max-w-[200px] truncate">Geleceğe Nefes: Orman Yangını Rehabilitasyonu</td>
-                  <td className="px-6 py-3"><span className="inline-flex px-2 py-0.5 rounded text-[9px] font-extrabold bg-slate-50 text-slate-500 border border-slate-200/50">Çevre</span></td>
-                  <td className="px-6 py-3 text-slate-700 font-mono font-bold">₺10.000.000</td>
-                  <td className="px-6 py-3 text-emerald-600 font-mono font-bold">₺7.450.000</td>
-                  <td className="px-6 py-3 min-w-[160px]"><div className="flex items-center gap-2"><div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden"><div className="h-full rounded-full bg-pine-teal" style={{width:'75%'}} /></div><span className="text-[10px] font-mono font-bold text-pine-teal shrink-0 w-8 text-right">75%</span></div></td>
-                  <td className="px-6 py-3 text-slate-500 font-mono">45 Gün</td>
-                  <td className="px-6 py-3 text-center"><span className="inline-flex px-2.5 py-0.5 rounded-full text-[9px] font-extrabold border bg-emerald-50 text-emerald-700 border-emerald-100/50">AKTİF</span></td>
-                  <td className="px-6 py-3">
-                    <div className="flex justify-center items-center gap-1.5">
-                      <Link to="/admin/edit-event/e1" className="btn btn-secondary py-1 px-2 text-[10px]">
-                        Düzenle
-                      </Link>
-                      <button type="button" className="btn btn-danger py-1 px-2 text-[10px] bg-red-50 hover:bg-red-100 text-red-600 border-red-200">
-                        Sil
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-                {/* Satır 2 */}
-                <tr className="hover:bg-slate-50/40 transition-colors">
-                  <td className="px-6 py-3"><img src="https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=80&q=60" alt="Okul" className="w-12 h-9 rounded-lg object-cover bg-slate-100 shrink-0 border border-slate-100" /></td>
-                  <td className="px-6 py-3 font-bold text-pine-teal max-w-[200px] truncate">Köy Okullarına Bilgisayar Laboratuvarı</td>
-                  <td className="px-6 py-3"><span className="inline-flex px-2 py-0.5 rounded text-[9px] font-extrabold bg-slate-50 text-slate-500 border border-slate-200/50">Eğitim</span></td>
-                  <td className="px-6 py-3 text-slate-700 font-mono font-bold">₺500.000</td>
-                  <td className="px-6 py-3 text-emerald-600 font-mono font-bold">₺420.000</td>
-                  <td className="px-6 py-3 min-w-[160px]"><div className="flex items-center gap-2"><div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden"><div className="h-full rounded-full bg-pine-teal" style={{width:'84%'}} /></div><span className="text-[10px] font-mono font-bold text-pine-teal shrink-0 w-8 text-right">84%</span></div></td>
-                  <td className="px-6 py-3 text-slate-500 font-mono">22 Gün</td>
-                  <td className="px-6 py-3 text-center"><span className="inline-flex px-2.5 py-0.5 rounded-full text-[9px] font-extrabold border bg-emerald-50 text-emerald-700 border-emerald-100/50">AKTİF</span></td>
-                  <td className="px-6 py-3">
-                    <div className="flex justify-center items-center gap-1.5">
-                      <Link to="/admin/edit-event/e2" className="btn btn-secondary py-1 px-2 text-[10px]">
-                        Düzenle
-                      </Link>
-                      <button type="button" className="btn btn-danger py-1 px-2 text-[10px] bg-red-50 hover:bg-red-100 text-red-600 border-red-200">
-                        Sil
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-                {/* Satır 3 */}
-                <tr className="hover:bg-slate-50/40 transition-colors">
-                  <td className="px-6 py-3"><img src="https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=80&q=60" alt="Hayvan" className="w-12 h-9 rounded-lg object-cover bg-slate-100 shrink-0 border border-slate-100" /></td>
-                  <td className="px-6 py-3 font-bold text-pine-teal max-w-[200px] truncate">Sokak Hayvanları Mobil Klinik</td>
-                  <td className="px-6 py-3"><span className="inline-flex px-2 py-0.5 rounded text-[9px] font-extrabold bg-slate-50 text-slate-500 border border-slate-200/50">Hayvanlar</span></td>
-                  <td className="px-6 py-3 text-slate-700 font-mono font-bold">₺250.000</td>
-                  <td className="px-6 py-3 text-emerald-600 font-mono font-bold">₺148.000</td>
-                  <td className="px-6 py-3 min-w-[160px]"><div className="flex items-center gap-2"><div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden"><div className="h-full rounded-full bg-pine-teal" style={{width:'59%'}} /></div><span className="text-[10px] font-mono font-bold text-pine-teal shrink-0 w-8 text-right">59%</span></div></td>
-                  <td className="px-6 py-3 text-slate-500 font-mono">60 Gün</td>
-                  <td className="px-6 py-3 text-center"><span className="inline-flex px-2.5 py-0.5 rounded-full text-[9px] font-extrabold border bg-emerald-50 text-emerald-700 border-emerald-100/50">AKTİF</span></td>
-                  <td className="px-6 py-3">
-                    <div className="flex justify-center items-center gap-1.5">
-                      <Link to="/admin/edit-event/e3" className="btn btn-secondary py-1 px-2 text-[10px]">
-                        Düzenle
-                      </Link>
-                      <button type="button" className="btn btn-danger py-1 px-2 text-[10px] bg-red-50 hover:bg-red-100 text-red-600 border-red-200">
-                        Sil
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-                {/* Satır 4 */}
-                <tr className="hover:bg-slate-50/40 transition-colors">
-                  <td className="px-6 py-3"><img src="https://images.unsplash.com/photo-1509140973433-35e9f77f57b8?auto=format&fit=crop&w=80&q=60" alt="Su" className="w-12 h-9 rounded-lg object-cover bg-slate-100 shrink-0 border border-slate-100" /></td>
-                  <td className="px-6 py-3 font-bold text-pine-teal max-w-[200px] truncate">Kırsal Bölgelere Temiz Su Kuyusu</td>
-                  <td className="px-6 py-3"><span className="inline-flex px-2 py-0.5 rounded text-[9px] font-extrabold bg-slate-50 text-slate-500 border border-slate-200/50">Su</span></td>
-                  <td className="px-6 py-3 text-slate-700 font-mono font-bold">₺350.000</td>
-                  <td className="px-6 py-3 text-emerald-600 font-mono font-bold">₺210.000</td>
-                  <td className="px-6 py-3 min-w-[160px]"><div className="flex items-center gap-2"><div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden"><div className="h-full rounded-full bg-pine-teal" style={{width:'60%'}} /></div><span className="text-[10px] font-mono font-bold text-pine-teal shrink-0 w-8 text-right">60%</span></div></td>
-                  <td className="px-6 py-3 text-slate-500 font-mono">18 Gün</td>
-                  <td className="px-6 py-3 text-center"><span className="inline-flex px-2.5 py-0.5 rounded-full text-[9px] font-extrabold border bg-emerald-50 text-emerald-700 border-emerald-100/50">AKTİF</span></td>
-                  <td className="px-6 py-3">
-                    <div className="flex justify-center items-center gap-1.5">
-                      <Link to="/admin/edit-event/e4" className="btn btn-secondary py-1 px-2 text-[10px]">
-                        Düzenle
-                      </Link>
-                      <button type="button" className="btn btn-danger py-1 px-2 text-[10px] bg-red-50 hover:bg-red-100 text-red-600 border-red-200">
-                        Sil
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-                {/* Satır 5 */}
-                <tr className="hover:bg-slate-50/40 transition-colors">
-                  <td className="px-6 py-3"><img src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=80&q=60" alt="Deprem" className="w-12 h-9 rounded-lg object-cover bg-slate-100 shrink-0 border border-slate-100" /></td>
-                  <td className="px-6 py-3 font-bold text-pine-teal max-w-[200px] truncate">Deprem Bölgesi Çocukları için Geçici Okul</td>
-                  <td className="px-6 py-3"><span className="inline-flex px-2 py-0.5 rounded text-[9px] font-extrabold bg-slate-50 text-slate-500 border border-slate-200/50">Afet</span></td>
-                  <td className="px-6 py-3 text-slate-700 font-mono font-bold">₺750.000</td>
-                  <td className="px-6 py-3 text-emerald-600 font-mono font-bold">₺580.000</td>
-                  <td className="px-6 py-3 min-w-[160px]"><div className="flex items-center gap-2"><div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden"><div className="h-full rounded-full bg-pine-teal" style={{width:'77%'}} /></div><span className="text-[10px] font-mono font-bold text-pine-teal shrink-0 w-8 text-right">77%</span></div></td>
-                  <td className="px-6 py-3 text-slate-500 font-mono">12 Gün</td>
-                  <td className="px-6 py-3 text-center"><span className="inline-flex px-2.5 py-0.5 rounded-full text-[9px] font-extrabold border bg-emerald-50 text-emerald-700 border-emerald-100/50">AKTİF</span></td>
-                  <td className="px-6 py-3">
-                    <div className="flex justify-center items-center gap-1.5">
-                      <Link to="/admin/edit-event/e5" className="btn btn-secondary py-1 px-2 text-[10px]">
-                        Düzenle
-                      </Link>
-                      <button type="button" className="btn btn-danger py-1 px-2 text-[10px] bg-red-50 hover:bg-red-100 text-red-600 border-red-200">
-                        Sil
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-                {/* Satır 6 */}
-                <tr className="hover:bg-slate-50/40 transition-colors">
-                  <td className="px-6 py-3"><img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=80&q=60" alt="Yaşlı" className="w-12 h-9 rounded-lg object-cover bg-slate-100 shrink-0 border border-slate-100" /></td>
-                  <td className="px-6 py-3 font-bold text-pine-teal max-w-[200px] truncate">Yaşlı Bakım Merkezi Rehabilitasyon</td>
-                  <td className="px-6 py-3"><span className="inline-flex px-2 py-0.5 rounded text-[9px] font-extrabold bg-slate-50 text-slate-500 border border-slate-200/50">Yaşlı</span></td>
-                  <td className="px-6 py-3 text-slate-700 font-mono font-bold">₺180.000</td>
-                  <td className="px-6 py-3 text-emerald-600 font-mono font-bold">₺92.000</td>
-                  <td className="px-6 py-3 min-w-[160px]"><div className="flex items-center gap-2"><div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden"><div className="h-full rounded-full bg-pine-teal" style={{width:'51%'}} /></div><span className="text-[10px] font-mono font-bold text-pine-teal shrink-0 w-8 text-right">51%</span></div></td>
-                  <td className="px-6 py-3 text-slate-500 font-mono">75 Gün</td>
-                  <td className="px-6 py-3 text-center"><span className="inline-flex px-2.5 py-0.5 rounded-full text-[9px] font-extrabold border bg-emerald-50 text-emerald-700 border-emerald-100/50">AKTİF</span></td>
-                  <td className="px-6 py-3">
-                    <div className="flex justify-center items-center gap-1.5">
-                      <Link to="/admin/edit-event/e6" className="btn btn-secondary py-1 px-2 text-[10px]">
-                        Düzenle
-                      </Link>
-                      <button type="button" className="btn btn-danger py-1 px-2 text-[10px] bg-red-50 hover:bg-red-100 text-red-600 border-red-200">
-                        Sil
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-                {/* Satır 7 */}
-                <tr className="hover:bg-slate-50/40 transition-colors">
-                  <td className="px-6 py-3"><img src="https://images.unsplash.com/photo-1505751172876-fa1923c5c528?auto=format&fit=crop&w=80&q=60" alt="Sağlık" className="w-12 h-9 rounded-lg object-cover bg-slate-100 shrink-0 border border-slate-100" /></td>
-                  <td className="px-6 py-3 font-bold text-pine-teal max-w-[200px] truncate">Çocuk Kanseri Destek Bağışı</td>
-                  <td className="px-6 py-3"><span className="inline-flex px-2 py-0.5 rounded text-[9px] font-extrabold bg-slate-50 text-slate-500 border border-slate-200/50">Sağlık</span></td>
-                  <td className="px-6 py-3 text-slate-700 font-mono font-bold">₺400.000</td>
-                  <td className="px-6 py-3 text-emerald-600 font-mono font-bold">₺400.000</td>
-                  <td className="px-6 py-3 min-w-[160px]"><div className="flex items-center gap-2"><div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden"><div className="h-full rounded-full bg-pine-teal" style={{width:'100%'}} /></div><span className="text-[10px] font-mono font-bold text-pine-teal shrink-0 w-8 text-right">100%</span></div></td>
-                  <td className="px-6 py-3 text-slate-500 font-mono">0 Gün</td>
-                  <td className="px-6 py-3 text-center"><span className="inline-flex px-2.5 py-0.5 rounded-full text-[9px] font-extrabold border bg-amber-50 text-amber-700 border-amber-100/50">TAMAMLANDI</span></td>
-                  <td className="px-6 py-3">
-                    <div className="flex justify-center items-center gap-1.5">
-                      <Link to="/admin/edit-event/e7" className="btn btn-secondary py-1 px-2 text-[10px]">
-                        Düzenle
-                      </Link>
-                      <button type="button" className="btn btn-danger py-1 px-2 text-[10px] bg-red-50 hover:bg-red-100 text-red-600 border-red-200">
-                        Sil
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-
+                {paginatedEvents.map((evt) => {
+                  const percentage = Math.min(Math.round((evt.raisedAmount / evt.targetAmount) * 100), 100);
+                  const isCompleted = evt.raisedAmount >= evt.targetAmount;
+                  return (
+                    <tr key={evt.id} className="hover:bg-slate-50/40 transition-colors">
+                      <td className="px-6 py-3">
+                        <img src={evt.imageUrl} alt={evt.title} className="w-12 h-9 rounded-lg object-cover bg-slate-100 shrink-0 border border-slate-100" />
+                      </td>
+                      <td className="px-6 py-3 font-bold text-pine-teal max-w-[200px] truncate">{evt.title}</td>
+                      <td className="px-6 py-3">
+                        <span className="inline-flex px-2 py-0.5 rounded text-[9px] font-extrabold bg-slate-50 text-slate-500 border border-slate-200/50">{evt.category}</span>
+                      </td>
+                      <td className="px-6 py-3 text-slate-700 font-mono font-bold">₺{evt.targetAmount.toLocaleString('tr-TR')}</td>
+                      <td className="px-6 py-3 text-emerald-600 font-mono font-bold">₺{evt.raisedAmount.toLocaleString('tr-TR')}</td>
+                      <td className="px-6 py-3 min-w-[160px]">
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                            <div className="h-full rounded-full bg-pine-teal" style={{ width: `${percentage}%` }} />
+                          </div>
+                          <span className="text-[10px] font-mono font-bold text-pine-teal shrink-0 w-8 text-right">{percentage}%</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-3 text-slate-500 font-mono">{evt.daysLeft} Gün</td>
+                      <td className="px-6 py-3 text-center">
+                        <span className={`inline-flex px-2.5 py-0.5 rounded-full text-[9px] font-extrabold border ${
+                          isCompleted
+                            ? 'bg-amber-50 text-amber-700 border-amber-100/50'
+                            : 'bg-emerald-50 text-emerald-700 border-emerald-100/50'
+                        }`}>
+                          {isCompleted ? 'TAMAMLANDI' : 'AKTİF'}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-center shrink-0 min-w-[90px]">
+                        <div className="flex justify-center items-center gap-1.5">
+                          <Link
+                            to={`/admin/edit-event/${evt.id}`}
+                            className="p-1.5 bg-slate-50 hover:bg-slate-100/80 text-slate-650 hover:text-pine-teal border border-slate-200 hover:border-pine-teal/30 rounded-lg transition-all"
+                            title="Düzenle"
+                          >
+                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                          </Link>
+                          <button
+                            type="button"
+                            onClick={() => confirmDelete(evt.id)}
+                            className="p-1.5 bg-rose-50/50 hover:bg-rose-50 text-rose-600 border border-rose-100 hover:border-rose-200 rounded-lg transition-all cursor-pointer"
+                            title="Sil"
+                          >
+                            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -226,43 +279,57 @@ export default function EventsManagement() {
           <div className="px-6 py-4 border-t border-slate-100 bg-slate-50/40 flex flex-col sm:flex-row items-center justify-between gap-3">
             {/* Info Text */}
             <p className="text-[11px] text-slate-400 font-medium">
-              Toplam <span className="font-bold text-slate-600">10</span> etkinlik,{' '}
-              <span className="font-bold text-slate-600">8</span>'i gösteriliyor
+              Toplam <span className="font-bold text-slate-600">{filteredEvents.length}</span> etkinlikten{' '}
+              <span className="font-bold text-slate-600">{paginatedEvents.length}</span> tanesi gösteriliyor.
             </p>
 
             {/* Page Buttons */}
-            <div className="flex items-center gap-1.5">
-              {/* Prev Arrow */}
-              <button
-                className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-400 hover:bg-slate-100 transition-all cursor-not-allowed opacity-50"
-                disabled
-              >
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
+            {totalPages > 1 && (
+              <div className="flex items-center gap-1.5">
+                {/* Prev Arrow */}
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  className={`w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-450 hover:bg-slate-50 transition-all ${
+                    currentPage === 1 ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
+                  }`}
+                  disabled={currentPage === 1}
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
 
-              {/* Page 1 – Active */}
-              <button className="w-8 h-8 flex items-center justify-center rounded-lg bg-pine-teal text-white text-xs font-extrabold shadow-sm shadow-pine-teal/20 border border-pine-teal cursor-default">
-                1
-              </button>
+                {/* Page Numbers */}
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <button
+                    key={page}
+                    onClick={() => handlePageChange(page)}
+                    className={`w-8 h-8 flex items-center justify-center rounded-lg text-xs font-extrabold border transition-all ${
+                      currentPage === page
+                        ? 'bg-pine-teal text-white shadow-sm shadow-pine-teal/20 border-pine-teal cursor-default'
+                        : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50 cursor-pointer'
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ))}
 
-              {/* Page 2 – Passive */}
-              <button className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 text-xs font-bold hover:bg-slate-50 transition-all cursor-pointer">
-                2
-              </button>
-
-              {/* Next Arrow */}
-              <button className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 hover:bg-slate-100 transition-all cursor-pointer">
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-            </div>
+                {/* Next Arrow */}
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  className={`w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-450 hover:bg-slate-50 transition-all ${
+                    currentPage === totalPages ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
+                  }`}
+                  disabled={currentPage === totalPages}
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
+            )}
           </div>
-
         </div>
-
       </div>
     </AdminLayout>
   );

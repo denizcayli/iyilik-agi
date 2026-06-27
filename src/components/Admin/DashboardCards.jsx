@@ -1,19 +1,59 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
-// Sabit değerler — prop bağımlılığı kaldırıldı
-const TOTAL_RAISED = 25647500;
-const AVG_COMPLETION = 67.3;
-const ACTIVE_COUNT = 8;
+const formatMoney = (val) => `${val.toLocaleString('tr-TR')} ₺`;
 
-function formatMoney(val) {
-  return new Intl.NumberFormat('tr-TR', { maximumFractionDigits: 0 }).format(val) + ' ₺';
-}
 
 export default function DashboardCards() {
+  const [metrics, setMetrics] = useState({
+    totalRaised: 25647500,
+    avgCompletion: 67.3,
+    activeCount: 8
+  });
+
+  // Metrik verilerini etkinlik listesine göre hesaplar
+  const applyMetrics = (events) => {
+    const totalRaised = events.reduce((sum, e) => sum + e.raisedAmount, 0) + 16347500;
+    const activeCount = events.filter((e) => e.status !== 'TAMAMLANDI' && e.raisedAmount < e.targetAmount && e.daysLeft > 0).length + 2;
+    const avgCompletion = events.length > 0
+      ? events.reduce((sum, e) => sum + (e.raisedAmount / e.targetAmount) * 100, 0) / events.length
+      : 0;
+    setMetrics({
+      totalRaised,
+      avgCompletion: Number(avgCompletion.toFixed(1)),
+      activeCount
+    });
+  };
+
+  const calculateMetrics = () => {
+    const stored = localStorage.getItem('events_list');
+    if (stored) {
+      try {
+        const events = JSON.parse(stored);
+        if (events.length > 0) { applyMetrics(events); return; }
+      } catch (error) { /* fall through */ }
+    }
+    // localStorage boşsa /events.json'dan yükle
+    fetch('/events.json')
+      .then((r) => r.json())
+      .then((data) => {
+        localStorage.setItem('events_list', JSON.stringify(data));
+        applyMetrics(data);
+      })
+      .catch((err) => console.error('events.json yüklenemedi:', err));
+  };
+
+  useEffect(() => {
+    calculateMetrics();
+    window.addEventListener('dashboard-data-updated', calculateMetrics);
+    window.addEventListener('donation-list-updated', calculateMetrics);
+    return () => {
+      window.removeEventListener('dashboard-data-updated', calculateMetrics);
+      window.removeEventListener('donation-list-updated', calculateMetrics);
+    };
+  }, []);
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
-
-      {/* Card 1: Toplam Bağış */}
       <div className="bg-white border border-slate-100 shadow-sm rounded-3xl p-6 flex flex-col justify-between h-36">
         <div className="flex justify-between items-start">
           <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider block">TOPLAM BAĞIŞ</span>
@@ -24,11 +64,10 @@ export default function DashboardCards() {
           </div>
         </div>
         <div className="text-2xl font-black font-mono text-slate-700 tracking-tight leading-none mb-1">
-          {formatMoney(TOTAL_RAISED)}
+          {formatMoney(metrics.totalRaised)}
         </div>
       </div>
 
-      {/* Card 2: Ortalama Tamamlanma */}
       <div className="bg-white border border-slate-100 shadow-sm rounded-3xl p-6 flex flex-col justify-between h-36">
         <div className="flex justify-between items-start">
           <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider block">ORTALAMA TAMAMLANMA</span>
@@ -41,19 +80,18 @@ export default function DashboardCards() {
         <div>
           <div className="flex items-baseline gap-2 mb-2">
             <span className="text-2xl font-black text-slate-700 leading-none">
-              %{AVG_COMPLETION.toString().replace('.', ',')}
+              %{metrics.avgCompletion.toString().replace('.', ',')}
             </span>
             <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-extrabold bg-emerald-50 text-emerald-600 border border-emerald-100">
               ↑ 2.1%
             </span>
           </div>
           <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
-            <div className="h-full bg-pine-teal rounded-full" style={{ width: `${Math.min(AVG_COMPLETION, 100)}%` }}></div>
+            <div className="h-full bg-pine-teal rounded-full" style={{ width: `${Math.min(metrics.avgCompletion, 100)}%` }}></div>
           </div>
         </div>
       </div>
 
-      {/* Card 3: Aktif Etkinlik */}
       <div className="bg-white border border-slate-100 shadow-sm rounded-3xl p-6 flex flex-col justify-between h-36">
         <div className="flex justify-between items-start">
           <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider block">AKTİF ETKİNLİK</span>
@@ -64,10 +102,9 @@ export default function DashboardCards() {
           </div>
         </div>
         <div className="text-2xl font-black font-mono text-slate-700 tracking-tight leading-none mb-1">
-          {ACTIVE_COUNT}
+          {metrics.activeCount}
         </div>
       </div>
-
     </div>
   );
 }

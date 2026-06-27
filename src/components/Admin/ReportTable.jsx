@@ -1,33 +1,239 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
-// Sabit 6 finansal kayıt satırı
-const STATIC_RECORDS = [
-  { id: 'r1', project: 'Geleceğe Nefes: Orman Yangını', sponsor: 2500000, raised: 7450000, spent: 5900000, status: 'Onaylandı' },
-  { id: 'r2', project: 'Köy Okullarına Bilgisayar Lab.', sponsor: 150000, raised: 420000, spent: 310000, status: 'Onaylandı' },
-  { id: 'r3', project: 'Sokak Hayvanları Mobil Klinik', sponsor: 0, raised: 148000, spent: 89000, status: 'Süreçte' },
-  { id: 'r4', project: 'Temiz Su Kuyusu Projesi', sponsor: 50000, raised: 210000, spent: 175000, status: 'Onaylandı' },
-  { id: 'r5', project: 'Deprem Bölgesi Geçici Okul', sponsor: 300000, raised: 580000, spent: 420000, status: 'Süreçte' },
-  { id: 'r6', project: 'Çocuk Kanseri Destek Bağışı', sponsor: 100000, raised: 400000, spent: 398000, status: 'Onaylandı' },
-];
+// Sayıyı ₺ para birimi formatına çevirir
+const formatMoney = (val) => `₺${val.toLocaleString('tr-TR')}`;
 
-function formatMoney(val) {
-  return '₺' + new Intl.NumberFormat('tr-TR', { maximumFractionDigits: 0 }).format(val);
-}
 
 export default function ReportTable() {
+  const [records, setRecords] = useState([]);
+  const [feedback, setFeedback] = useState({ type: '', message: '' });
+  const [isExcelLoading, setIsExcelLoading] = useState(false);
+  const [excelStatus, setExcelStatus] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showFeedback, setShowFeedback] = useState(false);
+
+  // Proje adına göre filtreleme yapar
+  const filteredRecords = records.filter((rec) =>
+    rec.project.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  const [formData, setFormData] = useState({
+    donorName: '',
+    project: 'Geleceğe Nefes: Orman Yangını',
+    amount: '',
+    donationDate: new Date().toISOString().split('T')[0]
+  });
+
+  // Finansal rapor verilerini önce localStorage, yoksa /financial_records.json'dan yükler
+  const fetchRecords = () => {
+    const stored = localStorage.getItem('financial_records');
+    if (stored) {
+      try {
+        setRecords(JSON.parse(stored));
+      } catch (error) {
+        // parse hatasında dosyadan yükle
+        fetch('/financial_records.json')
+          .then((r) => r.json())
+          .then((data) => {
+            localStorage.setItem('financial_records', JSON.stringify(data));
+            setRecords(data);
+          });
+      }
+    } else {
+      fetch('/financial_records.json')
+        .then((r) => r.json())
+        .then((data) => {
+          localStorage.setItem('financial_records', JSON.stringify(data));
+          setRecords(data);
+        })
+        .catch((err) => console.error('financial_records.json yüklenemedi:', err));
+    }
+  };
+
+  useEffect(() => {
+    fetchRecords();
+    const handleUpdate = () => {
+      fetchRecords();
+    };
+    window.addEventListener('donation-list-updated', handleUpdate);
+    return () => {
+      window.removeEventListener('donation-list-updated', handleUpdate);
+    };
+  }, []);
+
+  // Form gönderildiğinde bağışı kaydeder ve bütçeyi günceller
+  const handleSubmit = () => {
+    const val = Number(formData.amount);
+    if (!formData.donorName.trim() || isNaN(val) || val <= 0) {
+      setFeedback({ type: 'error', message: 'Lütfen tüm alanları doğru ve 0\'dan büyük bir tutarla doldurun.' });
+      setShowFeedback(true);
+      setTimeout(() => setShowFeedback(false), 2700);
+      setTimeout(() => setFeedback({ type: '', message: '' }), 3000);
+      return;
+    }
+
+    const stored = localStorage.getItem('financial_records');
+    let currentRecords = [];
+    try {
+      currentRecords = stored ? JSON.parse(stored) : [...STATIC_RECORDS];
+    } catch (error) {
+      currentRecords = [...STATIC_RECORDS];
+    }
+
+    const updated = currentRecords.map((rec) => {
+      if (rec.project === formData.project) {
+        return { ...rec, raised: rec.raised + val };
+      }
+      return rec;
+    });
+
+    localStorage.setItem('financial_records', JSON.stringify(updated));
+
+    // events_list'i günceller ve hedef kontrolü yapar
+    const storedEvents = localStorage.getItem('events_list');
+    let events = [];
+    try {
+      events = storedEvents ? JSON.parse(storedEvents) : [...STATIC_EVENTS_DEFAULT];
+    } catch (error) {
+      events = [...STATIC_EVENTS_DEFAULT];
+    }
+
+    const updatedEvents = events.map((evt) => {
+      if (evt.title.toLowerCase().includes(formData.project.toLowerCase().split(':')[0])) {
+        const newRaised = evt.raisedAmount + val;
+        const isCompleted = newRaised >= evt.targetAmount;
+        return {
+          ...evt,
+          raisedAmount: newRaised,
+          daysLeft: isCompleted ? 0 : evt.daysLeft,
+          status: isCompleted ? 'TAMAMLANDI' : 'AKTİF'
+        };
+      }
+      return evt;
+    });
+    localStorage.setItem('events_list', JSON.stringify(updatedEvents));
+
+    // all_donations listesine ekleme yapar
+    const storedDonations = localStorage.getItem('all_donations');
+    let donations = [];
+    try {
+      donations = storedDonations ? JSON.parse(storedDonations) : [
+        { id: 'd1', donorName: 'Mehmet Yılmaz', campaignTitle: 'Geleceğe Nefes: Orman Yangını', amount: 500, timeAgo: '3 dk önce', date: '2026-06-27' },
+        { id: 'd2', donorName: 'Ayşe Kaya', campaignTitle: 'Köy Okullarına Lab.', amount: 250, timeAgo: '15 dk önce', date: '2026-06-27' },
+        { id: 'd3', donorName: 'Onur Baha Koç', campaignTitle: 'Sokak Hayvanları Mobil Klinik', amount: 1000, timeAgo: '18 dk önce', date: '2026-06-27' },
+        { id: 'd4', donorName: 'Fatma Demir', campaignTitle: 'Temiz Su Kuyusu', amount: 150, timeAgo: '3 sa önce', date: '2026-06-27' },
+        { id: 'd5', donorName: 'Ali Çelik', campaignTitle: 'Deprem Bölgesi Okul', amount: 750, timeAgo: '1 gün önce', date: '2026-06-26' },
+      ];
+    } catch (error) {
+      donations = [];
+    }
+
+    const newDonation = {
+      id: 'd_' + Date.now(),
+      donorName: formData.donorName,
+      campaignTitle: formData.project,
+      amount: val,
+      timeAgo: 'Az önce',
+      date: formData.donationDate
+    };
+
+    localStorage.setItem('all_donations', JSON.stringify([newDonation, ...donations]));
+
+    window.dispatchEvent(new Event('donation-list-updated'));
+    window.dispatchEvent(new Event('dashboard-data-updated'));
+
+    setFeedback({ type: 'success', message: 'Bağış başarıyla kaydedildi!' });
+    setShowFeedback(true);
+    setTimeout(() => setShowFeedback(false), 2700);
+    setTimeout(() => setFeedback({ type: '', message: '' }), 3000);
+
+    setFormData({
+      donorName: '',
+      project: 'Geleceğe Nefes: Orman Yangını',
+      amount: '',
+      donationDate: new Date().toISOString().split('T')[0]
+    });
+  };
+
+  // Excel indirme simülasyonu başlatır
+  const handleDownloadExcel = () => {
+    setIsExcelLoading(true);
+    setExcelStatus('');
+    setTimeout(() => {
+      setIsExcelLoading(false);
+      setExcelStatus('Finansal_Rapor.xlsx başarıyla indirildi.');
+      setTimeout(() => setExcelStatus(''), 4000);
+    }, 1000);
+  };
+
+  const formFields = [
+    {
+      id: 'donorName',
+      label: 'Bağışçı Adı *',
+      type: 'text',
+      placeholder: 'Ad Soyad',
+      value: formData.donorName,
+      onChange: (e) => setFormData((prev) => ({ ...prev, donorName: e.target.value }))
+    },
+    {
+      id: 'project',
+      label: 'Etkinlik *',
+      type: 'select',
+      value: formData.project,
+      onChange: (e) => setFormData((prev) => ({ ...prev, project: e.target.value })),
+      options: [
+        'Geleceğe Nefes: Orman Yangını',
+        'Köy Okullarına Bilgisayar Lab.',
+        'Sokak Hayvanları Mobil Klinik',
+        'Temiz Su Kuyusu Projesi',
+        'Deprem Bölgesi Geçici Okul',
+        'Çocuk Kanseri Destek Bağışı'
+      ]
+    },
+    {
+      id: 'amount',
+      label: 'Tutar (₺) *',
+      type: 'number',
+      placeholder: '500',
+      value: formData.amount,
+      onChange: (e) => setFormData((prev) => ({ ...prev, amount: e.target.value }))
+    },
+    {
+      id: 'donationDate',
+      label: 'Bağış Tarihi *',
+      type: 'date',
+      value: formData.donationDate,
+      onChange: (e) => setFormData((prev) => ({ ...prev, donationDate: e.target.value }))
+    }
+  ];
+
   return (
     <div className="space-y-8 text-left">
-
-      {/* Tablo Başlık */}
       <div>
         <h1 className="text-2xl font-extrabold text-inst-navy tracking-tight">Finansal Raporlar</h1>
         <p className="text-xs text-slate-400 mt-0.5 font-medium">Tüm etkinliklerin sponsor geliri, toplanan fon ve harcama kalemleri.</p>
       </div>
 
-      {/* Finansal Tablo */}
+      {excelStatus && (
+        <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs px-4 py-3 rounded-2xl text-left font-bold animate-fade-in shadow-sm">
+          {excelStatus}
+        </div>
+      )}
+
       <div className="card-base shadow-xl shadow-slate-200/20 p-0 overflow-hidden">
-        <div className="px-6 py-5 border-b border-slate-100 bg-white">
+        <div className="px-6 py-5 border-b border-slate-100 bg-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <h3 className="text-xs font-black text-inst-navy uppercase tracking-wider">FİNANSAL ÖZET TABLOSU</h3>
+          <div className="search-input-wrapper w-full sm:w-64">
+            <input
+              type="text"
+              placeholder="Proje veya etkinlik ara..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="search-input w-full"
+            />
+            <svg className="search-input-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-xs text-left">
@@ -41,105 +247,93 @@ export default function ReportTable() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 font-medium">
-              {/* Satır 1 */}
-              <tr className="hover:bg-slate-50/40 transition-colors">
-                <td className="px-6 py-4 font-bold text-slate-800 max-w-[220px] truncate">Geleceğe Nefes: Orman Yangını</td>
-                <td className="px-6 py-4 font-mono text-slate-600">₺2.500.000</td>
-                <td className="px-6 py-4 font-mono font-bold text-pine-teal">₺7.450.000</td>
-                <td className="px-6 py-4 font-mono text-slate-700">₺5.900.000</td>
-                <td className="px-6 py-4 text-center"><span className="inline-flex px-2.5 py-0.5 rounded-full text-[9px] font-extrabold border bg-emerald-50 text-emerald-700 border-emerald-100/50">Onaylandı</span></td>
-              </tr>
-              {/* Satır 2 */}
-              <tr className="hover:bg-slate-50/40 transition-colors">
-                <td className="px-6 py-4 font-bold text-slate-800 max-w-[220px] truncate">Köy Okullarına Bilgisayar Lab.</td>
-                <td className="px-6 py-4 font-mono text-slate-600">₺150.000</td>
-                <td className="px-6 py-4 font-mono font-bold text-pine-teal">₺420.000</td>
-                <td className="px-6 py-4 font-mono text-slate-700">₺310.000</td>
-                <td className="px-6 py-4 text-center"><span className="inline-flex px-2.5 py-0.5 rounded-full text-[9px] font-extrabold border bg-emerald-50 text-emerald-700 border-emerald-100/50">Onaylandı</span></td>
-              </tr>
-              {/* Satır 3 */}
-              <tr className="hover:bg-slate-50/40 transition-colors">
-                <td className="px-6 py-4 font-bold text-slate-800 max-w-[220px] truncate">Sokak Hayvanları Mobil Klinik</td>
-                <td className="px-6 py-4 font-mono text-slate-600">₺0</td>
-                <td className="px-6 py-4 font-mono font-bold text-pine-teal">₺148.000</td>
-                <td className="px-6 py-4 font-mono text-slate-700">₺89.000</td>
-                <td className="px-6 py-4 text-center"><span className="inline-flex px-2.5 py-0.5 rounded-full text-[9px] font-extrabold border bg-amber-50 text-amber-700 border-amber-100/50">Süreçte</span></td>
-              </tr>
-              {/* Satır 4 */}
-              <tr className="hover:bg-slate-50/40 transition-colors">
-                <td className="px-6 py-4 font-bold text-slate-800 max-w-[220px] truncate">Temiz Su Kuyusu Projesi</td>
-                <td className="px-6 py-4 font-mono text-slate-600">₺50.000</td>
-                <td className="px-6 py-4 font-mono font-bold text-pine-teal">₺210.000</td>
-                <td className="px-6 py-4 font-mono text-slate-700">₺175.000</td>
-                <td className="px-6 py-4 text-center"><span className="inline-flex px-2.5 py-0.5 rounded-full text-[9px] font-extrabold border bg-emerald-50 text-emerald-700 border-emerald-100/50">Onaylandı</span></td>
-              </tr>
-              {/* Satır 5 */}
-              <tr className="hover:bg-slate-50/40 transition-colors">
-                <td className="px-6 py-4 font-bold text-slate-800 max-w-[220px] truncate">Deprem Bölgesi Geçici Okul</td>
-                <td className="px-6 py-4 font-mono text-slate-600">₺300.000</td>
-                <td className="px-6 py-4 font-mono font-bold text-pine-teal">₺580.000</td>
-                <td className="px-6 py-4 font-mono text-slate-700">₺420.000</td>
-                <td className="px-6 py-4 text-center"><span className="inline-flex px-2.5 py-0.5 rounded-full text-[9px] font-extrabold border bg-amber-50 text-amber-700 border-amber-100/50">Süreçte</span></td>
-              </tr>
-              {/* Satır 6 */}
-              <tr className="hover:bg-slate-50/40 transition-colors">
-                <td className="px-6 py-4 font-bold text-slate-800 max-w-[220px] truncate">Çocuk Kanseri Destek Bağışı</td>
-                <td className="px-6 py-4 font-mono text-slate-600">₺100.000</td>
-                <td className="px-6 py-4 font-mono font-bold text-pine-teal">₺400.000</td>
-                <td className="px-6 py-4 font-mono text-slate-700">₺398.000</td>
-                <td className="px-6 py-4 text-center"><span className="inline-flex px-2.5 py-0.5 rounded-full text-[9px] font-extrabold border bg-emerald-50 text-emerald-700 border-emerald-100/50">Onaylandı</span></td>
-              </tr>
+              {filteredRecords.map((rec) => (
+                <tr key={rec.id} className="hover:bg-slate-50/40 transition-colors">
+                  <td className="px-6 py-4 font-bold text-slate-800 max-w-[220px] truncate">{rec.project}</td>
+                  <td className="px-6 py-4 font-mono text-slate-600">{formatMoney(rec.sponsor)}</td>
+                  <td className="px-6 py-4 font-mono font-bold text-pine-teal">{formatMoney(rec.raised)}</td>
+                  <td className="px-6 py-4 font-mono text-slate-700">{formatMoney(rec.spent)}</td>
+                  <td className="px-6 py-4 text-center">
+                    <span className={`inline-flex px-2.5 py-0.5 rounded-full text-[9px] font-extrabold border ${
+                      rec.status === 'Onaylandı'
+                        ? 'bg-emerald-50 text-emerald-700 border-emerald-100/50'
+                        : 'bg-amber-50 text-amber-700 border-amber-100/50'
+                    }`}>
+                      {rec.status}
+                    </span>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
       </div>
 
-      {/* Manuel Bağış Formu — uncontrolled */}
       <div className="card-base shadow-xl shadow-slate-200/20 md:p-8">
         <h3 className="text-xs font-black text-inst-navy uppercase tracking-wider border-b border-slate-100 pb-4 mb-6">MANUEL BAĞIŞ KAYDI</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div>
-            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Bağışçı Adı *</label>
-            <input
-              type="text"
-              placeholder="Ad Soyad"
-              className="form-input w-full"
-            />
-          </div>
-          <div>
-            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Etkinlik *</label>
-            <select className="form-input w-full cursor-pointer">
-              <option>Geleceğe Nefes: Orman Yangını</option>
-              <option>Köy Okullarına Bilgisayar Lab.</option>
-              <option>Sokak Hayvanları Mobil Klinik</option>
-              <option>Temiz Su Kuyusu Projesi</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Tutar (₺) *</label>
-            <input
-              type="number"
-              placeholder="500"
-              className="form-input w-full"
-            />
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {formFields.map((field) => (
+            <div key={field.id}>
+              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">{field.label}</label>
+              {field.type === 'select' ? (
+                <select
+                  value={field.value}
+                  onChange={field.onChange}
+                  className="form-input w-full cursor-pointer"
+                >
+                  {field.options.map((opt) => (
+                    <option key={opt} value={opt}>{opt}</option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  type={field.type}
+                  placeholder={field.placeholder}
+                  value={field.value}
+                  onChange={field.onChange}
+                  className="form-input w-full"
+                />
+              )}
+            </div>
+          ))}
         </div>
+
+        {feedback.message && (
+          <div
+            style={{
+              opacity: showFeedback ? 1 : 0,
+              transform: showFeedback ? 'translateY(0)' : 'translateY(-5px)',
+              transition: 'opacity 0.3s ease, transform 0.3s ease'
+            }}
+            className={`mt-4 px-4 py-3 rounded-2xl text-xs font-bold ${
+              feedback.type === 'success' ? 'bg-emerald-50 border border-emerald-200 text-emerald-800' : 'bg-rose-50 border border-rose-200 text-rose-800'
+            }`}
+          >
+            {feedback.message}
+          </div>
+        )}
+
         <div className="mt-6 flex justify-end gap-3">
           <button
             type="button"
-            className="btn btn-secondary px-5 py-2.5"
+            onClick={handleDownloadExcel}
+            disabled={isExcelLoading}
+            className="btn btn-secondary px-5 py-2.5 flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Excel'e Aktar
+            {isExcelLoading ? (
+              <div className="w-4 h-4 border-2 border-slate-500 border-t-transparent rounded-full animate-spin"></div>
+            ) : (
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+            )}
+            <span>{isExcelLoading ? 'Hazırlanıyor...' : 'Excel İndir'}</span>
           </button>
-          <button
-            type="button"
-            className="btn btn-primary px-5 py-2.5"
-          >
+          <button type="button" onClick={handleSubmit} className="btn btn-primary px-5 py-2.5">
             Bağışı Kaydet
           </button>
         </div>
       </div>
-
     </div>
   );
 }

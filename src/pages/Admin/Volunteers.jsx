@@ -1,39 +1,105 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import AdminLayout from '../../components/AdminLayout';
 
-const volunteerList = [
-  { name: 'Deniz Çaylı', email: 'deniz@iyilikagi.com', task: 'Ağaç Dikimi', hours: 42, status: 'AKTİF' },
-  { name: 'Onur Baha Koç', email: 'koconurbaha@gmail.com', task: 'Barınak Bakımı', hours: 128, status: 'AKTİF' },
-  { name: 'Ayşe Yılmaz', email: 'ayse@gmail.com', task: 'Masal Saati', hours: 15, status: 'PASİF' },
-  { name: 'Kemal Aydın', email: 'kaydın@gmail.com', task: 'Yemek Dağıtımı', hours: 56, status: 'AKTİF' },
-  { name: 'Selin Korkmaz', email: 'selin.k@hotmail.com', task: 'Kütüphane Organizasyonu', hours: 33, status: 'AKTİF' },
-  { name: 'Musa Demir', email: 'musa.d@gmail.com', task: 'Spor Koçluğu', hours: 8, status: 'PASİF' },
-];
-
 export default function Volunteers() {
+  const [volunteers, setVolunteers] = useState([]);
+  const [emailStatus, setEmailStatus] = useState('');
+  const [excelStatus, setExcelStatus] = useState('');
+  const [isExcelLoading, setIsExcelLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  // Gönüllü listesini /volunteers.json'dan yükler
+  useEffect(() => {
+    fetch('/volunteers.json')
+      .then((r) => r.json())
+      .then((data) => setVolunteers(data))
+      .catch((err) => console.error('volunteers.json yüklenemedi:', err));
+  }, []);
+
+  // Gönüllü adına göre arama filtrelemesi yapar
+  const filteredVolunteers = volunteers.filter((vol) =>
+    vol.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Toplu e-postaları sıraya alır
+  const handleSendEmails = () => {
+    setEmailStatus('E-postalar başarıyla sıraya alındı.');
+    setTimeout(() => setEmailStatus(''), 4000);
+  };
+
+  // Excel indirme simülasyonu başlatır
+  const handleDownloadExcel = () => {
+    setIsExcelLoading(true);
+    setExcelStatus('');
+    setTimeout(() => {
+      setIsExcelLoading(false);
+      setExcelStatus('Finansal_Rapor.xlsx başarıyla indirildi.');
+      setTimeout(() => setExcelStatus(''), 4000);
+    }, 1000);
+  };
+
   return (
     <AdminLayout>
       <div className="space-y-8 max-w-6xl mx-auto">
-
-        {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="text-left">
             <h1 className="text-2xl font-extrabold text-inst-navy tracking-tight">Gönüllü Takibi</h1>
             <p className="text-xs text-slate-400 mt-0.5 font-medium">Kayıtlı aktif ve pasif sivil toplum gönüllülerinin takibi.</p>
           </div>
-          {/* Görünür ama işlevsiz */}
-          <button className="btn btn-primary px-4 py-2.5 flex items-center gap-1.5">
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-            </svg>
-            <span>Toplu E-posta Gönder</span>
-          </button>
+          <div className="flex flex-wrap gap-2 items-center">
+            <button
+              onClick={handleSendEmails}
+              className="btn btn-primary px-4 py-2.5 flex items-center gap-1.5"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              <span>Toplu E-posta Gönder</span>
+            </button>
+            <button
+              onClick={handleDownloadExcel}
+              disabled={isExcelLoading}
+              className="btn btn-secondary px-4 py-2.5 flex items-center gap-1.5 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isExcelLoading ? (
+                <div className="w-4 h-4 border-2 border-slate-500 border-t-transparent rounded-full animate-spin"></div>
+              ) : (
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+              )}
+              <span>{isExcelLoading ? 'Hazırlanıyor...' : 'Excel İndir'}</span>
+            </button>
+          </div>
         </div>
 
-        {/* Tablo */}
+        {emailStatus && (
+          <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs px-4 py-3 rounded-2xl text-left font-bold animate-fade-in shadow-sm">
+            {emailStatus}
+          </div>
+        )}
+
+        {excelStatus && (
+          <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs px-4 py-3 rounded-2xl text-left font-bold animate-fade-in shadow-sm">
+            {excelStatus}
+          </div>
+        )}
+
         <div className="card-base shadow-xl shadow-slate-200/20 text-left p-0 overflow-hidden">
-          <div className="px-6 py-5 border-b border-slate-100 bg-white">
+          <div className="px-6 py-5 border-b border-slate-100 bg-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
             <h3 className="text-xs font-black text-inst-navy uppercase tracking-wider">AKTİF GÖNÜLLÜLER LİSTESİ</h3>
+            <div className="search-input-wrapper w-full sm:w-64">
+              <input
+                type="text"
+                placeholder="Gönüllü ara..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="search-input w-full"
+              />
+              <svg className="search-input-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-xs text-left">
@@ -47,60 +113,27 @@ export default function Volunteers() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 font-medium">
-                {/* Satır 1 */}
-                <tr className="hover:bg-slate-50/40 transition-colors">
-                  <td className="px-6 py-4 font-bold text-slate-800">Deniz Çaylı</td>
-                  <td className="px-6 py-4 text-slate-500">deniz@iyilikagi.com</td>
-                  <td className="px-6 py-4 text-pine-teal font-bold">Ağaç Dikimi</td>
-                  <td className="px-6 py-4 text-slate-700 font-mono font-bold">42 Saat</td>
-                  <td className="px-6 py-4 text-center"><span className="inline-flex px-2.5 py-0.5 rounded-full text-[9px] font-extrabold border bg-emerald-50 text-emerald-700 border-emerald-100/50">AKTİF</span></td>
-                </tr>
-                {/* Satır 2 */}
-                <tr className="hover:bg-slate-50/40 transition-colors">
-                  <td className="px-6 py-4 font-bold text-slate-800">Onur Baha Koç</td>
-                  <td className="px-6 py-4 text-slate-500">koconurbaha@gmail.com</td>
-                  <td className="px-6 py-4 text-pine-teal font-bold">Barınak Bakımı</td>
-                  <td className="px-6 py-4 text-slate-700 font-mono font-bold">128 Saat</td>
-                  <td className="px-6 py-4 text-center"><span className="inline-flex px-2.5 py-0.5 rounded-full text-[9px] font-extrabold border bg-emerald-50 text-emerald-700 border-emerald-100/50">AKTİF</span></td>
-                </tr>
-                {/* Satır 3 */}
-                <tr className="hover:bg-slate-50/40 transition-colors">
-                  <td className="px-6 py-4 font-bold text-slate-800">Ayşe Yılmaz</td>
-                  <td className="px-6 py-4 text-slate-500">ayse@gmail.com</td>
-                  <td className="px-6 py-4 text-pine-teal font-bold">Masal Saati</td>
-                  <td className="px-6 py-4 text-slate-700 font-mono font-bold">15 Saat</td>
-                  <td className="px-6 py-4 text-center"><span className="inline-flex px-2.5 py-0.5 rounded-full text-[9px] font-extrabold border bg-slate-50 text-slate-500 border-slate-200/50">PASİF</span></td>
-                </tr>
-                {/* Satır 4 */}
-                <tr className="hover:bg-slate-50/40 transition-colors">
-                  <td className="px-6 py-4 font-bold text-slate-800">Kemal Aydın</td>
-                  <td className="px-6 py-4 text-slate-500">kaydin@gmail.com</td>
-                  <td className="px-6 py-4 text-pine-teal font-bold">Yemek Dağıtımı</td>
-                  <td className="px-6 py-4 text-slate-700 font-mono font-bold">56 Saat</td>
-                  <td className="px-6 py-4 text-center"><span className="inline-flex px-2.5 py-0.5 rounded-full text-[9px] font-extrabold border bg-emerald-50 text-emerald-700 border-emerald-100/50">AKTİF</span></td>
-                </tr>
-                {/* Satır 5 */}
-                <tr className="hover:bg-slate-50/40 transition-colors">
-                  <td className="px-6 py-4 font-bold text-slate-800">Selin Korkmaz</td>
-                  <td className="px-6 py-4 text-slate-500">selin.k@hotmail.com</td>
-                  <td className="px-6 py-4 text-pine-teal font-bold">Kütüphane Organizasyonu</td>
-                  <td className="px-6 py-4 text-slate-700 font-mono font-bold">33 Saat</td>
-                  <td className="px-6 py-4 text-center"><span className="inline-flex px-2.5 py-0.5 rounded-full text-[9px] font-extrabold border bg-emerald-50 text-emerald-700 border-emerald-100/50">AKTİF</span></td>
-                </tr>
-                {/* Satır 6 */}
-                <tr className="hover:bg-slate-50/40 transition-colors">
-                  <td className="px-6 py-4 font-bold text-slate-800">Musa Demir</td>
-                  <td className="px-6 py-4 text-slate-500">musa.d@gmail.com</td>
-                  <td className="px-6 py-4 text-pine-teal font-bold">Spor Koçluğu</td>
-                  <td className="px-6 py-4 text-slate-700 font-mono font-bold">8 Saat</td>
-                  <td className="px-6 py-4 text-center"><span className="inline-flex px-2.5 py-0.5 rounded-full text-[9px] font-extrabold border bg-slate-50 text-slate-500 border-slate-200/50">PASİF</span></td>
-                </tr>
-
+                {filteredVolunteers.map((vol, idx) => (
+                  <tr key={idx} className="hover:bg-slate-50/40 transition-colors">
+                    <td className="px-6 py-4 font-bold text-slate-800">{vol.name}</td>
+                    <td className="px-6 py-4 text-slate-500">{vol.email}</td>
+                    <td className="px-6 py-4 text-pine-teal font-bold">{vol.task}</td>
+                    <td className="px-6 py-4 text-slate-700 font-mono font-bold">{vol.hours} Saat</td>
+                    <td className="px-6 py-4 text-center">
+                      <span className={`inline-flex px-2.5 py-0.5 rounded-full text-[9px] font-extrabold border ${
+                        vol.status === 'AKTİF'
+                          ? 'bg-emerald-50 text-emerald-700 border-emerald-100/50'
+                          : 'bg-slate-50 text-slate-500 border-slate-200/50'
+                      }`}>
+                        {vol.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
         </div>
-
       </div>
     </AdminLayout>
   );

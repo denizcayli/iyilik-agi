@@ -1,14 +1,18 @@
+
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
+// admin panelinin sol tarafındaki dikey menü çubuğu bileşeni
 export default function AdminSidebar({ onLogout }) {
   const location = useLocation();
   const navigate = useNavigate();
   const activePath = location.pathname;
 
   const handleLogoutClick = () => {
-    if (onLogout) onLogout();
-    navigate('/login');
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('user');
+    window.dispatchEvent(new Event('auth-state-changed'));
+    window.location.href = '/';
   };
 
 
@@ -16,20 +20,25 @@ export default function AdminSidebar({ onLogout }) {
   return (
     <aside className="w-72 bg-white border-r border-slate-100 flex flex-col justify-between shrink-0 h-screen sticky top-0 py-6 px-5 text-left">
       <div className="space-y-6">
-        {/* Logo & Title */}
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-pine-teal flex items-center justify-center shadow-lg shadow-pine-teal/20">
-            <svg className="w-5.5 h-5.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-            </svg>
+        {/* yönetim panelinin logosu ve başlık kısmı */}
+        <div className="flex flex-col gap-2 border-b border-slate-100 pb-4 mb-2 text-left">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-pine-teal flex items-center justify-center shadow-lg shadow-pine-teal/20 shrink-0">
+              <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+            </div>
+            <span className="text-xs font-black text-inst-navy uppercase tracking-wider">İyilik Ağı</span>
           </div>
-          <div className="flex flex-col">
-            <span className="text-sm font-black text-inst-navy tracking-tight leading-tight">Yönetim Paneli</span>
-            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Vakıf Yöneticisi</span>
+          <div className="pt-2">
+            <span className="text-lg font-black text-inst-navy block tracking-tight">Hoş geldiniz</span>
+            <span className="text-[11px] font-bold text-slate-500 block truncate max-w-[200px]">
+              {JSON.parse(sessionStorage.getItem('user') || localStorage.getItem('user') || '{}').name || 'Yönetici'}
+            </span>
           </div>
         </div>
 
-        {/* New Event Button */}
+        {/* yeni bir kampanya/etkinlik ekleme sayfası butonu */}
         <Link
           to="/admin/new-event"
           className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-pine-teal hover:bg-emerald-800 text-white font-extrabold rounded-2xl text-xs transition-all shadow-md shadow-pine-teal/10 hover:shadow-lg hover:shadow-pine-teal/20 shrink-0 cursor-pointer"
@@ -40,17 +49,16 @@ export default function AdminSidebar({ onLogout }) {
           <span>Yeni Etkinlik Ekle</span>
         </Link>
 
-        {/* Menu Items */}
+        {/* panel içi sayfalar arası geçiş menüsü */}
         <div className="pt-2">
           <span className="text-[10px] text-slate-400 font-black uppercase tracking-wider block mb-3 pl-2">MENÜ</span>
           <nav className="space-y-1">
             <Link
               to="/admin"
-              className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all cursor-pointer ${
-                activePath === '/admin'
-                  ? 'bg-pine-teal/5 text-pine-teal border-l-4 border-pine-teal pl-3 rounded-l-none'
-                  : 'text-slate-500 hover:text-pine-teal hover:bg-slate-50'
-              }`}
+              className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all cursor-pointer ${activePath === '/admin'
+                ? 'bg-pine-teal/5 text-pine-teal border-l-4 border-pine-teal pl-3 rounded-l-none'
+                : 'text-slate-500 hover:text-pine-teal hover:bg-slate-50'
+                }`}
             >
               <span className={activePath === '/admin' ? 'text-pine-teal' : 'text-slate-400'}>
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -62,11 +70,10 @@ export default function AdminSidebar({ onLogout }) {
 
             <Link
               to="/admin/events"
-              className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all cursor-pointer ${
-                activePath.startsWith('/admin/events')
-                  ? 'bg-pine-teal/5 text-pine-teal border-l-4 border-pine-teal pl-3 rounded-l-none'
-                  : 'text-slate-500 hover:text-pine-teal hover:bg-slate-50'
-              }`}
+              className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all cursor-pointer ${activePath.startsWith('/admin/events')
+                ? 'bg-pine-teal/5 text-pine-teal border-l-4 border-pine-teal pl-3 rounded-l-none'
+                : 'text-slate-500 hover:text-pine-teal hover:bg-slate-50'
+                }`}
             >
               <span className={activePath.startsWith('/admin/events') ? 'text-pine-teal' : 'text-slate-400'}>
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -78,11 +85,10 @@ export default function AdminSidebar({ onLogout }) {
 
             <Link
               to="/admin/reports"
-              className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all cursor-pointer ${
-                activePath.startsWith('/admin/reports')
-                  ? 'bg-pine-teal/5 text-pine-teal border-l-4 border-pine-teal pl-3 rounded-l-none'
-                  : 'text-slate-500 hover:text-pine-teal hover:bg-slate-50'
-              }`}
+              className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all cursor-pointer ${activePath.startsWith('/admin/reports')
+                ? 'bg-pine-teal/5 text-pine-teal border-l-4 border-pine-teal pl-3 rounded-l-none'
+                : 'text-slate-500 hover:text-pine-teal hover:bg-slate-50'
+                }`}
             >
               <span className={activePath.startsWith('/admin/reports') ? 'text-pine-teal' : 'text-slate-400'}>
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -94,11 +100,10 @@ export default function AdminSidebar({ onLogout }) {
 
             <Link
               to="/admin/volunteers"
-              className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all cursor-pointer ${
-                activePath.startsWith('/admin/volunteers')
-                  ? 'bg-pine-teal/5 text-pine-teal border-l-4 border-pine-teal pl-3 rounded-l-none'
-                  : 'text-slate-500 hover:text-pine-teal hover:bg-slate-50'
-              }`}
+              className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-bold transition-all cursor-pointer ${activePath.startsWith('/admin/volunteers')
+                ? 'bg-pine-teal/5 text-pine-teal border-l-4 border-pine-teal pl-3 rounded-l-none'
+                : 'text-slate-500 hover:text-pine-teal hover:bg-slate-50'
+                }`}
             >
               <span className={activePath.startsWith('/admin/volunteers') ? 'text-pine-teal' : 'text-slate-400'}>
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -111,7 +116,7 @@ export default function AdminSidebar({ onLogout }) {
         </div>
       </div>
 
-      {/* Bottom Actions */}
+      {/* çıkış yapma ve ana sayfaya dönme butonları */}
       <div className="space-y-1.5 pt-4 border-t border-slate-100">
         <Link
           to="/"
