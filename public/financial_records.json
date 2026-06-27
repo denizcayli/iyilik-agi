@@ -1,0 +1,8 @@
+[
+  { "id": "r1", "project": "Geleceğe Nefes: Orman Yangını", "sponsor": 2500000, "raised": 7450000, "spent": 5900000, "status": "Onaylandı" },
+  { "id": "r2", "project": "Köy Okullarına Bilgisayar Lab.", "sponsor": 150000, "raised": 420000, "spent": 310000, "status": "Onaylandı" },
+  { "id": "r3", "project": "Sokak Hayvanları Mobil Klinik", "sponsor": 0, "raised": 148000, "spent": 89000, "status": "Süreçte" },
+  { "id": "r4", "project": "Temiz Su Kuyusu Projesi", "sponsor": 50000, "raised": 210000, "spent": 175000, "status": "Onaylandı" },
+  { "id": "r5", "project": "Deprem Bölgesi Geçici Okul", "sponsor": 300000, "raised": 580000, "spent": 420000, "status": "Süreçte" },
+  { "id": "r6", "project": "Çocuk Kanseri Destek Bağışı", "sponsor": 100000, "raised": 400000, "spent": 398000, "status": "Onaylandı" }
+]
