@@ -1,95 +1,159 @@
-import React from 'react';
+import React, { useState } from 'react';
 import GlassCard from '../components/GlassCard';
 
 export default function Contact() {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    subject: "Genel Destek / Bilgi Talebi",
+    message: ""
+  });
+
+  const [showToast, setShowToast] = useState(false);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setShowToast(true);
+
+    setFormData({
+      name: "",
+      email: "",
+      subject: "Genel Destek / Bilgi Talebi",
+      message: ""
+    });
+
+    setTimeout(() => {
+      setShowToast(false);
+    }, 3000);
+  };
+
   return (
     <div
-      className="min-h-[750px] md:min-h-[800px] bg-cover bg-center flex items-center justify-center py-16 px-4 sm:px-6 lg:px-8 relative"
+      className="contact-container"
       style={{
         backgroundImage: `linear-gradient(to bottom, rgba(22, 49, 77, 0.7), rgba(22, 49, 77, 0.6)), url('https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?auto=format&fit=crop&w=1200&q=80')`
       }}
     >
-      <div className="max-w-4xl w-full grid grid-cols-1 md:grid-cols-12 gap-8 items-center relative z-10">
+      {showToast && (
+        <div className="fixed top-24 right-6 z-50 bg-white border border-emerald-100 shadow-xl rounded-2xl p-4 max-w-sm flex items-start gap-3 toast-animate-in transition-all">
+          <div className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <div className="flex-1 min-w-0">
+            <h4 className="text-xs font-bold text-slate-800 text-left">
+              Mesajınız İletildi!
+            </h4>
+            <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed text-left">
+              Bizimle iletişime geçtiğiniz için teşekkür ederiz. Ekibimiz en kısa sürede tarafınıza dönüş yapacaktır.
+            </p>
+          </div>
+          <button
+            onClick={() => setShowToast(false)}
+            className="text-slate-400 hover:text-slate-650 shrink-0 transition-colors cursor-pointer focus:outline-none"
+            type="button"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      )}
 
-        {/* Contact Info Text */}
-        <div className="md:col-span-5 text-white space-y-4 text-center md:text-left">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-300">İletişime Geçin</span>
-          <h2 className="text-3xl font-extrabold tracking-tight text-white text-shadow-md">
+      <div className="contact-grid">
+        <div className="contact-info-col">
+          <span className="contact-tag">İletişime Geçin</span>
+          <h2 className="contact-title">
             Bize Mesaj Gönderin
           </h2>
-          <p className="text-xs text-slate-200/90 leading-relaxed max-w-xs mx-auto md:mx-0 text-shadow-sm">
+          <p className="contact-desc">
             Platformumuz, işbirliklerimiz, sosyal sorumluluk projeleriniz veya teknik destek talepleriniz için yandaki formu doldurarak bize hemen ulaşabilirsiniz.
           </p>
-          <div className="pt-4 space-y-2 text-xs">
-            <p className="flex items-center justify-center md:justify-start gap-2 text-slate-200 text-shadow-sm">
+          <div className="contact-details">
+            <p className="contact-detail-item">
               <strong>Tel:</strong> +90 (212) 345 67 89
             </p>
-            <p className="flex items-center justify-center md:justify-start gap-2 text-slate-200 text-shadow-sm">
+            <p className="contact-detail-item">
               <strong>E-posta:</strong> iletisim@iyilikagi.org
             </p>
           </div>
         </div>
 
-        {/* Liquid Glass Contact Form */}
-        <div className="md:col-span-7 flex justify-center w-full">
-          <GlassCard
-            className="liquid-glass border-white/30 text-white shadow-2xl p-6 md:p-8 backdrop-blur-3xl saturate-150 w-full max-w-md"
-          >
-            <div className="space-y-4">
+        <div className="contact-form-col">
+          <GlassCard className="liquid-glass contact-glass-card">
+            <form onSubmit={handleSubmit} className="space-y-4">
 
-              {/* Name Input */}
               <div>
-                <label className="block text-[10px] font-bold text-slate-200 uppercase tracking-wider mb-1 text-shadow-sm">Adınız Soyadınız *</label>
+                <label className="contact-input-label">Adınız Soyadınız *</label>
                 <input
                   type="text"
-                  defaultValue=""
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
                   placeholder="Adınız ve soyadınız"
-                  className="w-full px-3.5 py-2.5 bg-white/10 hover:bg-white/15 focus:bg-white/25 border border-white/20 focus:border-white/50 focus:ring-2 focus:ring-white/10 rounded-xl text-xs font-semibold text-white placeholder-white/50 outline-none transition-all"
+                  className="contact-form-input"
+                  required
                 />
               </div>
 
-              {/* Email Input */}
               <div>
-                <label className="block text-[10px] font-bold text-slate-200 uppercase tracking-wider mb-1 text-shadow-sm">E-posta Adresiniz *</label>
+                <label className="contact-input-label">E-posta Adresiniz *</label>
                 <input
                   type="email"
-                  defaultValue=""
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
                   placeholder="ornek@mail.com"
-                  className="w-full px-3.5 py-2.5 bg-white/10 hover:bg-white/15 focus:bg-white/25 border border-white/20 focus:border-white/50 focus:ring-2 focus:ring-white/10 rounded-xl text-xs font-semibold text-white placeholder-white/50 outline-none transition-all"
+                  className="contact-form-input"
+                  required
                 />
               </div>
 
-              {/* Subject Dropdown */}
               <div>
-                <label className="block text-[10px] font-bold text-slate-200 uppercase tracking-wider mb-1 text-shadow-sm">Konu Başlığı</label>
-                <select className="w-full px-3.5 py-2.5 bg-white/10 hover:bg-white/15 focus:bg-white/25 border border-white/20 focus:border-white/50 rounded-xl text-xs font-semibold text-slate-200 outline-none transition-all cursor-pointer">
-                  <option className="text-slate-800">Genel Destek / Bilgi Talebi</option>
-                  <option className="text-slate-800">Kurumsal İşbirliği Vakıf/Dernek</option>
-                  <option className="text-slate-800">Etkinlik / Sosyal Proje Önerisi</option>
-                  <option className="text-slate-800">Hata Bildirimi / Teknik Sorun</option>
+                <label className="contact-input-label">Konu Başlığı</label>
+                <select
+                  name="subject"
+                  value={formData.subject}
+                  onChange={handleChange}
+                  className="contact-form-select"
+                >
+                  <option className="text-slate-800" value="Genel Destek / Bilgi Talebi">Genel Destek / Bilgi Talebi</option>
+                  <option className="text-slate-800" value="Kurumsal İşbirliği Vakıf/Dernek">Kurumsal İşbirliği Vakıf/Dernek</option>
+                  <option className="text-slate-800" value="Etkinlik / Sosyal Proje Önerisi">Etkinlik / Sosyal Proje Önerisi</option>
+                  <option className="text-slate-800" value="Hata Bildirimi / Teknik Sorun">Hata Bildirimi / Teknik Sorun</option>
                 </select>
               </div>
 
-              {/* Message Input */}
               <div>
-                <label className="block text-[10px] font-bold text-slate-200 uppercase tracking-wider mb-1 text-shadow-sm">Mesajınız *</label>
+                <label className="contact-input-label">Mesajınız *</label>
                 <textarea
-                  defaultValue=""
+                  name="message"
+                  value={formData.message}
+                  onChange={handleChange}
                   placeholder="Mesajınızı buraya yazın..."
                   rows={4}
-                  className="w-full px-3.5 py-2.5 bg-white/10 hover:bg-white/15 focus:bg-white/25 border border-white/20 focus:border-white/50 focus:ring-2 focus:ring-white/10 rounded-xl text-xs font-semibold text-white placeholder-white/50 outline-none transition-all resize-none"
+                  className="contact-form-textarea"
+                  required
                 />
               </div>
 
-              {/* Submit Button — görünür ama işlevsiz */}
               <button
-                type="button"
-                className="btn btn-accent w-full py-3 border border-white/10"
+                type="submit"
+                className="btn btn-accent contact-submit-btn"
               >
                 Mesajı İlet
               </button>
 
-            </div>
+            </form>
           </GlassCard>
         </div>
 
