@@ -22,7 +22,7 @@ export default function Events() {
   useEffect(() => {
     fetch("/events.json")
       .then((res) => res.json())
-      .then((data) => setEvents(data));
+      .then((data) => setEvents(data.events || data));
   }, []);
 
 

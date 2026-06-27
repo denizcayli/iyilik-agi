@@ -28,7 +28,8 @@ export default function EventDetail() {
     fetch("/events.json")
       .then((res) => res.json())
       .then((data) => {
-        const found = data.find((e) => e.id === id) || data[0];
+        const eventsList = data.events || data;
+        const found = eventsList.find((e) => e.id === id) || eventsList[0];
         setCurrentEvent(found);
         if (found) {
           setTimeLeft({
