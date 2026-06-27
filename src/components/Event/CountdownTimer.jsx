@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function CountdownTimer({ daysLeft, isCompleted, isExpired, urgencyColor = '#0B6E5F' }) {
+export default function CountdownTimer({ daysLeft, hoursLeft, minutesLeft, isCompleted, isExpired, urgencyColor }) {
   if (isCompleted) {
     return (
       <div className="text-xs font-bold text-emerald-600 flex items-center gap-1">
@@ -31,7 +31,7 @@ export default function CountdownTimer({ daysLeft, isCompleted, isExpired, urgen
       <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
-      <span>{daysLeft}g 08s 22d</span>
+      <span>{daysLeft}g {String(hoursLeft).padStart(2, '0')}s {String(minutesLeft).padStart(2, '0')}d</span>
     </div>
   );
 }

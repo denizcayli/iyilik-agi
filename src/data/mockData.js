@@ -7,9 +7,17 @@ export const initialEvents = [
     targetAmount: 1000000,
     raisedAmount: 345000,
     daysLeft: 99,
+    hoursLeft: 8,
+    minutesLeft: 22,
+    secondsLeft: 36,
     imageUrl: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=800&q=80",
     createdDate: "2026-06-01",
-    donorCount: 128
+    donorCount: 128,
+    donations: [
+      { id: "rd-1", donorName: "Mehmet Yılmaz", amount: 500, timeAgo: "2 dk önce" },
+      { id: "rd-2", donorName: "Ayşe Kaya", amount: 250, timeAgo: "15 dk önce" },
+      { id: "rd-3", donorName: "Onur Baha Koç", amount: 1000, timeAgo: "1 sa önce" }
+    ]
   },
   {
     id: "evt-2",
@@ -19,9 +27,16 @@ export const initialEvents = [
     targetAmount: 500000,
     raisedAmount: 280000,
     daysLeft: 45,
+    hoursLeft: 12,
+    minutesLeft: 40,
+    secondsLeft: 15,
     imageUrl: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=800&q=80",
     createdDate: "2026-06-10",
-    donorCount: 94
+    donorCount: 94,
+    donations: [
+      { id: "rd-4", donorName: "Fatma Demir", amount: 150, timeAgo: "3 sa önce" },
+      { id: "rd-5", donorName: "Ali Çelik", amount: 750, timeAgo: "1 gün önce" }
+    ]
   },
   {
     id: "evt-3",
@@ -31,9 +46,16 @@ export const initialEvents = [
     targetAmount: 750000,
     raisedAmount: 540000,
     daysLeft: 60,
+    hoursLeft: 4,
+    minutesLeft: 15,
+    secondsLeft: 0,
     imageUrl: "https://images.unsplash.com/photo-1505751172876-fa1923c5c528?auto=format&fit=crop&w=800&q=80",
     createdDate: "2026-06-05",
-    donorCount: 162
+    donorCount: 162,
+    donations: [
+      { id: "rd-6", donorName: "Zeynep Şahin", amount: 2000, timeAgo: "2 gün önce" },
+      { id: "rd-7", donorName: "Kaan Yılmaz", amount: 450, timeAgo: "3 gün önce" }
+    ]
   },
   {
     id: "evt-4",
@@ -43,9 +65,15 @@ export const initialEvents = [
     targetAmount: 350000,
     raisedAmount: 145000,
     daysLeft: 38,
+    hoursLeft: 18,
+    minutesLeft: 30,
+    secondsLeft: 45,
     imageUrl: "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=800&q=80",
     createdDate: "2026-06-12",
-    donorCount: 73
+    donorCount: 73,
+    donations: [
+      { id: "rd-8", donorName: "Buse Demir", amount: 300, timeAgo: "4 sa önce" }
+    ]
   },
   {
     id: "evt-5",
@@ -55,9 +83,15 @@ export const initialEvents = [
     targetAmount: 850000,
     raisedAmount: 410000,
     daysLeft: 50,
+    hoursLeft: 9,
+    minutesLeft: 10,
+    secondsLeft: 30,
     imageUrl: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=800&q=80",
     createdDate: "2026-06-08",
-    donorCount: 110
+    donorCount: 110,
+    donations: [
+      { id: "rd-9", donorName: "Murat Şen", amount: 1200, timeAgo: "6 sa önce" }
+    ]
   },
   {
     id: "evt-6",
@@ -67,9 +101,15 @@ export const initialEvents = [
     targetAmount: 400000,
     raisedAmount: 195000,
     daysLeft: 28,
+    hoursLeft: 14,
+    minutesLeft: 25,
+    secondsLeft: 10,
     imageUrl: "https://images.unsplash.com/photo-1489710437720-ebb67ec84dd2?auto=format&fit=crop&w=800&q=80",
     createdDate: "2026-06-14",
-    donorCount: 52
+    donorCount: 52,
+    donations: [
+      { id: "rd-10", donorName: "Selin Öztürk", amount: 600, timeAgo: "12 sa önce" }
+    ]
   },
   {
     id: "evt-7",
@@ -79,9 +119,15 @@ export const initialEvents = [
     targetAmount: 300000,
     raisedAmount: 185000,
     daysLeft: 42,
+    hoursLeft: 11,
+    minutesLeft: 5,
+    secondsLeft: 20,
     imageUrl: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80",
     createdDate: "2026-06-03",
-    donorCount: 64
+    donorCount: 64,
+    donations: [
+      { id: "rd-11", donorName: "Ahmet Ak", amount: 400, timeAgo: "1 gün önce" }
+    ]
   },
   {
     id: "evt-8",
@@ -91,9 +137,15 @@ export const initialEvents = [
     targetAmount: 600000,
     raisedAmount: 480000,
     daysLeft: 18,
+    hoursLeft: 23,
+    minutesLeft: 50,
+    secondsLeft: 15,
     imageUrl: "https://images.unsplash.com/photo-1509140973433-35e9f77f57b8?auto=format&fit=crop&w=800&q=80",
     createdDate: "2026-06-04",
-    donorCount: 205
+    donorCount: 205,
+    donations: [
+      { id: "rd-12", donorName: "Derya Can", amount: 850, timeAgo: "2 gün önce" }
+    ]
   },
   {
     id: "evt-9",
@@ -103,95 +155,32 @@ export const initialEvents = [
     targetAmount: 300000,
     raisedAmount: 90000,
     daysLeft: 30,
+    hoursLeft: 7,
+    minutesLeft: 15,
+    secondsLeft: 50,
     imageUrl: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80",
     createdDate: "2026-06-15",
-    donorCount: 41
+    donorCount: 41,
+    donations: [
+      { id: "rd-13", donorName: "Cem Aslan", amount: 900, timeAgo: "3 gün önce" }
+    ]
   },
   {
     id: "evt-10",
     title: "Gençlere Yazılım Eğitimi Bursu",
-    description: "Maddi imkanları kısıtlı olan lise ve üniversite gençlerine profesyonel kodlama eğitimleri, mentörlük destekleri ve staj imkanları sağlıyoruz. Geleceğin teknoloji liderlerini birlikte yetiştiriyoruz.",
+    description: "Maddi imkanları kısıtlı olan lise ve üniversite genelindeki gençlere profesyonel kodlama eğitimleri, mentörlük destekleri ve staj imkanları sağlıyoruz. Geleceğin teknoloji liderlerini birlikte yetiştiriyoruz.",
     category: "Eğitim",
     targetAmount: 450000,
     raisedAmount: 210000,
     daysLeft: 55,
+    hoursLeft: 5,
+    minutesLeft: 30,
+    secondsLeft: 0,
     imageUrl: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=800&q=80",
     createdDate: "2026-06-07",
-    donorCount: 88
-  }
-];
-
-export const initialDonations = [
-  {
-    id: "don-1",
-    donorName: "Ayşe K.",
-    amount: 500,
-    campaignId: "evt-1", // Maps to evt-1
-    campaignTitle: "Geleceğe Nefes: Ağaçlandırma Seferberliği",
-    category: "Çevre",
-    date: "2026-06-26T14:30:00Z"
-  },
-  {
-    id: "don-2",
-    donorName: "Mehmet Y.",
-    amount: 1200,
-    campaignId: "evt-2",
-    campaignTitle: "Köy Okullarına Teknoloji ve Kitap Desteği",
-    category: "Eğitim",
-    date: "2026-06-26T11:15:00Z"
-  },
-  {
-    id: "don-3",
-    donorName: "Canan Kaya",
-    amount: 3000,
-    campaignId: "evt-3",
-    campaignTitle: "Mobil Sağlık Tarama Aracı Projesi",
-    category: "Sağlık",
-    date: "2026-06-25T16:45:00Z"
-  },
-  {
-    id: "don-4",
-    donorName: "Ahmet Şahin",
-    amount: 10000,
-    campaignId: "evt-1",
-    campaignTitle: "Geleceğe Nefes: Ağaçlandırma Seferberliği",
-    category: "Çevre",
-    date: "2026-06-24T09:20:00Z"
-  },
-  {
-    id: "don-5",
-    donorName: "Zeynep Aslan",
-    amount: 500,
-    campaignId: "evt-2",
-    campaignTitle: "Köy Okullarına Teknoloji ve Kitap Desteği",
-    category: "Eğitim",
-    date: "2026-06-23T18:10:00Z"
-  },
-  {
-    id: "don-6",
-    donorName: "Mustafa B.",
-    amount: 2500,
-    campaignId: "evt-4",
-    campaignTitle: "Sokak Hayvanları İçin Mobil Klinik Desteği",
-    category: "Hayvanlar",
-    date: "2026-06-26T08:45:00Z"
-  },
-  {
-    id: "don-7",
-    donorName: "Fatma T.",
-    amount: 1500,
-    campaignId: "evt-8",
-    campaignTitle: "Afrika'da Temiz Su Kuyuları Açılması",
-    category: "Su",
-    date: "2026-06-25T13:12:00Z"
-  },
-  {
-    id: "don-8",
-    donorName: "Hasan K.",
-    amount: 4000,
-    campaignId: "evt-5",
-    campaignTitle: "Afet Acil Durum Ekipman Desteği",
-    category: "Afet",
-    date: "2026-06-24T17:30:00Z"
+    donorCount: 88,
+    donations: [
+      { id: "rd-14", donorName: "Ebru Kaya", amount: 1500, timeAgo: "5 sa önce" }
+    ]
   }
 ];

@@ -1,10 +1,3 @@
-/**
- * Urgency styles helper based on remaining days of an event.
- * Colors:
- * - daysLeft < 15: Critical Red/Coral (#D9533B) + Flashing Effect
- * - 15 <= daysLeft <= 50: Warning Yellow/Amber (#D97706)
- * - daysLeft > 50: Standard Green/Teal (#0B6E5F)
- */
 export const getUrgencyStyles = (daysLeft) => {
   if (daysLeft < 10) {
     return {

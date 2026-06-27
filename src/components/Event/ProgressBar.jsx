@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function ProgressBar({ percentage, progressBarBg = 'bg-pine-teal' }) {
+export default function ProgressBar({ percentage, progressBarBg }) {
   return (
     <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
       <div 
