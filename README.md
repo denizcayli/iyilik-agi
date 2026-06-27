@@ -1,6 +1,6 @@
-# 🌐 İyilik Ağı - Şeffaf ve Güvenilir Bağış & Gönüllülük CRM Platformu
+# 🌐 İyilik Ağı - Şeffaf ve Güvenilir Bağış & Gönüllülük
 
-Bu proje; sivil toplum kuruluşları (STK) ile gönüllü bağışçıları güvenli, şeffaf ve anlık güncellenen bir dijital ekosistemde buluşturan modern bir Bağış ve Gönüllülük CRM Platformudur. Kullanıcıların cüzdanları üzerinden veya doğrudan kredi kartıyla üyeliksiz bağış yapabildiği, yöneticilerin (admin) gerçek zamanlı kampanya ve gönüllü takibi gerçekleştirebildiği, temiz ve sürdürülebilir bir mimariye sahiptir.
+Bu proje; sivil toplum kuruluşları (STK) ile gönüllü bağışçıları güvenli, şeffaf ve anlık güncellenen bir dijital ekosistemde buluşturan modern bir Bağış ve Gönüllülük Platformudur. Kullanıcıların cüzdanları üzerinden veya doğrudan kredi kartıyla üyeliksiz bağış yapabildiği, yöneticilerin (admin) gerçek zamanlı kampanya ve gönüllü takibi gerçekleştirebildiği, temiz ve sürdürülebilir bir mimariye sahiptir.
 
 ---
 
