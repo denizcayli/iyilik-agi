@@ -1,52 +1,80 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import Footer from './Footer';
 
 export default function Layout({ children }) {
   const location = useLocation();
   const activePath = location.pathname;
-  const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // Giriş durumunu sessionStorage'dan çekiyoruz
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
+  const [walletBalance, setWalletBalance] = useState(0);
 
-  useEffect(() => {
-    const logged = sessionStorage.getItem('isLoggedIn') === 'true';
+  const syncAuthState = useCallback(() => {
+    const logged = localStorage.getItem('isLoggedIn') === 'true';
+
     if (logged) {
       setIsLoggedIn(true);
-      const rawUser = sessionStorage.getItem('user');
+
+      const rawUser = localStorage.getItem('user');
+      let userEmail = 'gonullu@gmail.com';
+
       if (rawUser) {
         try {
-          setUser(JSON.parse(rawUser));
+          const parsed = JSON.parse(rawUser);
+          setUser(parsed);
+          userEmail = parsed.email;
         } catch (e) {
-          setUser({ name: 'Onur Baha Koç', email: 'koconurbaha@gmail.com', role: 'gönüllü' });
+          setUser({ name: 'Onur Baha Koç', email: 'gonullu@gmail.com', role: 'gönüllü' });
         }
+      } else {
+        setUser(null);
       }
+
+      const storedBalance = sessionStorage.getItem('wallet_' + userEmail);
+      setWalletBalance(storedBalance !== null ? Number(storedBalance) || 0 : 0);
+    } else {
+      setIsLoggedIn(false);
+      setUser(null);
+      setWalletBalance(0);
     }
-  }, [location]);
+  }, []);
+
+  useEffect(() => {
+    syncAuthState();
+  }, [location.pathname, syncAuthState]);
+
+  useEffect(() => {
+    window.addEventListener('storage', syncAuthState);
+    window.addEventListener('auth-state-changed', syncAuthState);
+    return () => {
+      window.removeEventListener('storage', syncAuthState);
+      window.removeEventListener('auth-state-changed', syncAuthState);
+    };
+  }, [syncAuthState]);
 
   const handleLogout = () => {
-    sessionStorage.clear();
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('user');
     setIsLoggedIn(false);
     setUser(null);
     setIsMobileMenuOpen(false);
-    navigate('/');
+    window.dispatchEvent(new Event('auth-state-changed'));
+    window.location.href = '/';
   };
 
-  const walletAmount = isLoggedIn ? '₺15.000' : '₺0';
+  const walletAmount = isLoggedIn
+    ? `₺${walletBalance.toLocaleString('tr-TR')}`
+    : '₺0';
   const isAdmin = isLoggedIn && user && user.role === 'admin';
 
   return (
     <div className="app-layout">
-
-      {/* Navigation Header */}
       <header className="nav-header">
         <div className="nav-container">
           <div className="nav-wrapper">
 
-            {/* Logo */}
             <Link to="/" className="nav-brand">
               <div className="nav-logo-box">
                 <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -58,52 +86,29 @@ export default function Layout({ children }) {
               </span>
             </Link>
 
-            {/* Desktop Navigation */}
             <nav className="nav-menu">
-              <Link
-                to="/"
-                className={activePath === '/' ? 'nav-item-active' : 'nav-item'}
-              >
+              <Link to="/" className={activePath === '/' ? 'nav-item-active' : 'nav-item'}>
                 Ana Sayfa
               </Link>
-              <Link
-                to="/events"
-                className={
-                  activePath === '/events' || activePath.startsWith('/events/')
-                    ? 'nav-item-active'
-                    : 'nav-item'
-                }
-              >
+              <Link to="/events" className={activePath === '/events' || activePath.startsWith('/events/') ? 'nav-item-active' : 'nav-item'}>
                 Etkinlikler
               </Link>
-              <Link
-                to="/about"
-                className={activePath === '/about' ? 'nav-item-active' : 'nav-item'}
-              >
+              <Link to="/about" className={activePath === '/about' ? 'nav-item-active' : 'nav-item'}>
                 Hakkımızda
               </Link>
-              <Link
-                to="/contact"
-                className={activePath === '/contact' ? 'nav-item-active' : 'nav-item'}
-              >
+              <Link to="/contact" className={activePath === '/contact' ? 'nav-item-active' : 'nav-item'}>
                 İletişim
               </Link>
-              {/* Yönetici Paneli — sadece admin rolünde görünür */}
               {isAdmin && (
-                <Link
-                  to="/admin"
-                  className={activePath.startsWith('/admin') ? 'nav-item-admin-active' : 'nav-item-admin'}
-                >
+                <Link to="/admin" className={activePath.startsWith('/admin') ? 'nav-item-admin-active' : 'nav-item-admin'}>
                   Yönetici Paneli
                 </Link>
               )}
             </nav>
 
-            {/* Desktop Action Controls */}
-            <div className="nav-actions">
+            <div className="nav-actions hidden md:flex">
               {isLoggedIn ? (
                 <>
-                  {/* Cüzdan Bakiyesi */}
                   <Link to="/payment" className="nav-wallet">
                     <div className="nav-wallet-icon">
                       <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -116,52 +121,31 @@ export default function Layout({ children }) {
                     </div>
                   </Link>
 
-                  {/* Profil Butonu (Sıkışma engellendi - index.css auto-width) */}
-                  <Link
-                    to="/profile"
-                    className={activePath === '/profile' ? 'nav-profile-btn-active' : 'nav-profile-btn'}
-                    title="Profilim"
-                  >
+                  <Link to="/profile" className={activePath === '/profile' ? 'nav-profile-btn-active' : 'nav-profile-btn'} title="Profilim">
                     <span className="text-xs font-bold">{user?.name || 'Kullanıcı'}</span>
                     <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
                   </Link>
 
-                  {/* Çıkış Yap Butonu */}
-                  <button
-                    onClick={handleLogout}
-                    className="btn btn-secondary"
-                  >
+                  <button onClick={handleLogout} className="btn btn-secondary">
                     Çıkış Yap
                   </button>
                 </>
               ) : (
-                /* Giriş Yapılmamışsa Varsayılan Olarak Giriş Yap Butonu */
-                <Link
-                  to="/login"
-                  className="btn btn-primary px-5 py-2"
-                >
+                <Link to="/login" className="btn btn-primary px-5 py-2">
                   Giriş Yap
                 </Link>
               )}
             </div>
 
-            {/* Mobile: Cüzdan + Hamburger */}
             <div className="flex md:hidden items-center gap-2">
               {isLoggedIn && (
-                <Link
-                  to="/payment"
-                  className="bg-slate-50 border border-slate-200/60 rounded-xl px-2.5 py-1.5 flex items-center gap-1.5"
-                >
-                  <span className="text-[10px] font-bold font-mono text-slate-700">{walletAmount}</span>
+                <Link to="/payment" className="bg-slate-50 border border-slate-200/60 rounded-xl px-2.5 py-1.5 flex items-center gap-1.5">
+                  <span className="text-[10px] font-bold text-slate-700">{walletAmount}</span>
                 </Link>
               )}
-              {/* Hamburger */}
-              <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="nav-mobile-btn border border-slate-100"
-              >
+              <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="nav-mobile-btn border border-slate-100">
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   {isMobileMenuOpen ? (
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -175,55 +159,23 @@ export default function Layout({ children }) {
           </div>
         </div>
 
-        {/* Mobile Navigation Dropdown */}
         {isMobileMenuOpen && (
           <div className="md:hidden border-t border-slate-100 bg-white py-3 px-4">
             <div className="flex flex-col gap-2">
-              <Link
-                to="/"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={`w-full text-left px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                  activePath === '/' ? 'text-pine-teal bg-pine-teal/5' : 'text-slate-600 hover:bg-slate-50'
-                }`}
-              >
+              <Link to="/" onClick={() => setIsMobileMenuOpen(false)} className={`w-full text-left px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${activePath === '/' ? 'text-pine-teal bg-pine-teal/5' : 'text-slate-600 hover:bg-slate-50'}`}>
                 Ana Sayfa
               </Link>
-              <Link
-                to="/events"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={`w-full text-left px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                  activePath === '/events' || activePath.startsWith('/events/') ? 'text-pine-teal bg-pine-teal/5' : 'text-slate-600 hover:bg-slate-50'
-                }`}
-              >
+              <Link to="/events" onClick={() => setIsMobileMenuOpen(false)} className={`w-full text-left px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${activePath === '/events' || activePath.startsWith('/events/') ? 'text-pine-teal bg-pine-teal/5' : 'text-slate-600 hover:bg-slate-50'}`}>
                 Etkinlikler
               </Link>
-              <Link
-                to="/about"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={`w-full text-left px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                  activePath === '/about' ? 'text-pine-teal bg-pine-teal/5' : 'text-slate-600 hover:bg-slate-50'
-                }`}
-              >
+              <Link to="/about" onClick={() => setIsMobileMenuOpen(false)} className={`w-full text-left px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${activePath === '/about' ? 'text-pine-teal bg-pine-teal/5' : 'text-slate-600 hover:bg-slate-50'}`}>
                 Hakkımızda
               </Link>
-              <Link
-                to="/contact"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={`w-full text-left px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                  activePath === '/contact' ? 'text-pine-teal bg-pine-teal/5' : 'text-slate-600 hover:bg-slate-50'
-                }`}
-              >
+              <Link to="/contact" onClick={() => setIsMobileMenuOpen(false)} className={`w-full text-left px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${activePath === '/contact' ? 'text-pine-teal bg-pine-teal/5' : 'text-slate-600 hover:bg-slate-50'}`}>
                 İletişim
               </Link>
-              {/* Yönetici Paneli — sadece admin rolünde görünür */}
               {isAdmin && (
-                <Link
-                  to="/admin"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={`w-full text-left px-4 py-2.5 rounded-xl text-sm font-semibold text-amber-600 hover:bg-amber-50 transition-all ${
-                    activePath.startsWith('/admin') ? 'bg-amber-50' : ''
-                  }`}
-                >
+                <Link to="/admin" onClick={() => setIsMobileMenuOpen(false)} className={`w-full text-left px-4 py-2.5 rounded-xl text-sm font-semibold text-amber-600 hover:bg-amber-50 transition-all ${activePath.startsWith('/admin') ? 'bg-amber-50' : ''}`}>
                   Yönetici Paneli
                 </Link>
               )}
@@ -231,33 +183,18 @@ export default function Layout({ children }) {
               <div className="border-t border-slate-100 my-2 pt-2 flex flex-col gap-2">
                 {isLoggedIn ? (
                   <>
-                    <Link
-                      to="/profile"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className={`w-full py-2.5 rounded-xl text-sm font-semibold border flex items-center justify-center gap-2 transition-all ${
-                        activePath === '/profile'
-                          ? 'bg-pine-teal border-pine-teal text-white'
-                          : 'bg-white border-slate-200 text-slate-600'
-                      }`}
-                    >
+                    <Link to="/profile" onClick={() => setIsMobileMenuOpen(false)} className={`w-full py-2.5 rounded-xl text-sm font-semibold border flex items-center justify-center gap-2 transition-all ${activePath === '/profile' ? 'bg-pine-teal border-pine-teal text-white' : 'bg-white border-slate-200 text-slate-600'}`}>
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                       </svg>
                       Profilim ({user?.name || 'Gönüllü'})
                     </Link>
-                    <button
-                      onClick={handleLogout}
-                      className="w-full py-2.5 rounded-xl text-sm font-semibold bg-slate-800 text-white text-center cursor-pointer"
-                    >
+                    <button onClick={handleLogout} className="w-full py-2.5 rounded-xl text-sm font-semibold bg-slate-800 text-white text-center cursor-pointer">
                       Çıkış Yap
                     </button>
                   </>
                 ) : (
-                  <Link
-                    to="/login"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="w-full py-2.5 rounded-xl text-sm font-semibold bg-pine-teal text-white text-center cursor-pointer"
-                  >
+                  <Link to="/login" onClick={() => setIsMobileMenuOpen(false)} className="w-full py-2.5 rounded-xl text-sm font-semibold bg-pine-teal text-white text-center cursor-pointer">
                     Giriş Yap
                   </Link>
                 )}
@@ -267,14 +204,11 @@ export default function Layout({ children }) {
         )}
       </header>
 
-      {/* Main Content */}
       <main className="main-content">
         {children}
       </main>
 
-      {/* Footer */}
       <Footer />
-
     </div>
   );
 }
