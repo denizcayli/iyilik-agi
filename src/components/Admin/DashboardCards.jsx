@@ -14,7 +14,6 @@ export default function DashboardCards() {
     activeCount: 8
   });
 
-  // Metrik verilerini etkinlik listesine göre hesaplar
   const applyMetrics = (eventsList) => {
     if (!eventsList || eventsList.length === 0) {
       setMetrics({
@@ -27,7 +26,7 @@ export default function DashboardCards() {
     const totalRaised = eventsList.reduce((sum, e) => sum + (e.raisedAmount || 0), 0) + 16347500;
     const activeCount = eventsList.filter((e) => e.status !== 'TAMAMLANDI' && (e.raisedAmount || 0) < (e.targetAmount || 0) && (e.daysLeft || 0) > 0).length + 2;
     const avgCompletion = eventsList.reduce((sum, e) => sum + (((e.raisedAmount || 0) / (e.targetAmount || 1)) * 100), 0) / eventsList.length;
-    
+
     setMetrics({
       totalRaised,
       avgCompletion: Number(avgCompletion.toFixed(1)),

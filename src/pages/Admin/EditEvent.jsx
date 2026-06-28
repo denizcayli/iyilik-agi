@@ -1,12 +1,17 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { EventContext } from '../../context/EventContext';
+import { useDispatch, useSelector } from 'react-redux';
+import { editEventAsync } from '../../store/slices/eventSlice';
 import AdminLayout from '../../components/AdminLayout';
 
 export default function EditEvent() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { events, updateEvent, loading } = useContext(EventContext);
+  const dispatch = useDispatch();
+  
+  const events = useSelector((state) => state.events.list);
+  const eventStatus = useSelector((state) => state.events.status);
+  const loading = eventStatus === 'loading';
 
   const [showNotification, setShowNotification] = useState(false);
   const [eventData, setEventData] = useState({
@@ -48,9 +53,9 @@ export default function EditEvent() {
       description: eventData.description || ''
     };
 
-    updateEvent(updatedEvent).then(() => {
+    dispatch(editEventAsync(updatedEvent)).then(() => {
       window.dispatchEvent(new Event('dashboard-data-updated'));
-      sessionStorage.setItem('pending_toast', 'Değişiklikler kaydedildi');
+      localStorage.setItem('pending_toast', 'Değişiklikler kaydedildi');
       navigate('/admin/events');
     });
   };

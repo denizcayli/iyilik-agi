@@ -1,8 +1,0 @@
-[
-  { "name": "Deniz Çaylı", "email": "deniz@iyilikagi.com", "task": "Ağaç Dikimi", "hours": 42, "status": "AKTİF" },
-  { "name": "Onur Baha Koç", "email": "koconurbaha@gmail.com", "task": "Barınak Bakımı", "hours": 128, "status": "AKTİF" },
-  { "name": "Ayşe Yılmaz", "email": "ayse@gmail.com", "task": "Masal Saati", "hours": 15, "status": "PASİF" },
-  { "name": "Kemal Aydın", "email": "kaydin@gmail.com", "task": "Yemek Dağıtımı", "hours": 56, "status": "AKTİF" },
-  { "name": "Selin Korkmaz", "email": "selin.k@hotmail.com", "task": "Kütüphane Organizasyonu", "hours": 33, "status": "AKTİF" },
-  { "name": "Musa Demir", "email": "musa.d@gmail.com", "task": "Spor Koçluğu", "hours": 8, "status": "PASİF" }
-]

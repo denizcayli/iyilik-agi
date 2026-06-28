@@ -159,7 +159,7 @@ export default function PaymentSimulation() {
       }));
     }
 
-    const donorName = currentUser?.name || cardHolder || 'Anonim Bağışçı';
+    const donorName = currentUser ? (currentUser.name || 'Anonim Bağışçı') : 'Anonim Bağışçı';
 
     // Her iki bağış türünde de etkinliğin toplanan tutarı artar
     if (eventId) {

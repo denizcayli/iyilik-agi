@@ -14,7 +14,7 @@ export default function Home() {
 
   useEffect(() => {
     dispatch(fetchEvents());
-    fetch("/events.json")
+    fetch("/db.json")
       .then((res) => res.json())
       .then((data) => {
         setFaqs(data.faqs || []);
@@ -31,7 +31,7 @@ export default function Home() {
     }
   };
 
-  const featured = events[0] || null;
+  const featured = events.find((e) => e.id === 'genel-bagis' || e.title === 'Genel Bağış') || events[0] || null;
   const featuredIsGenelBagis = featured && (featured.id === 'genel-bagis' || featured.title === 'Genel Bağış');
   const featuredPercentage = featured && !featuredIsGenelBagis
     ? Math.min(Math.round((featured.raisedAmount / featured.targetAmount) * 100), 100)

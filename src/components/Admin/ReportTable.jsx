@@ -1,8 +1,19 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { EventContext } from '../../context/EventContext';
+import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { editEventAsync } from '../../store/slices/eventSlice';
+import { fetchRecords } from '../../store/slices/financialSlice';
 
 export default function ReportTable() {
-  const { events, records, updateEvent } = useContext(EventContext);
+  const dispatch = useDispatch();
+  const events = useSelector((state) => state.events.list);
+  const records = useSelector((state) => state.financial.records);
+  const recordsStatus = useSelector((state) => state.financial.status);
+
+  useEffect(() => {
+    if (recordsStatus === 'idle') {
+      dispatch(fetchRecords());
+    }
+  }, [recordsStatus, dispatch]);
   const [feedback, setFeedback] = useState({ type: '', message: '' });
   const [isExcelLoading, setIsExcelLoading] = useState(false);
   const [excelStatus, setExcelStatus] = useState('');
@@ -55,8 +66,8 @@ export default function ReportTable() {
         daysLeft: isCompleted ? 0 : matchedEvent.daysLeft
       };
 
-      // Update through context (this will automatically sync and update the financial records state/storage)
-      updateEvent(updatedEvent);
+      // Update through Redux (this will automatically sync and update the financial records state/storage)
+      dispatch(editEventAsync(updatedEvent));
     }
 
     // all_donations listesine ekleme yapar

@@ -1,9 +1,10 @@
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { EventContext } from '../../context/EventContext';
+import { useDispatch } from 'react-redux';
+import { addEventAsync } from '../../store/slices/eventSlice';
 
 export default function EventForm() {
-  const { addEvent } = useContext(EventContext);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const [title, setTitle] = useState('');
@@ -72,9 +73,9 @@ export default function EventForm() {
       description: description.trim()
     };
 
-    addEvent(newEvent).then(() => {
+    dispatch(addEventAsync(newEvent)).then(() => {
       window.dispatchEvent(new Event('dashboard-data-updated'));
-      sessionStorage.setItem('pending_toast', 'Etkinlik başlatıldı');
+      localStorage.setItem('pending_toast', 'Etkinlik başlatıldı');
       navigate('/admin/events');
     });
   };

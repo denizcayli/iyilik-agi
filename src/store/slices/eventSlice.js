@@ -12,7 +12,7 @@ export const fetchEvents = createAsyncThunk(
           // Fallback
         }
       }
-      const response = await fetch('/events.json')
+      const response = await fetch('/db.json')
       if (!response.ok) throw new Error('Etkinlik verileri yüklenemedi.')
       const data = await response.json()
       const list = data.events || data
@@ -108,9 +108,11 @@ export const addDonationToEventAsync = createAsyncThunk(
         return evt
       })
       localStorage.setItem('events_list', JSON.stringify(newList))
+      const updatedEvent = newList.find(evt => evt.id === eventId)
       return {
         eventId,
-        donation: newDonation
+        donation: newDonation,
+        updatedEvent
       }
     } catch (error) {
       return rejectWithValue(error.message)

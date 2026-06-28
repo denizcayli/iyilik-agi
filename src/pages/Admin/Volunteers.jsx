@@ -18,9 +18,10 @@ export default function Volunteers() {
   };
 
   const loadAllVolunteers = () => {
-    fetch('/volunteers.json')
+    fetch('/db.json')
       .then((r) => r.json())
-      .then((jsonVolunteers) => {
+      .then((data) => {
+        const jsonVolunteers = data.volunteer || data.volunteers || [];
         const combined = [];
         const seenEmails = new Set();
         const seenNames = new Set();
@@ -95,7 +96,7 @@ export default function Volunteers() {
 
         setVolunteers(combined);
       })
-      .catch((err) => console.error('volunteers.json yüklenemedi:', err));
+      .catch((err) => console.error('db.json yüklenemedi:', err));
   };
 
   useEffect(() => {

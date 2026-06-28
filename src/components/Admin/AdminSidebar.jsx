@@ -33,7 +33,7 @@ export default function AdminSidebar({ onLogout }) {
           <div className="pt-2">
             <span className="text-lg font-black text-inst-navy block tracking-tight">Hoş geldiniz</span>
             <span className="text-[11px] font-bold text-slate-500 block truncate max-w-[200px]">
-              {JSON.parse(sessionStorage.getItem('user') || localStorage.getItem('user') || '{}').name || 'Yönetici'}
+              {JSON.parse(localStorage.getItem('user') || '{}').name || 'Yönetici'}
             </span>
           </div>
         </div>

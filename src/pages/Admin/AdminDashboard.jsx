@@ -95,7 +95,7 @@ export default function AdminDashboard() {
           <div className="text-left">
             <h1 className="text-3xl font-black text-inst-navy tracking-tight">Hoş geldiniz</h1>
             <p className="text-sm font-bold text-slate-500 mt-1">
-              {JSON.parse(sessionStorage.getItem('user') || localStorage.getItem('user') || '{}').name || 'Yönetici'}
+              {JSON.parse(localStorage.getItem('user') || '{}').name || 'Yönetici'}
             </p>
           </div>
 

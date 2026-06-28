@@ -24,16 +24,16 @@ export default function Login() {
   // giriş yap ve kayıt ol sekmelerinin durumunu tutuyoruz
   const [activeTab, setActiveTab] = useState('login');
 
-  // İlk yüklemede /users.json'dan varsayılan kullanıcıları localStorage'a yükler
+  // İlk yüklemede /db.json'dan varsayılan kullanıcıları localStorage'a yükler
   useEffect(() => {
     const existing = localStorage.getItem('registeredUsers');
     if (!existing) {
-      fetch('/users.json')
+      fetch('/db.json')
         .then((r) => r.json())
         .then((data) => {
-          localStorage.setItem('registeredUsers', JSON.stringify(data));
+          localStorage.setItem('registeredUsers', JSON.stringify(data.user || data.users));
         })
-        .catch((err) => console.error('users.json yüklenemedi:', err));
+        .catch((err) => console.error('db.json yüklenemedi:', err));
     }
   }, []);
 

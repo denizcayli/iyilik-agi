@@ -75,24 +75,28 @@ export default function Layout({ children }) {
             <div className="nav-actions hidden md:flex">
               {isLoggedIn ? (
                 <>
-                  <Link to="/payment" className="nav-wallet">
-                    <div className="nav-wallet-icon">
-                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                      </svg>
-                    </div>
-                    <div className="nav-wallet-details">
-                      <span className="nav-wallet-label">Cüzdanım</span>
-                      <span className="nav-wallet-value">{walletAmount}</span>
-                    </div>
-                  </Link>
+                  {!isAdmin && (
+                    <Link to="/payment" className="nav-wallet">
+                      <div className="nav-wallet-icon">
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                        </svg>
+                      </div>
+                      <div className="nav-wallet-details">
+                        <span className="nav-wallet-label">Cüzdanım</span>
+                        <span className="nav-wallet-value">{walletAmount}</span>
+                      </div>
+                    </Link>
+                  )}
 
-                  <Link to="/profile" className={activePath === '/profile' ? 'nav-profile-btn-active' : 'nav-profile-btn'} title="Profilim">
-                    <span className="text-xs font-bold">{user?.name || 'Kullanıcı'}</span>
-                    <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                  </Link>
+                  {!isAdmin && (
+                    <Link to="/profile" className={activePath === '/profile' ? 'nav-profile-btn-active' : 'nav-profile-btn'} title="Profilim">
+                      <span className="text-xs font-bold">{user?.name || 'Kullanıcı'}</span>
+                      <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                    </Link>
+                  )}
 
                   <button onClick={handleLogout} className="btn btn-secondary">
                     Çıkış Yap
@@ -106,7 +110,7 @@ export default function Layout({ children }) {
             </div>
 
             <div className="flex md:hidden items-center gap-2">
-              {isLoggedIn && (
+              {isLoggedIn && !isAdmin && (
                 <Link to="/payment" className="bg-slate-50 border border-slate-200/60 rounded-xl px-2.5 py-1.5 flex items-center gap-1.5">
                   <span className="text-[10px] font-bold text-slate-700">{walletAmount}</span>
                 </Link>
@@ -149,12 +153,14 @@ export default function Layout({ children }) {
               <div className="border-t border-slate-100 my-2 pt-2 flex flex-col gap-2">
                 {isLoggedIn ? (
                   <>
-                    <Link to="/profile" onClick={() => setIsMobileMenuOpen(false)} className={`w-full py-2.5 rounded-xl text-sm font-semibold border flex items-center justify-center gap-2 transition-all ${activePath === '/profile' ? 'bg-pine-teal border-pine-teal text-white' : 'bg-white border-slate-200 text-slate-600'}`}>
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                      </svg>
-                      Profilim ({user?.name || 'Gönüllü'})
-                    </Link>
+                    {!isAdmin && (
+                      <Link to="/profile" onClick={() => setIsMobileMenuOpen(false)} className={`w-full py-2.5 rounded-xl text-sm font-semibold border flex items-center justify-center gap-2 transition-all ${activePath === '/profile' ? 'bg-pine-teal border-pine-teal text-white' : 'bg-white border-slate-200 text-slate-600'}`}>
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        Profilim ({user?.name || 'Gönüllü'})
+                      </Link>
+                    )}
                     <button onClick={handleLogout} className="w-full py-2.5 rounded-xl text-sm font-semibold bg-slate-800 text-white text-center cursor-pointer">
                       Çıkış Yap
                     </button>

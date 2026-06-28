@@ -1,0 +1,562 @@
+{
+  "events": [
+    {
+      "id": "genel-bagis",
+      "title": "Genel Bağış",
+      "description": "İyilik Ağı'na yapacağınız genel bağışlar, en çok ihtiyaç duyulan projelere ve gönüllü çalışmalarına aktarılır. Her katkı, toplumsal dayanışmanın bir parçasıdır.",
+      "category": "Genel",
+      "targetAmount": 10000000,
+      "raisedAmount": 1000000,
+      "volunteerCount": 60000,
+      "daysLeft": -1,
+      "hoursLeft": 0,
+      "minutesLeft": 0,
+      "imageUrl": "/genel-bagis.png",
+      "createdDate": "2024-01-01",
+      "donorCount": 60000,
+      "donations": []
+    },
+    {
+      "id": "evt-1",
+      "title": "Geleceğe Nefes: Ağaçlandırma Seferberliği",
+      "description": "Yangınlardan zarar gören ormanlık alanlarımızı yeniden yeşillendiriyoruz. Her 100 TL bir fidan anlamına geliyor. Hedefimiz ülkemizin akciğerlerini korumak ve gelecek nesillere daha yaşanabilir bir dünya bırakmaktır. Katkılarınızla binlerce yeni fidan toprakla buluşacak.",
+      "category": "Çevre",
+      "targetAmount": 1000000,
+      "raisedAmount": 345000,
+      "daysLeft": 99,
+      "hoursLeft": 8,
+      "minutesLeft": 22,
+      "secondsLeft": 36,
+      "imageUrl": "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=800&q=80",
+      "createdDate": "2026-06-01",
+      "donorCount": 128,
+      "donations": [
+        {
+          "id": "rd-1",
+          "donorName": "Mehmet Yılmaz",
+          "amount": 500,
+          "timeAgo": "2 dk önce"
+        },
+        {
+          "id": "rd-2",
+          "donorName": "Ayşe Kaya",
+          "amount": 250,
+          "timeAgo": "15 dk önce"
+        },
+        {
+          "id": "rd-3",
+          "donorName": "Onur Baha Koç",
+          "amount": 1000,
+          "timeAgo": "1 sa önce"
+        }
+      ]
+    },
+    {
+      "id": "evt-2",
+      "title": "Köy Okullarına Teknoloji ve Kitap Desteği",
+      "description": "Eğitimde fırsat eşitliği sağlamak amacıyla Anadolu'daki köy okullarına kütüphaneler kuruyor, bilgisayar ve tablet sınıfları oluşturuyoruz. Çocuklarımızın teknoloji çağını yakalaması ve bilgiye kolayca erişmesi için siz de bir tuğla koyun.",
+      "category": "Eğitim",
+      "targetAmount": 500000,
+      "raisedAmount": 280000,
+      "daysLeft": 5,
+      "hoursLeft": 10,
+      "minutesLeft": 1,
+      "secondsLeft": 10,
+      "imageUrl": "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=800&q=80",
+      "createdDate": "2026-06-10",
+      "donorCount": 94,
+      "donations": [
+        {
+          "id": "rd-4",
+          "donorName": "Fatma Demir",
+          "amount": 150,
+          "timeAgo": "3 sa önce"
+        },
+        {
+          "id": "rd-5",
+          "donorName": "Ali Çelik",
+          "amount": 750,
+          "timeAgo": "1 gün önce"
+        }
+      ]
+    },
+    {
+      "id": "evt-3",
+      "title": "Mobil Sağlık Tarama Aracı Projesi",
+      "description": "Hastanelere uzak dağ köylerinde yaşayan yaşlılarımız ve dezavantajlı vatandaşlarımız için tam donanımlı mobil sağlık araçları hazırlıyoruz. Erken teşhis ve temel sağlık kontrollerini ücretsiz olarak ayaklarına götürüyoruz.",
+      "category": "Sağlık",
+      "targetAmount": 750000,
+      "raisedAmount": 540000,
+      "daysLeft": 60,
+      "hoursLeft": 4,
+      "minutesLeft": 15,
+      "secondsLeft": 0,
+      "imageUrl": "https://images.unsplash.com/photo-1505751172876-fa1923c5c528?auto=format&fit=crop&w=800&q=80",
+      "createdDate": "2026-06-05",
+      "donorCount": 162,
+      "donations": [
+        {
+          "id": "rd-6",
+          "donorName": "Zeynep Şahin",
+          "amount": 2000,
+          "timeAgo": "2 gün önce"
+        },
+        {
+          "id": "rd-7",
+          "donorName": "Kaan Yılmaz",
+          "amount": 450,
+          "timeAgo": "3 gün önce"
+        }
+      ]
+    },
+    {
+      "id": "evt-4",
+      "title": "Sokak Hayvanları İçin Mobil Klinik Desteği",
+      "description": "Sokakta yaşayan yaralı ve hasta can dostlarımız için tam teşekküllü mobil veteriner klinikleri oluşturuyoruz. Kısırlaştırma, aşılama ve acil tedavi hizmetlerini yerinde, uzman hekimlerimizle sunuyoruz.",
+      "category": "Hayvanlar",
+      "targetAmount": 350000,
+      "raisedAmount": 145000,
+      "daysLeft": 38,
+      "hoursLeft": 18,
+      "minutesLeft": 30,
+      "secondsLeft": 45,
+      "imageUrl": "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&w=800&q=80",
+      "createdDate": "2026-06-12",
+      "donorCount": 73,
+      "donations": [
+        {
+          "id": "rd-8",
+          "donorName": "Buse Demir",
+          "amount": 300,
+          "timeAgo": "4 sa önce"
+        }
+      ]
+    },
+    {
+      "id": "evt-5",
+      "title": "Afet Acil Durum Ekipman Desteği",
+      "description": "Olası doğal afetlerde arama-kurtarma ekiplerimizin can kurtarmasını hızlandıracak termal kameralar, kesici-açıcı aletler ve jeneratörler satın alıyoruz. Tam donanımlı afet konteynerleri hazırlıyoruz.",
+      "category": "Afet",
+      "targetAmount": 850000,
+      "raisedAmount": 410000,
+      "daysLeft": 50,
+      "hoursLeft": 9,
+      "minutesLeft": 10,
+      "secondsLeft": 30,
+      "imageUrl": "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=800&q=80",
+      "createdDate": "2026-06-08",
+      "donorCount": 110,
+      "donations": [
+        {
+          "id": "rd-9",
+          "donorName": "Murat Şen",
+          "amount": 1200,
+          "timeAgo": "6 sa önce"
+        }
+      ]
+    },
+    {
+      "id": "evt-6",
+      "title": "Kimsesiz Çocuklar Sanat Akademisi",
+      "description": "Sevgi evlerinde kalan yetim ve öksüz çocuklarımızın resim, müzik, tiyatro ve spor alanlarındaki yeteneklerini keşfediyoruz. Uzman eğitmenlerle atölyeler kurarak onlara yeni bir gelecek kapısı aralıyoruz.",
+      "category": "Çocuk",
+      "targetAmount": 400000,
+      "raisedAmount": 195000,
+      "daysLeft": 28,
+      "hoursLeft": 14,
+      "minutesLeft": 25,
+      "secondsLeft": 10,
+      "imageUrl": "https://images.unsplash.com/photo-1489710437720-ebb67ec84dd2?auto=format&fit=crop&w=800&q=80",
+      "createdDate": "2026-06-14",
+      "donorCount": 52,
+      "donations": [
+        {
+          "id": "rd-10",
+          "donorName": "Selin Öztürk",
+          "amount": 600,
+          "timeAgo": "12 sa önce"
+        }
+      ]
+    },
+    {
+      "id": "evt-7",
+      "title": "Yalnız Yaşayan Yaşlılarımıza Evde Bakım",
+      "description": "Kimsesi olmayan yaşlılarımızın ev temizliği, kişisel bakımları, sıcak yemek ihtiyaçları ve rutin hastane kontrollerini üstleniyoruz. Onları yalnız bırakmıyor, evlerinde konforlu ve sevgi dolu bir yaşam sağlıyoruz.",
+      "category": "Yaşlı",
+      "targetAmount": 300000,
+      "raisedAmount": 185000,
+      "daysLeft": 42,
+      "hoursLeft": 11,
+      "minutesLeft": 5,
+      "secondsLeft": 20,
+      "imageUrl": "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=800&q=80",
+      "createdDate": "2026-06-03",
+      "donorCount": 64,
+      "donations": [
+        {
+          "id": "rd-11",
+          "donorName": "Ahmet Ak",
+          "amount": 400,
+          "timeAgo": "1 gün önce"
+        }
+      ]
+    },
+    {
+      "id": "evt-8",
+      "title": "Afrika'da Temiz Su Kuyuları Açılması",
+      "description": "Kuraklık ve temiz suya erişim sorunu yaşayan köylerde derin sondaj su kuyuları açarak binlerce insanı temiz ve sağlıklı içme suyuna kavuşturuyoruz. Salgın hastalıkların önüne geçmek için siz de can suyu olun.",
+      "category": "Su",
+      "targetAmount": 600000,
+      "raisedAmount": 480000,
+      "daysLeft": 18,
+      "hoursLeft": 23,
+      "minutesLeft": 50,
+      "secondsLeft": 15,
+      "imageUrl": "https://images.unsplash.com/photo-1509140973433-35e9f77f57b8?auto=format&fit=crop&w=800&q=80",
+      "createdDate": "2026-06-04",
+      "donorCount": 205,
+      "donations": [
+        {
+          "id": "rd-12",
+          "donorName": "Derya Can",
+          "amount": 850,
+          "timeAgo": "2 gün önce"
+        }
+      ]
+    },
+    {
+      "id": "evt-9",
+      "title": "Temiz Deniz, Temiz Yarınlar Hareketi",
+      "description": "Kıyılarımızdaki ve denizlerimizdeki plastik kirliliği ile mücadele ediyoruz. Gönüllü dalgıç ekiplerimiz ve deniz temizleme araçlarımızla atıkları temizliyor, deniz canlılarının yaşam alanlarını kurtarıyoruz.",
+      "category": "Çevre",
+      "targetAmount": 300000,
+      "raisedAmount": 90000,
+      "daysLeft": 30,
+      "hoursLeft": 7,
+      "minutesLeft": 15,
+      "secondsLeft": 50,
+      "imageUrl": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80",
+      "createdDate": "2026-06-15",
+      "donorCount": 41,
+      "donations": [
+        {
+          "id": "rd-13",
+          "donorName": "Cem Aslan",
+          "amount": 900,
+          "timeAgo": "3 gün önce"
+        }
+      ]
+    },
+    {
+      "id": "evt-10",
+      "title": "Gençlere Yazılım Eğitimi Bursu",
+      "description": "Maddi imkanları kısıtlı olan lise ve üniversite genelindeki gençlere profesyonel kodlama eğitimleri, mentörlük destekleri ve staj imkanları sağlıyoruz. Geleceğin teknoloji liderlerini birlikte yetiştiriyoruz.",
+      "category": "Eğitim",
+      "targetAmount": 450000,
+      "raisedAmount": 210000,
+      "daysLeft": 55,
+      "hoursLeft": 5,
+      "minutesLeft": 30,
+      "secondsLeft": 0,
+      "imageUrl": "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=800&q=80",
+      "createdDate": "2026-06-07",
+      "donorCount": 88,
+      "donations": [
+        {
+          "id": "rd-14",
+          "donorName": "Ebru Kaya",
+          "amount": 1500,
+          "timeAgo": "5 sa önce"
+        }
+      ]
+    }
+  ],
+  "faqs": [
+    {
+      "id": 1,
+      "question": "Bağışlarım doğrudan ilgili etkinliğe mi ulaşıyor?",
+      "answer": "Evet, İyilik Ağı Platformu üzerinde yaptığınız her bağış, doğrudan seçtiğiniz etkinliğin bütçe havuzuna aktarılır. Bu havuzdaki tüm birikimler, etkinlik hedefine ulaştığında ilgili STK'ya sahadaki proforma fatura denetimlerine göre teslim edilir. Sürecin her adımını bütçe raporlarımızdan anlık takip edebilirsiniz."
+    },
+    {
+      "id": 2,
+      "question": "Gönüllü katılım süreci nasıl işler?",
+      "answer": "Etkinlik detay sayfasında bulunan 'Gönüllü Ol' butonu ile başvuru formunu doldurarak talebinizi iletebilirsiniz. Proje koordinatörleri sizinle iletişime geçerek saha çalışmaları veya uzaktan destek süreçleri hakkında detaylı bilgilendirme yapacaktır."
+    },
+    {
+      "id": 3,
+      "question": "Platformun finansal denetimi nasıl yapılıyor?",
+      "answer": "İyilik Ağı, tüm harcamaları faturalandırarak şeffaf bir şekilde sergiler. Ayrıca bağımsız denetim kuruluşları ve mali müşavirler tarafından dönemsel olarak denetimden geçirilir. Her bağışın nereye harcandığı kuruşu kuruşuna yayınlanır."
+    },
+    {
+      "id": 4,
+      "question": "Sanal cüzdan bakiyemi nasıl artırabilirim?",
+      "answer": "Üye girişi yaptıktan sonra profil sayfanızdan veya bağış ekranından sanal cüzdanınıza bakiye yükleme adımına gidebilirsiniz. Güvenli ödeme simülasyonu aracılığıyla test kredi kartınızla bakiye yükleyerek hemen bağış yapmaya başlayabilirsiniz."
+    }
+  ],
+  "stories": [
+    {
+      "id": 1,
+      "category": "Doğa ve Çevre",
+      "title": "Anadolu'ya Nefes: 10.000 Fidan Toprakla Buluştu",
+      "description": "Akdeniz bölgesinde yaşanan orman yangınlarının ardından başlattığımız fidan bağışı kampanyasında, 1.200 bireysel bağışçımızın destekleriyle hedefe kısa sürede ulaşıldı.",
+      "partner": "Proje Ortağı: Tema Vakfı & Yerel Gençlik İnisiyatifleri",
+      "imageUrl": "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=400&q=80"
+    },
+    {
+      "id": 2,
+      "category": "Eğitim ve Çocuk",
+      "title": "Kars'ın Parlayan Yıldızları Kütüphanesine Kavuştu",
+      "description": "Kars'ın Digor ilçesindeki bir köy okulunda eğitim gören çocukların hayali, İyilik Ağı destekçilerinin hedefe ulaştırdığı bütçe ile gerçeğe dönüştü. 2.500 adet kitapla modern kütüphane kuruldu.",
+      "partner": "Proje Ortağı: Çocuklar Gülsün Diye Derneği & Gönüllü Öğretmenler",
+      "imageUrl": "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=400&q=80"
+    }
+  ],
+  "users": [
+    {
+      "name": "Onur Baha Koç",
+      "email": "gonullu@gmail.com",
+      "password": "123456",
+      "role": "gönüllü"
+    },
+    {
+      "name": "Deniz Çaylı",
+      "email": "admin@gmail.com",
+      "password": "123456",
+      "role": "admin"
+    }
+  ],
+  "user": [
+    {
+      "name": "Onur Baha Koç",
+      "email": "gonullu@gmail.com",
+      "password": "123456",
+      "role": "gönüllü"
+    },
+    {
+      "name": "Deniz Çaylı",
+      "email": "admin@gmail.com",
+      "password": "123456",
+      "role": "admin"
+    }
+  ],
+  "wallets": {
+    "gonullu@gmail.com": {
+      "balance": 15000,
+      "transactions": [
+        {
+          "id": "d1",
+          "campaignTitle": "Geleceğe Nefes: Orman Yangını",
+          "category": "Çevre",
+          "amount": 500,
+          "date": "2026-06-26T22:14:00Z"
+        },
+        {
+          "id": "d2",
+          "campaignTitle": "Köy Okullarına Bilgisayar Laboratuvarı",
+          "category": "Eğitim",
+          "amount": 250,
+          "date": "2026-06-15T14:30:00Z"
+        },
+        {
+          "id": "d3",
+          "campaignTitle": "Kırsal Bölgelere Temiz Su Kuyusu",
+          "category": "Su",
+          "amount": 2000,
+          "date": "2026-06-01T09:45:00Z"
+        }
+      ]
+    },
+    "admin@gmail.com": {
+      "balance": 50000,
+      "transactions": []
+    }
+  },
+  "volunteers": [
+    {
+      "name": "Deniz Çaylı",
+      "email": "deniz@iyilikagi.com",
+      "task": "Ağaç Dikimi",
+      "hours": 42,
+      "status": "AKTİF"
+    },
+    {
+      "name": "Onur Baha Koç",
+      "email": "koconurbaha@gmail.com",
+      "task": "Barınak Bakımı",
+      "hours": 128,
+      "status": "AKTİF"
+    },
+    {
+      "name": "Ayşe Yılmaz",
+      "email": "ayse@gmail.com",
+      "task": "Masal Saati",
+      "hours": 15,
+      "status": "PASİF"
+    },
+    {
+      "name": "Kemal Aydın",
+      "email": "kaydin@gmail.com",
+      "task": "Yemek Dağıtımı",
+      "hours": 56,
+      "status": "AKTİF"
+    },
+    {
+      "name": "Selin Korkmaz",
+      "email": "selin.k@hotmail.com",
+      "task": "Kütüphane Organizasyonu",
+      "hours": 33,
+      "status": "AKTİF"
+    },
+    {
+      "name": "Musa Demir",
+      "email": "musa.d@gmail.com",
+      "task": "Spor Koçluğu",
+      "hours": 8,
+      "status": "PASİF"
+    }
+  ],
+  "volunteer": [
+    {
+      "name": "Deniz Çaylı",
+      "email": "deniz@iyilikagi.com",
+      "task": "Ağaç Dikimi",
+      "hours": 42,
+      "status": "AKTİF"
+    },
+    {
+      "name": "Onur Baha Koç",
+      "email": "koconurbaha@gmail.com",
+      "task": "Barınak Bakımı",
+      "hours": 128,
+      "status": "AKTİF"
+    },
+    {
+      "name": "Ayşe Yılmaz",
+      "email": "ayse@gmail.com",
+      "task": "Masal Saati",
+      "hours": 15,
+      "status": "PASİF"
+    },
+    {
+      "name": "Kemal Aydın",
+      "email": "kaydin@gmail.com",
+      "task": "Yemek Dağıtımı",
+      "hours": 56,
+      "status": "AKTİF"
+    },
+    {
+      "name": "Selin Korkmaz",
+      "email": "selin.k@hotmail.com",
+      "task": "Kütüphane Organizasyonu",
+      "hours": 33,
+      "status": "AKTİF"
+    },
+    {
+      "name": "Musa Demir",
+      "email": "musa.d@gmail.com",
+      "task": "Spor Koçluğu",
+      "hours": 8,
+      "status": "PASİF"
+    }
+  ],
+  "financial_records": [
+    {
+      "id": "r1",
+      "project": "Geleceğe Nefes: Orman Yangını",
+      "sponsor": 2500000,
+      "raised": 7450000,
+      "spent": 5900000,
+      "status": "Onaylandı"
+    },
+    {
+      "id": "r2",
+      "project": "Köy Okullarına Bilgisayar Lab.",
+      "sponsor": 150000,
+      "raised": 420000,
+      "spent": 310000,
+      "status": "Onaylandı"
+    },
+    {
+      "id": "r3",
+      "project": "Sokak Hayvanları Mobil Klinik",
+      "sponsor": 0,
+      "raised": 148000,
+      "spent": 89000,
+      "status": "Süreçte"
+    },
+    {
+      "id": "r4",
+      "project": "Temiz Su Kuyusu Projesi",
+      "sponsor": 50000,
+      "raised": 210000,
+      "spent": 175000,
+      "status": "Onaylandı"
+    },
+    {
+      "id": "r5",
+      "project": "Deprem Bölgesi Geçici Okul",
+      "sponsor": 300000,
+      "raised": 580000,
+      "spent": 420000,
+      "status": "Süreçte"
+    },
+    {
+      "id": "r6",
+      "project": "Çocuk Kanseri Destek Bağışı",
+      "sponsor": 100000,
+      "raised": 400000,
+      "spent": 398000,
+      "status": "Onaylandı"
+    }
+  ],
+  "financial_record": [
+    {
+      "id": "r1",
+      "project": "Geleceğe Nefes: Orman Yangını",
+      "sponsor": 2500000,
+      "raised": 7450000,
+      "spent": 5900000,
+      "status": "Onaylandı"
+    },
+    {
+      "id": "r2",
+      "project": "Köy Okullarına Bilgisayar Lab.",
+      "sponsor": 150000,
+      "raised": 420000,
+      "spent": 310000,
+      "status": "Onaylandı"
+    },
+    {
+      "id": "r3",
+      "project": "Sokak Hayvanları Mobil Klinik",
+      "sponsor": 0,
+      "raised": 148000,
+      "spent": 89000,
+      "status": "Süreçte"
+    },
+    {
+      "id": "r4",
+      "project": "Temiz Su Kuyusu Projesi",
+      "sponsor": 50000,
+      "raised": 210000,
+      "spent": 175000,
+      "status": "Onaylandı"
+    },
+    {
+      "id": "r5",
+      "project": "Deprem Bölgesi Geçici Okul",
+      "sponsor": 300000,
+      "raised": 580000,
+      "spent": 420000,
+      "status": "Süreçte"
+    },
+    {
+      "id": "r6",
+      "project": "Çocuk Kanseri Destek Bağışı",
+      "sponsor": 100000,
+      "raised": 400000,
+      "spent": 398000,
+      "status": "Onaylandı"
+    }
+  ]
+}

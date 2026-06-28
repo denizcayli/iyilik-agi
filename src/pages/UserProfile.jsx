@@ -25,7 +25,7 @@ export default function UserProfile() {
   const currentUser = useMemo(() => {
     if (authUser) return authUser;
     try {
-      const local = localStorage.getItem('user') || sessionStorage.getItem('user');
+      const local = localStorage.getItem('user');
       return local ? JSON.parse(local) : STATIC_USER;
     } catch (e) {
       return STATIC_USER;
@@ -33,10 +33,14 @@ export default function UserProfile() {
   }, [authUser]);
 
   useEffect(() => {
+    if (currentUser?.role === 'admin') {
+      navigate('/admin');
+      return;
+    }
     if (currentUser?.email) {
       dispatch(fetchWalletData(currentUser.email));
     }
-  }, [currentUser, dispatch]);
+  }, [currentUser, dispatch, navigate]);
 
   const initials = useMemo(() => {
     if (!currentUser.name) return 'GN';
