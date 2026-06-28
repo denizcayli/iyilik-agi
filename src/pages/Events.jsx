@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchEvents, setSelectedCategory } from "../store/slices/eventSlice";
 import EventCard from "../components/Event/EventCard";
 
 export default function Events() {
   const dispatch = useDispatch();
+  const location = useLocation();
   const events = useSelector((state) => state.events.list);
   const selectedCategory = useSelector((state) => state.events.selectedCategory);
   const categories = [
@@ -25,6 +26,15 @@ export default function Events() {
   useEffect(() => {
     dispatch(fetchEvents());
   }, [dispatch]);
+
+  // URL'de ?category=X parametresi varsa o kategoriyi seç
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const catParam = params.get('category');
+    if (catParam && categories.includes(catParam)) {
+      dispatch(setSelectedCategory(catParam));
+    }
+  }, [location.search]); // eslint-disable-line react-hooks/exhaustive-deps
 
 
   const filteredEvents = events.filter((event) => {

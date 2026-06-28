@@ -6,14 +6,106 @@ export default function Volunteers() {
   const [emailStatus, setEmailStatus] = useState('');
   const [excelStatus, setExcelStatus] = useState('');
   const [isExcelLoading, setIsExcelLoading] = useState(false);
+  const [isPdfLoading, setIsPdfLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [toastMsg, setToastMsg] = useState('');
+  const [toastVisible, setToastVisible] = useState(false);
 
-  // Gönüllü listesini /volunteers.json'dan yükler
-  useEffect(() => {
+  const showToast = (msg) => {
+    setToastMsg(msg);
+    setToastVisible(true);
+    setTimeout(() => setToastVisible(false), 3500);
+  };
+
+  const loadAllVolunteers = () => {
     fetch('/volunteers.json')
       .then((r) => r.json())
-      .then((data) => setVolunteers(data))
+      .then((jsonVolunteers) => {
+        const combined = [];
+        const seenEmails = new Set();
+        const seenNames = new Set();
+
+        const addOrUpdate = (name, email, task, hours = 0, status = 'AKTİF') => {
+          const emailKey = email ? email.toLowerCase() : '';
+          if (emailKey && emailKey !== 'anonim' && emailKey !== 'anonim@iyilikagi.org') {
+            if (seenEmails.has(emailKey)) {
+              const existing = combined.find(x => x.email && x.email.toLowerCase() === emailKey);
+              if (existing) {
+                if (task === 'Bağışçı / Destekçi') {
+                  existing.task = 'Bağışçı / Destekçi';
+                }
+                existing.name = name;
+              }
+            } else {
+              seenEmails.add(emailKey);
+              seenNames.add(name.toLowerCase());
+              combined.push({ name, email, task, hours, status });
+            }
+          } else {
+            const nameKey = name.toLowerCase();
+            if (!seenNames.has(nameKey)) {
+              seenNames.add(nameKey);
+              combined.push({ name, email: email || 'gonullu@iyilikagi.org', task, hours, status });
+            }
+          }
+        };
+
+        // 1. Statik Gönüllüler
+        jsonVolunteers.forEach(v => {
+          addOrUpdate(v.name, v.email, v.task || 'Gönüllü Üye', v.hours || 0, v.status || 'AKTİF');
+        });
+
+        // 2. Yeni Kayıt Olan Kullanıcılar (registeredUsers)
+        const storedUsers = localStorage.getItem('registeredUsers');
+        let registeredUsersList = [];
+        if (storedUsers) {
+          try {
+            registeredUsersList = JSON.parse(storedUsers);
+          } catch (e) {
+            registeredUsersList = [];
+          }
+        }
+        registeredUsersList.forEach(u => {
+          if (u.role === 'gönüllü') {
+            addOrUpdate(u.name, u.email, 'Gönüllü Üye', 0, 'AKTİF');
+          }
+        });
+
+        // 3. Bağış Yapan Kayıtlı Kişiler
+        const storedDonations = localStorage.getItem('all_donations');
+        let donationsList = [];
+        if (storedDonations) {
+          try {
+            donationsList = JSON.parse(storedDonations);
+          } catch (e) {
+            donationsList = [];
+          }
+        }
+
+        donationsList.forEach(d => {
+          const email = d.donorEmail || 'Anonim';
+          const emailKey = email.toLowerCase();
+          
+          if (emailKey && emailKey !== 'anonim' && emailKey !== 'anonim@iyilikagi.org') {
+            const regUser = registeredUsersList.find(u => u.email.toLowerCase() === emailKey);
+            const actualName = regUser ? regUser.name : (d.donorName || 'Anonim Bağışçı');
+            addOrUpdate(actualName, email, 'Bağışçı / Destekçi', 0, 'AKTİF');
+          }
+        });
+
+        setVolunteers(combined);
+      })
       .catch((err) => console.error('volunteers.json yüklenemedi:', err));
+  };
+
+  useEffect(() => {
+    loadAllVolunteers();
+    window.addEventListener('donation-list-updated', loadAllVolunteers);
+    window.addEventListener('dashboard-data-updated', loadAllVolunteers);
+    return () => {
+      window.removeEventListener('donation-list-updated', loadAllVolunteers);
+      window.removeEventListener('dashboard-data-updated', loadAllVolunteers);
+    };
   }, []);
 
   // Gönüllü adına göre arama filtrelemesi yapar
@@ -34,12 +126,46 @@ export default function Volunteers() {
     setTimeout(() => {
       setIsExcelLoading(false);
       setExcelStatus('Finansal_Rapor.xlsx başarıyla indirildi.');
+      showToast('Excel dosyası başarıyla indirildi');
       setTimeout(() => setExcelStatus(''), 4000);
+    }, 1000);
+  };
+
+  // PDF indirme simülasyonu başlatır
+  const handleDownloadPdf = () => {
+    setIsPdfLoading(true);
+    setTimeout(() => {
+      setIsPdfLoading(false);
+      showToast('PDF dosyası başarıyla indirildi');
     }, 1000);
   };
 
   return (
     <AdminLayout>
+      {/* Toast Notification */}
+      {toastVisible && (
+        <div className="fixed top-24 right-6 z-50 bg-white border border-emerald-100 shadow-xl rounded-2xl p-4 max-w-sm flex items-start gap-3 toast-animate-in transition-all">
+          <div className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <div className="flex-1 min-w-0">
+            <h4 className="text-xs font-bold text-slate-800">Başarılı!</h4>
+            <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">{toastMsg}</p>
+          </div>
+          <button
+            onClick={() => setToastVisible(false)}
+            className="text-slate-400 hover:text-slate-650 shrink-0 transition-colors cursor-pointer"
+            type="button"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      )}
+
       <div className="space-y-8 max-w-6xl mx-auto">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="text-left">
@@ -69,6 +195,20 @@ export default function Volunteers() {
                 </svg>
               )}
               <span>{isExcelLoading ? 'Hazırlanıyor...' : 'Excel İndir'}</span>
+            </button>
+            <button
+              onClick={handleDownloadPdf}
+              disabled={isPdfLoading}
+              className="btn btn-secondary px-4 py-2.5 flex items-center gap-1.5 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isPdfLoading ? (
+                <div className="w-4 h-4 border-2 border-slate-500 border-t-transparent rounded-full animate-spin"></div>
+              ) : (
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              )}
+              <span>{isPdfLoading ? 'Hazırlanıyor...' : 'PDF İndir'}</span>
             </button>
           </div>
         </div>

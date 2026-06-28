@@ -136,23 +136,26 @@ export default function AdminDashboard() {
             </div>
             <div className="space-y-4 max-h-[320px] overflow-y-auto pr-1">
               {donations.map((don) => {
-                const initials = don.donorName
-                  ? don.donorName.split(' ').map((n) => n[0]).join('').substring(0, 2).toUpperCase()
+                const displayName = don.donorEmail === 'Anonim' ? 'Anonim Bağışçı' : don.donorName;
+                const initials = displayName
+                  ? displayName.split(' ').map((n) => n[0]).join('').substring(0, 2).toUpperCase()
                   : 'B';
                 return (
                   <div key={don.id} className="flex justify-between items-center py-2.5 border-b border-slate-50">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
                       <div className="w-9 h-9 rounded-full bg-pine-teal/5 flex items-center justify-center font-extrabold text-xs text-pine-teal shrink-0">
                         {initials}
                       </div>
                       <div className="text-left min-w-0">
-                        <span className="font-bold text-xs text-slate-700 block truncate max-w-[130px]">{don.donorName}</span>
+                        <span className="font-bold text-xs text-slate-700 block truncate max-w-[130px]">{displayName}</span>
                         <span className="text-[9px] text-slate-400 font-bold block truncate max-w-[130px]">{don.campaignTitle}</span>
+                        <span className="inline-flex px-1.5 py-0.5 rounded text-[8px] font-extrabold bg-slate-50 text-slate-500 border border-slate-200/50 mt-0.5">{don.category || 'Genel'}</span>
                       </div>
                     </div>
                     <div className="text-right shrink-0">
                       <span className="text-xs font-black font-mono text-slate-700 block">+{don.amount.toLocaleString('tr-TR')} ₺</span>
                       <span className="text-[9px] text-slate-400 font-semibold block">{don.timeAgo}</span>
+                      <span className="text-[8px] text-slate-350 font-bold block mt-0.5">{don.date || 'Bugün'}</span>
                     </div>
                   </div>
                 );

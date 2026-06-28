@@ -23,6 +23,9 @@ export default function CountdownTimer({ daysLeft, hoursLeft, minutesLeft, isCom
     );
   }
 
+  // Sadece daysLeft kullanarak temiz formatta göster
+  const days = typeof daysLeft === 'number' ? daysLeft : (parseInt(daysLeft) || 0);
+
   return (
     <div
       className="font-mono text-xs font-bold flex items-center gap-1"
@@ -31,7 +34,7 @@ export default function CountdownTimer({ daysLeft, hoursLeft, minutesLeft, isCom
       <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
-      <span>{daysLeft}g {String(hoursLeft).padStart(2, '0')}s {String(minutesLeft).padStart(2, '0')}d</span>
+      <span>{days} gün kaldı</span>
     </div>
   );
 }

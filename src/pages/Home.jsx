@@ -32,7 +32,8 @@ export default function Home() {
   };
 
   const featured = events[0] || null;
-  const featuredPercentage = featured
+  const featuredIsGenelBagis = featured && (featured.id === 'genel-bagis' || featured.title === 'Genel Bağış');
+  const featuredPercentage = featured && !featuredIsGenelBagis
     ? Math.min(Math.round((featured.raisedAmount / featured.targetAmount) * 100), 100)
     : 0;
 
@@ -85,9 +86,12 @@ export default function Home() {
                   <span className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-300 bg-white/10 border border-white/15 px-2.5 py-1 rounded-full inline-block">
                     {featured.category}
                   </span>
-                  <span className="text-[9px] font-extrabold px-2.5 py-1 rounded-lg border shadow-sm backdrop-blur-md flex items-center gap-1 bg-white/15 border-white/20 text-amber-300">
-                    Son {featured.daysLeft} Gün
-                  </span>
+                  {/* Sağ üst badge: Genel Bağış için son gün gösterilmez */}
+                  {!featuredIsGenelBagis && (
+                    <span className="text-[9px] font-extrabold px-2.5 py-1 rounded-lg border shadow-sm backdrop-blur-md flex items-center gap-1 bg-white/15 border-white/20 text-amber-300">
+                      Son {featured.daysLeft} Gün
+                    </span>
+                  )}
                 </div>
 
                 <h3 className="text-lg font-bold text-white mb-2 leading-snug text-shadow-sm text-left">
@@ -97,29 +101,48 @@ export default function Home() {
                   {featured.description}
                 </p>
 
-                <div className="mb-4 bg-white/5 border border-white/10 rounded-xl p-3 shadow-inner text-left">
-                  <div className="flex justify-between items-end mb-1">
-                    <span className="text-[9px] text-slate-300 font-bold uppercase tracking-wider text-shadow-sm">Toplanan İlerleme</span>
-                    <span className="text-xs font-black font-mono text-amber-300">{featuredPercentage}%</span>
+                {/* İlerleme barı — Genel Bağış değilse göster */}
+                {!featuredIsGenelBagis && (
+                  <div className="mb-4 bg-white/5 border border-white/10 rounded-xl p-3 shadow-inner text-left">
+                    <div className="flex justify-between items-end mb-1">
+                      <span className="text-[9px] text-slate-300 font-bold uppercase tracking-wider text-shadow-sm">Toplanan İlerleme</span>
+                      <span className="text-xs font-black font-mono text-amber-300">{featuredPercentage}%</span>
+                    </div>
+                    <div className="w-full h-2.5 bg-white/10 rounded-full overflow-hidden">
+                      <div className="h-full rounded-full bg-amber-400 transition-all duration-500" style={{ width: `${featuredPercentage}%` }}></div>
+                    </div>
+                    <div className="flex justify-between items-center mt-2 text-xs font-mono font-bold">
+                      <span className="text-white text-shadow-sm">₺{featured.raisedAmount.toLocaleString('tr-TR')}</span>
+                      <span className="text-slate-300 text-shadow-sm font-medium">Hedef: ₺{featured.targetAmount.toLocaleString('tr-TR')}</span>
+                    </div>
                   </div>
-                  <div className="w-full h-2.5 bg-white/10 rounded-full overflow-hidden">
-                    <div className="h-full rounded-full bg-amber-400 transition-all duration-500" style={{ width: `${featuredPercentage}%` }}></div>
-                  </div>
-                  <div className="flex justify-between items-center mt-2 text-xs font-mono font-bold">
-                    <span className="text-white text-shadow-sm">₺{featured.raisedAmount.toLocaleString('tr-TR')}</span>
-                    <span className="text-slate-300 text-shadow-sm font-medium">Hedef: ₺{featured.targetAmount.toLocaleString('tr-TR')}</span>
-                  </div>
-                </div>
+                )}
 
+                {/* Alt istatistikler — Genel Bağış ve normal kart farklı */}
                 <div className="flex justify-between text-xs mb-5 font-semibold text-left">
-                  <div>
-                    <span className="text-[9px] text-slate-300 uppercase block font-bold text-shadow-sm">Kalan Süre</span>
-                    <span className="font-mono text-amber-300 text-shadow-sm">{featured.daysLeft} Gün</span>
-                  </div>
-                  <div>
-                    <span className="text-[9px] text-slate-300 uppercase block font-bold text-shadow-sm">Destekçi</span>
-                    <span className="font-mono text-white text-shadow-sm">{featured.donorCount.toLocaleString('tr-TR')} Kişi</span>
-                  </div>
+                  {featuredIsGenelBagis ? (
+                    <>
+                      <div>
+                        <span className="text-[9px] text-slate-300 uppercase block font-bold text-shadow-sm">Toplam Bağış</span>
+                        <span className="font-mono text-amber-300 text-shadow-sm">₺{(featured.raisedAmount || 0).toLocaleString('tr-TR')}</span>
+                      </div>
+                      <div>
+                        <span className="text-[9px] text-slate-300 uppercase block font-bold text-shadow-sm">Gönüllü Sayısı</span>
+                        <span className="font-mono text-white text-shadow-sm">{(featured.volunteerCount || featured.donorCount || 0).toLocaleString('tr-TR')} Kişi</span>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div>
+                        <span className="text-[9px] text-slate-300 uppercase block font-bold text-shadow-sm">Kalan Süre</span>
+                        <span className="font-mono text-amber-300 text-shadow-sm">{featured.daysLeft} Gün</span>
+                      </div>
+                      <div>
+                        <span className="text-[9px] text-slate-300 uppercase block font-bold text-shadow-sm">Destekçi</span>
+                        <span className="font-mono text-white text-shadow-sm">{featured.donorCount.toLocaleString('tr-TR')} Kişi</span>
+                      </div>
+                    </>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">

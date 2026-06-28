@@ -1,6 +1,22 @@
 {
   "events": [
     {
+      "id": "genel-bagis",
+      "title": "Genel Bağış",
+      "description": "İyilik Ağı'na yapacağınız genel bağışlar, en çok ihtiyaç duyulan projelere ve gönüllü çalışmalarına aktarılır. Her katkı, toplumsal dayanışmanın bir parçasıdır.",
+      "category": "Genel",
+      "targetAmount": 10000000,
+      "raisedAmount": 1000000,
+      "volunteerCount": 60000,
+      "daysLeft": -1,
+      "hoursLeft": 0,
+      "minutesLeft": 0,
+      "imageUrl": "/genel-bagis.png",
+      "createdDate": "2024-01-01",
+      "donorCount": 60000,
+      "donations": []
+    },
+    {
       "id": "evt-1",
       "title": "Geleceğe Nefes: Ağaçlandırma Seferberliği",
       "description": "Yangınlardan zarar gören ormanlık alanlarimizi yeniden yeşillendiriyoruz. Her 100 TL bir fidan anlamina geliyor. Hedefimiz ülkemizin akciğerlerini korumak ve gelecek nesillere daha yaşanabilir bir dünya birakmaktir. Katkilarinizla binlerce yeni fidan toprakla buluşacak.",

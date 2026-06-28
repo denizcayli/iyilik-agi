@@ -1,14 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import { fetchEvents, deleteEventAsync } from '../../store/slices/eventSlice';
+import { EventContext } from '../../context/EventContext';
 import AdminLayout from '../../components/AdminLayout';
 
 export default function EventsManagement() {
-  const dispatch = useDispatch();
-  const events = useSelector((state) => state.events.list);
-  const status = useSelector((state) => state.events.status);
-  const loading = status === 'loading';
+  const { events, deleteEvent, loading } = useContext(EventContext);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -23,14 +19,12 @@ export default function EventsManagement() {
   };
 
   useEffect(() => {
-    dispatch(fetchEvents());
-
     const pendingMsg = sessionStorage.getItem('pending_toast');
     if (pendingMsg) {
       sessionStorage.removeItem('pending_toast');
       setTimeout(() => showNotification(pendingMsg), 100);
     }
-  }, [dispatch]);
+  }, []);
 
   const confirmDelete = (id) => {
     setDeleteTarget(id);
@@ -38,7 +32,7 @@ export default function EventsManagement() {
 
   const handleDelete = () => {
     if (!deleteTarget) return;
-    dispatch(deleteEventAsync(deleteTarget)).then(() => {
+    deleteEvent(deleteTarget).then(() => {
       window.dispatchEvent(new Event('dashboard-data-updated'));
       showNotification('Etkinlik silindi');
     });

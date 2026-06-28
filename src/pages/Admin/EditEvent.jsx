@@ -1,17 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import { fetchEvents, editEventAsync } from '../../store/slices/eventSlice';
+import { EventContext } from '../../context/EventContext';
 import AdminLayout from '../../components/AdminLayout';
 
 export default function EditEvent() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
-
-  const events = useSelector((state) => state.events.list);
-  const status = useSelector((state) => state.events.status);
-  const loading = status === 'loading';
+  const { events, updateEvent, loading } = useContext(EventContext);
 
   const [showNotification, setShowNotification] = useState(false);
   const [eventData, setEventData] = useState({
@@ -22,12 +17,6 @@ export default function EditEvent() {
     imageUrl: '',
     description: ''
   });
-
-  useEffect(() => {
-    if (events.length === 0) {
-      dispatch(fetchEvents());
-    }
-  }, [dispatch, events.length]);
 
   useEffect(() => {
     if (events.length > 0) {
@@ -59,7 +48,7 @@ export default function EditEvent() {
       description: eventData.description || ''
     };
 
-    dispatch(editEventAsync(updatedEvent)).then(() => {
+    updateEvent(updatedEvent).then(() => {
       window.dispatchEvent(new Event('dashboard-data-updated'));
       sessionStorage.setItem('pending_toast', 'Değişiklikler kaydedildi');
       navigate('/admin/events');

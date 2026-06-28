@@ -1,10 +1,8 @@
-import React, { useState, useEffect } from 'react';
-
-
-
+import React, { useState, useEffect, useContext } from 'react';
+import { EventContext } from '../../context/EventContext';
 
 export default function ReportTable() {
-  const [records, setRecords] = useState([]);
+  const { events, records, updateEvent } = useContext(EventContext);
   const [feedback, setFeedback] = useState({ type: '', message: '' });
   const [isExcelLoading, setIsExcelLoading] = useState(false);
   const [excelStatus, setExcelStatus] = useState('');
@@ -15,54 +13,28 @@ export default function ReportTable() {
   const filteredRecords = records.filter((rec) =>
     rec.project.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
   const [formData, setFormData] = useState({
     donorName: '',
-    project: 'Geleceğe Nefes: Orman Yangını',
+    project: '',
     amount: '',
     donationDate: new Date().toISOString().split('T')[0]
   });
 
-  // Finansal rapor verilerini önce localStorage, yoksa /financial_records.json'dan yükler
-  const fetchRecords = () => {
-    const stored = localStorage.getItem('financial_records');
-    if (stored) {
-      try {
-        setRecords(JSON.parse(stored));
-      } catch (error) {
-        // parse hatasında dosyadan yükle
-        fetch('/financial_records.json')
-          .then((r) => r.json())
-          .then((data) => {
-            localStorage.setItem('financial_records', JSON.stringify(data));
-            setRecords(data);
-          });
-      }
-    } else {
-      fetch('/financial_records.json')
-        .then((r) => r.json())
-        .then((data) => {
-          localStorage.setItem('financial_records', JSON.stringify(data));
-          setRecords(data);
-        })
-        .catch((err) => console.error('financial_records.json yüklenemedi:', err));
-    }
-  };
-
+  // Dynamic initialization of the selected project
   useEffect(() => {
-    fetchRecords();
-    const handleUpdate = () => {
-      fetchRecords();
-    };
-    window.addEventListener('donation-list-updated', handleUpdate);
-    return () => {
-      window.removeEventListener('donation-list-updated', handleUpdate);
-    };
-  }, []);
+    if (events && events.length > 0) {
+      // If the current selected project is empty or not in the events list, pick the first one
+      if (!formData.project || !events.some(e => e.title === formData.project)) {
+        setFormData(prev => ({ ...prev, project: events[0].title }));
+      }
+    }
+  }, [events, formData.project]);
 
   // Form gönderildiğinde bağışı kaydeder ve bütçeyi günceller
   const handleSubmit = () => {
     const val = Number(formData.amount);
-    if (!formData.donorName.trim() || isNaN(val) || val <= 0) {
+    if (!formData.donorName.trim() || isNaN(val) || val <= 0 || !formData.project) {
       setFeedback({ type: 'error', message: 'Lütfen tüm alanları doğru ve 0\'dan büyük bir tutarla doldurun.' });
       setShowFeedback(true);
       setTimeout(() => setShowFeedback(false), 2700);
@@ -70,46 +42,22 @@ export default function ReportTable() {
       return;
     }
 
-    const stored = localStorage.getItem('financial_records');
-    let currentRecords = [];
-    try {
-      currentRecords = stored ? JSON.parse(stored) : [...STATIC_RECORDS];
-    } catch (error) {
-      currentRecords = [...STATIC_RECORDS];
+    // Find the event to update
+    const matchedEvent = events.find(e => e.title === formData.project);
+    if (matchedEvent) {
+      const nextRaised = (matchedEvent.raisedAmount || 0) + val;
+      const isCompleted = nextRaised >= (matchedEvent.targetAmount || 0);
+      
+      const updatedEvent = {
+        ...matchedEvent,
+        raisedAmount: nextRaised,
+        status: isCompleted ? 'TAMAMLANDI' : 'AKTİF',
+        daysLeft: isCompleted ? 0 : matchedEvent.daysLeft
+      };
+
+      // Update through context (this will automatically sync and update the financial records state/storage)
+      updateEvent(updatedEvent);
     }
-
-    const updated = currentRecords.map((rec) => {
-      if (rec.project === formData.project) {
-        return { ...rec, raised: rec.raised + val };
-      }
-      return rec;
-    });
-
-    localStorage.setItem('financial_records', JSON.stringify(updated));
-
-    // events_list'i günceller ve hedef kontrolü yapar
-    const storedEvents = localStorage.getItem('events_list');
-    let events = [];
-    try {
-      events = storedEvents ? JSON.parse(storedEvents) : [...STATIC_EVENTS_DEFAULT];
-    } catch (error) {
-      events = [...STATIC_EVENTS_DEFAULT];
-    }
-
-    const updatedEvents = events.map((evt) => {
-      if (evt.title.toLowerCase().includes(formData.project.toLowerCase().split(':')[0])) {
-        const newRaised = evt.raisedAmount + val;
-        const isCompleted = newRaised >= evt.targetAmount;
-        return {
-          ...evt,
-          raisedAmount: newRaised,
-          daysLeft: isCompleted ? 0 : evt.daysLeft,
-          status: isCompleted ? 'TAMAMLANDI' : 'AKTİF'
-        };
-      }
-      return evt;
-    });
-    localStorage.setItem('events_list', JSON.stringify(updatedEvents));
 
     // all_donations listesine ekleme yapar
     const storedDonations = localStorage.getItem('all_donations');
@@ -147,7 +95,7 @@ export default function ReportTable() {
 
     setFormData({
       donorName: '',
-      project: 'Geleceğe Nefes: Orman Yangını',
+      project: events && events.length > 0 ? events[0].title : '',
       amount: '',
       donationDate: new Date().toISOString().split('T')[0]
     });
@@ -179,14 +127,7 @@ export default function ReportTable() {
       type: 'select',
       value: formData.project,
       onChange: (e) => setFormData((prev) => ({ ...prev, project: e.target.value })),
-      options: [
-        'Geleceğe Nefes: Orman Yangını',
-        'Köy Okullarına Bilgisayar Lab.',
-        'Sokak Hayvanları Mobil Klinik',
-        'Temiz Su Kuyusu Projesi',
-        'Deprem Bölgesi Geçici Okul',
-        'Çocuk Kanseri Destek Bağışı'
-      ]
+      options: events.length > 0 ? events.map((e) => e.title) : ['Seçiniz']
     },
     {
       id: 'amount',

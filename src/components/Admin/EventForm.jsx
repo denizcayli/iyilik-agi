@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { addEventAsync } from '../../store/slices/eventSlice';
+import { EventContext } from '../../context/EventContext';
 
 export default function EventForm() {
-  const dispatch = useDispatch();
+  const { addEvent } = useContext(EventContext);
   const navigate = useNavigate();
 
   const [title, setTitle] = useState('');
@@ -13,24 +12,69 @@ export default function EventForm() {
   const [daysLeft, setDaysLeft] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [description, setDescription] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const handleTitleChange = (val) => {
+    setTitle(val);
+    setErrorMessage('');
+  };
+
+  const handleTargetAmountChange = (val) => {
+    setTargetAmount(val);
+    setErrorMessage('');
+  };
+
+  const handleDaysLeftChange = (val) => {
+    setDaysLeft(val);
+    setErrorMessage('');
+  };
+
+  const handleDescriptionChange = (val) => {
+    setDescription(val);
+    setErrorMessage('');
+  };
+
+  const getStockPhotoForCategory = (cat) => {
+    switch (cat) {
+      case "Çevre":
+        return "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=800&q=80";
+      case "Eğitim":
+        return "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=800&q=80";
+      case "Sağlık":
+        return "https://images.unsplash.com/photo-1505751172876-fa1923c5c528?auto=format&fit=crop&w=800&q=80";
+      case "Hayvanlar":
+        return "https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=800&q=80";
+      case "Afet":
+        return "https://images.unsplash.com/photo-1469571486090-7d99c91b7829?auto=format&fit=crop&w=800&q=80";
+      case "Çocuk":
+        return "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=800&q=80";
+      case "Yaşlı":
+        return "https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?auto=format&fit=crop&w=800&q=80";
+      case "Su":
+        return "https://images.unsplash.com/photo-1518391846015-55a9cc003b25?auto=format&fit=crop&w=800&q=80";
+      default:
+        return "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=800&q=80";
+    }
+  };
 
   const handleStartEvent = () => {
     if (!title.trim() || !targetAmount || !daysLeft || !description.trim()) {
+      setErrorMessage('Lütfen tüm zorunlu alanları (*) eksiksiz doldurun.');
       return;
     }
 
     const newEvent = {
-      title,
+      title: title.trim(),
       category,
       targetAmount: Number(targetAmount) || 0,
       daysLeft: Number(daysLeft) || 0,
-      imageUrl: imageUrl.trim() || 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=800&q=80',
-      description
+      imageUrl: imageUrl.trim() || getStockPhotoForCategory(category),
+      description: description.trim()
     };
 
-    dispatch(addEventAsync(newEvent)).then(() => {
+    addEvent(newEvent).then(() => {
       window.dispatchEvent(new Event('dashboard-data-updated'));
-      sessionStorage.setItem('pending_toast', 'Yeni etkinlik başarıyla oluşturuldu');
+      sessionStorage.setItem('pending_toast', 'Etkinlik başlatıldı');
       navigate('/admin/events');
     });
   };
@@ -45,6 +89,15 @@ export default function EventForm() {
         <h3 className="text-xs font-black text-inst-navy uppercase tracking-wider">ETKİNLİK BİLGİLERİ</h3>
       </div>
 
+      {errorMessage && (
+        <div className="bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl p-4 font-bold flex items-start gap-2 mb-6 animate-pulse">
+          <svg className="w-4.5 h-4.5 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <span>{errorMessage}</span>
+        </div>
+      )}
+
       <div className="space-y-6">
         {/* Row 1: Başlık + Kategori */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -55,7 +108,7 @@ export default function EventForm() {
               placeholder="Örn: Geleceğe Nefes"
               className="form-input w-full"
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={(e) => handleTitleChange(e.target.value)}
               required
             />
           </div>
@@ -87,7 +140,7 @@ export default function EventForm() {
               placeholder="Örn: 1000000"
               className="form-input w-full"
               value={targetAmount}
-              onChange={(e) => setTargetAmount(e.target.value)}
+              onChange={(e) => handleTargetAmountChange(e.target.value)}
               required
             />
           </div>
@@ -98,7 +151,7 @@ export default function EventForm() {
               placeholder="Örn: 100"
               className="form-input w-full"
               value={daysLeft}
-              onChange={(e) => setDaysLeft(e.target.value)}
+              onChange={(e) => handleDaysLeftChange(e.target.value)}
               required
             />
           </div>
@@ -124,7 +177,7 @@ export default function EventForm() {
             rows={5}
             className="form-input w-full resize-none"
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            onChange={(e) => handleDescriptionChange(e.target.value)}
             required
           />
         </div>

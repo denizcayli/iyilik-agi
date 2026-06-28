@@ -16,12 +16,16 @@ export default function EventCard({ event }) {
     minutesLeft,
     imageUrl,
     donorCount,
+    volunteerCount,
   } = event;
 
   const percentage = Math.min(Math.round((raisedAmount / targetAmount) * 100), 100);
   const isCompleted = raisedAmount >= targetAmount;
-  const isExpired = daysLeft <= 0 && hoursLeft <= 0 && minutesLeft <= 0;
-  const urgency = getUrgencyStyles(daysLeft);
+  // Genel Bağış kartı tespiti: imageUrl'de "genel-bagis" geçiyorsa veya title eşleşiyorsa
+  const isGenelBagis = (imageUrl && imageUrl.includes('genel-bagis')) || title === 'Genel Bağış';
+  // Genel Bağış kartında süre bitiyor gibi davranmasını engelle
+  const isExpired = !isGenelBagis && daysLeft <= 0 && hoursLeft <= 0 && minutesLeft <= 0;
+  const urgency = getUrgencyStyles(isGenelBagis ? 999 : daysLeft);
 
   const getCategoryBadgeClass = (cat) => {
     switch (cat) {
@@ -73,33 +77,61 @@ export default function EventCard({ event }) {
         </div>
 
         <div>
-          <div className="mb-4">
-            <div className="flex justify-between items-end mb-1.5">
-              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Toplanan İlerleme</span>
-              <span className="text-xs font-black font-mono" style={{ color: urgency.color }}>{percentage}%</span>
-            </div>
-            <ProgressBar percentage={percentage} progressBarBg={urgency.progressBarBg} />
-            <div className="flex justify-between items-center mt-2 text-[10px] font-semibold">
-              <span className="font-mono text-slate-700">{raisedAmount.toLocaleString("tr-TR")} ₺</span>
-              <span className="text-slate-400">Hedef: <strong className="font-semibold font-mono text-slate-600">{targetAmount.toLocaleString("tr-TR")} ₺</strong></span>
-            </div>
-          </div>
-          <div className="border-t border-slate-100 my-4"></div>
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div>
-              <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block mb-0.5">Durum / Süre</span>
-              <CountdownTimer daysLeft={daysLeft} hoursLeft={hoursLeft} minutesLeft={minutesLeft} isCompleted={isCompleted} isExpired={isExpired} urgencyColor={urgency.color} />
-            </div>
-            <div>
-              <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block mb-0.5">Destekçi Sayısı</span>
-              <div className="font-mono text-xs font-bold text-slate-700 flex items-center gap-1">
-                <svg className="w-3.5 h-3.5 text-pine-teal" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-                <span>{donorCount} kişi</span>
+          {/* İlerleme barı — Genel Bağış kartında tamamen yok, diğerlerinde var */}
+          {!isGenelBagis && (
+            <div className="mb-4">
+              <div className="flex justify-between items-end mb-1.5">
+                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Toplanan İlerleme</span>
+                <span className="text-xs font-black font-mono" style={{ color: urgency.color }}>{percentage}%</span>
+              </div>
+              <ProgressBar percentage={percentage} progressBarBg={urgency.progressBarBg} />
+              <div className="flex justify-between items-center mt-2 text-[10px] font-semibold">
+                <span className="font-mono text-slate-700">{raisedAmount.toLocaleString("tr-TR")} ₺</span>
+                <span className="text-slate-400">Hedef: <strong className="font-semibold font-mono text-slate-600">{targetAmount.toLocaleString("tr-TR")} ₺</strong></span>
               </div>
             </div>
-          </div>
+          )}
+
+          <div className="border-t border-slate-100 my-4"></div>
+
+          {isGenelBagis ? (
+            /* Genel Bağış kartı: DURUM/SÜRE yok, toplam bağış + gönüllü sayısı büyük rakam */
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div>
+                <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block mb-0.5">Toplam Bağış</span>
+                <div className="font-mono text-sm font-black text-pine-teal">
+                  {raisedAmount.toLocaleString("tr-TR")} ₺
+                </div>
+              </div>
+              <div>
+                <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block mb-0.5">Gönüllü Sayısı</span>
+                <div className="font-mono text-sm font-black text-slate-700 flex items-center gap-1">
+                  <svg className="w-3.5 h-3.5 text-pine-teal" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                  <span>{(volunteerCount || donorCount || 0).toLocaleString("tr-TR")}</span>
+                </div>
+              </div>
+            </div>
+          ) : (
+            /* Normal kartlar: DURUM/SÜRE + Destekçi Sayısı */
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div>
+                <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block mb-0.5">Durum / Süre</span>
+                <CountdownTimer daysLeft={daysLeft} hoursLeft={hoursLeft} minutesLeft={minutesLeft} isCompleted={isCompleted} isExpired={isExpired} urgencyColor={urgency.color} />
+              </div>
+              <div>
+                <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block mb-0.5">Destekçi Sayısı</span>
+                <div className="font-mono text-xs font-bold text-slate-700 flex items-center gap-1">
+                  <svg className="w-3.5 h-3.5 text-pine-teal" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                  <span>{donorCount != null ? `${donorCount} kişi` : '—'}</span>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-slate-50">
             <Link to={`/events/${id}`} className="btn btn-secondary text-center">Detaylar</Link>
             {isCompleted ? (

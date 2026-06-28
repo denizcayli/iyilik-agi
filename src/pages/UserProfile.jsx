@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchWalletData } from '../store/slices/walletSlice';
 import WalletCard from '../components/Wallet/WalletCard';
@@ -10,6 +11,7 @@ const STATIC_USER = { name: 'Onur Baha Koç', email: 'koconurbaha@gmail.com', ro
 
 export default function UserProfile() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const authUser = useSelector((state) => state.auth.user);
   const balance = useSelector((state) => state.wallet.balance);
@@ -17,6 +19,8 @@ export default function UserProfile() {
   const participatedEvents = useSelector((state) => state.wallet.participatedEvents);
 
   const [activeTab, setActiveTab] = useState('donations'); // 'donations' | 'events'
+  const [filterCategory, setFilterCategory] = useState('Tümü'); // aktif kategori filtresi
+  const [searchQuery, setSearchQuery] = useState(''); // arama metni
 
   const currentUser = useMemo(() => {
     if (authUser) return authUser;
@@ -54,8 +58,49 @@ export default function UserProfile() {
     return transactions.filter((t) => t.category !== 'Cüzdan' && t.category !== 'Cüzdan Bakiye Yükleme').length;
   }, [transactions]);
 
+  // Kullanıcının kendi bağışlarından gelen benzersiz kategoriler
+  const userCategories = useMemo(() => {
+    const cats = transactions
+      .filter((t) => t.category && t.category !== 'Cüzdan' && t.category !== 'Cüzdan Bakiye Yükleme')
+      .map((t) => t.category);
+    return ['Tümü', ...Array.from(new Set(cats))];
+  }, [transactions]);
+
+  const [toastMsg, setToastMsg] = useState('');
+  const [toastVisible, setToastVisible] = useState(false);
+
+  const showToast = (msg) => {
+    setToastMsg(msg);
+    setToastVisible(true);
+    setTimeout(() => setToastVisible(false), 3500);
+  };
+
   return (
     <div className="page-container">
+      {/* Toast Notification */}
+      {toastVisible && (
+        <div className="fixed top-24 right-6 z-50 bg-white border border-emerald-100 shadow-xl rounded-2xl p-4 max-w-sm flex items-start gap-3 toast-animate-in transition-all">
+          <div className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <div className="flex-1 min-w-0 text-left">
+            <h4 className="text-xs font-bold text-slate-800">Başarılı!</h4>
+            <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">{toastMsg}</p>
+          </div>
+          <button
+            onClick={() => setToastVisible(false)}
+            className="text-slate-400 hover:text-slate-650 shrink-0 transition-colors cursor-pointer"
+            type="button"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      )}
+
       {/* sayfa başlığı ve tanıtım yazısı */}
       <div className="header-wrapper">
         <span className="header-badge">
@@ -127,13 +172,21 @@ export default function UserProfile() {
 
           {/* Export Butonları — görünür, işlevsiz */}
           <div className="flex gap-2 w-full lg:w-auto">
-            <button type="button" className="btn btn-primary flex-1 lg:flex-none gap-1.5">
+            <button 
+              type="button" 
+              onClick={() => showToast('Excel dosyası başarıyla indirildi')}
+              className="btn btn-primary flex-1 lg:flex-none gap-1.5"
+            >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
               </svg>
               Excel (CSV) Kaydet
             </button>
-            <button type="button" className="btn btn-accent flex-1 lg:flex-none gap-1.5">
+            <button 
+              type="button" 
+              onClick={() => showToast('PDF dosyası başarıyla indirildi')}
+              className="btn btn-accent flex-1 lg:flex-none gap-1.5"
+            >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
@@ -146,23 +199,33 @@ export default function UserProfile() {
         {activeTab === 'donations' && (
           <div className="space-y-4">
             <div className="flex flex-col sm:flex-row gap-3 justify-end">
+              {/* Kullanıcının kendi bağışlarından gelen kategoriler */}
               <div className="flex flex-wrap gap-1 bg-slate-50 border border-slate-200/60 p-1 rounded-xl">
-                <button className="px-3 py-1 text-[9px] font-bold rounded-lg transition-all cursor-pointer bg-white text-pine-teal shadow-sm">Tümü</button>
-                <button className="px-3 py-1 text-[9px] font-bold rounded-lg transition-all cursor-pointer text-slate-500 hover:text-slate-700">Çevre</button>
-                <button className="px-3 py-1 text-[9px] font-bold rounded-lg transition-all cursor-pointer text-slate-500 hover:text-slate-700">Eğitim</button>
-                <button className="px-3 py-1 text-[9px] font-bold rounded-lg transition-all cursor-pointer text-slate-500 hover:text-slate-700">Hayvanlar</button>
-                <button className="px-3 py-1 text-[9px] font-bold rounded-lg transition-all cursor-pointer text-slate-500 hover:text-slate-700">Su</button>
-                <button className="px-3 py-1 text-[9px] font-bold rounded-lg transition-all cursor-pointer text-slate-500 hover:text-slate-700">Afet</button>
+                {userCategories.map((cat) => (
+                  <button
+                    key={cat}
+                    onClick={() => setFilterCategory(cat)}
+                    className={`px-3 py-1 text-[9px] font-bold rounded-lg transition-all cursor-pointer ${
+                      filterCategory === cat
+                        ? 'bg-white text-pine-teal shadow-sm'
+                        : 'text-slate-500 hover:text-slate-700 hover:bg-white'
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                ))}
               </div>
               <input
                 type="text"
                 placeholder="Etkinlik başlığı ara..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="px-3.5 py-1.5 bg-slate-50 hover:bg-slate-100/60 focus:bg-white border border-slate-200 focus:border-pine-teal rounded-xl text-xs font-semibold text-slate-700 outline-none transition-all w-full sm:w-48"
               />
             </div>
 
-            {/* Tablo */}
-            <TransactionTable />
+            {/* Tablo — filtre ve arama ile */}
+            <TransactionTable filterCategory={filterCategory} searchQuery={searchQuery} />
           </div>
         )}
 

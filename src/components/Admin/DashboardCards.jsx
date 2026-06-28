@@ -16,11 +16,18 @@ export default function DashboardCards() {
 
   // Metrik verilerini etkinlik listesine göre hesaplar
   const applyMetrics = (eventsList) => {
-    const totalRaised = eventsList.reduce((sum, e) => sum + e.raisedAmount, 0) + 16347500;
-    const activeCount = eventsList.filter((e) => e.status !== 'TAMAMLANDI' && e.raisedAmount < e.targetAmount && e.daysLeft > 0).length + 2;
-    const avgCompletion = eventsList.length > 0
-      ? eventsList.reduce((sum, e) => sum + (e.raisedAmount / e.targetAmount) * 100, 0) / eventsList.length
-      : 0;
+    if (!eventsList || eventsList.length === 0) {
+      setMetrics({
+        totalRaised: 16347500,
+        avgCompletion: 0,
+        activeCount: 2
+      });
+      return;
+    }
+    const totalRaised = eventsList.reduce((sum, e) => sum + (e.raisedAmount || 0), 0) + 16347500;
+    const activeCount = eventsList.filter((e) => e.status !== 'TAMAMLANDI' && (e.raisedAmount || 0) < (e.targetAmount || 0) && (e.daysLeft || 0) > 0).length + 2;
+    const avgCompletion = eventsList.reduce((sum, e) => sum + (((e.raisedAmount || 0) / (e.targetAmount || 1)) * 100), 0) / eventsList.length;
+    
     setMetrics({
       totalRaised,
       avgCompletion: Number(avgCompletion.toFixed(1)),
@@ -29,12 +36,24 @@ export default function DashboardCards() {
   };
 
   useEffect(() => {
-    if (events.length > 0) {
+    if (events && events.length > 0) {
       applyMetrics(events);
     } else {
       dispatch(fetchEvents());
     }
   }, [events, dispatch]);
+
+  useEffect(() => {
+    const refresh = () => {
+      dispatch(fetchEvents());
+    };
+    window.addEventListener('dashboard-data-updated', refresh);
+    window.addEventListener('donation-list-updated', refresh);
+    return () => {
+      window.removeEventListener('dashboard-data-updated', refresh);
+      window.removeEventListener('donation-list-updated', refresh);
+    };
+  }, [dispatch]);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
@@ -65,9 +84,6 @@ export default function DashboardCards() {
           <div className="flex items-baseline gap-2 mb-2">
             <span className="text-2xl font-black text-slate-700 leading-none">
               %{metrics.avgCompletion.toString().replace('.', ',')}
-            </span>
-            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-extrabold bg-emerald-50 text-emerald-600 border border-emerald-100">
-              ↑ 2.1%
             </span>
           </div>
           <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
