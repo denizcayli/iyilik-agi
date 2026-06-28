@@ -1,19 +1,27 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { fetchEvents } from "../store/slices/eventSlice";
+import { fetchWalletData, joinEventAsync } from "../store/slices/walletSlice";
 import { getUrgencyStyles } from "../utils/urgency";
-
-const MOCK_IS_AUTHENTICATED = true;
 
 const getInitialLetter = (donorName) => {
   return donorName ? donorName.charAt(0).toUpperCase() : "?";
 };
 
 export default function EventDetail() {
-
   const navigate = useNavigate();
   const { id } = useParams();
-  const [currentEvent, setCurrentEvent] = useState(null);
-  const [hasApplied, setHasApplied] = useState(false);
+  const dispatch = useDispatch();
+
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+  const user = useSelector((state) => state.auth.user);
+  const eventsList = useSelector((state) => state.events.list);
+  const currentEvent = eventsList.find((e) => e.id === id) || eventsList[0] || null;
+
+  const participatedEvents = useSelector((state) => state.wallet.participatedEvents);
+  const hasApplied = currentEvent ? participatedEvents.some(e => e.id === currentEvent.id) : false;
+
   const [showToast, setShowToast] = useState(false);
 
   const [timeLeft, setTimeLeft] = useState({
@@ -23,24 +31,28 @@ export default function EventDetail() {
     seconds: 0,
   });
 
+  useEffect(() => {
+    if (eventsList.length === 0) {
+      dispatch(fetchEvents());
+    }
+  }, [dispatch, eventsList.length]);
 
   useEffect(() => {
-    fetch("/events.json")
-      .then((res) => res.json())
-      .then((data) => {
-        const eventsList = data.events || data;
-        const found = eventsList.find((e) => e.id === id) || eventsList[0];
-        setCurrentEvent(found);
-        if (found) {
-          setTimeLeft({
-            days: found.daysLeft,
-            hours: found.hoursLeft,
-            minutes: found.minutesLeft,
-            seconds: found.secondsLeft,
-          });
-        }
+    if (isAuthenticated && user?.email) {
+      dispatch(fetchWalletData(user.email));
+    }
+  }, [isAuthenticated, user, dispatch]);
+
+  useEffect(() => {
+    if (currentEvent) {
+      setTimeLeft({
+        days: currentEvent.daysLeft || 0,
+        hours: currentEvent.hoursLeft || 0,
+        minutes: currentEvent.minutesLeft || 0,
+        seconds: currentEvent.secondsLeft || 0,
       });
-  }, [id]);
+    }
+  }, [currentEvent]);
 
   useEffect(() => {
     if (!currentEvent) return;
@@ -92,17 +104,17 @@ export default function EventDetail() {
 
 
   const handleVolunteerClick = () => {
-    if (!MOCK_IS_AUTHENTICATED) {
+    if (!isAuthenticated) {
       navigate("/login");
       return;
     }
 
-    setHasApplied(true);
-    setShowToast(true);
-
-    setTimeout(() => {
-      setShowToast(false);
-    }, 3500);
+    dispatch(joinEventAsync({ event: currentEvent, userEmail: user?.email })).then(() => {
+      setShowToast(true);
+      setTimeout(() => {
+        setShowToast(false);
+      }, 3500);
+    });
   };
 
   return (
@@ -360,6 +372,7 @@ export default function EventDetail() {
             <div className="space-y-3 pt-2">
               <Link
                 to="/payment"
+                state={{ eventId: currentEvent.id, eventTitle: currentEvent.title }}
                 className="btn btn-accent w-full py-3.5 text-center block"
               >
                 Bu Etkinliğe Bağış Yap

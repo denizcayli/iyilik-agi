@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchEvents, deleteEventAsync } from '../../store/slices/eventSlice';
 import AdminLayout from '../../components/AdminLayout';
 
 export default function EventsManagement() {
-  const [events, setEvents] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch();
+  const events = useSelector((state) => state.events.list);
+  const status = useSelector((state) => state.events.status);
+  const loading = status === 'loading';
+
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
-  // Silinecek etkinlik id'si (onay kartı için)
   const [deleteTarget, setDeleteTarget] = useState(null);
-  // Bildirim: { message, visible }
   const [notification, setNotification] = useState({ message: '', visible: false });
 
   const showNotification = (msg) => {
@@ -19,74 +22,34 @@ export default function EventsManagement() {
     setTimeout(() => setNotification({ message: '', visible: false }), 2600);
   };
 
-  // Etkinlik listesini sunucudan/dosyadan ve yerel depolamadan getirir
-  const fetchEvents = () => {
-    const stored = localStorage.getItem('events_list');
-    if (stored) {
-      try {
-        setEvents(JSON.parse(stored));
-        setLoading(false);
-      } catch (error) {
-        fetch('/events.json')
-          .then((res) => res.json())
-          .then((data) => {
-            setEvents(data);
-            setLoading(false);
-          });
-      }
-    } else {
-      fetch('/events.json')
-        .then((res) => res.json())
-        .then((data) => {
-          localStorage.setItem('events_list', JSON.stringify(data));
-          setEvents(data);
-          setLoading(false);
-        });
-    }
-  };
-
   useEffect(() => {
-    fetchEvents();
-    const handleUpdate = () => {
-      fetchEvents();
-    };
-    window.addEventListener('dashboard-data-updated', handleUpdate);
+    dispatch(fetchEvents());
 
-    // EditEvent'ten gelen bekleyen toast mesajı varsa göster
     const pendingMsg = sessionStorage.getItem('pending_toast');
     if (pendingMsg) {
       sessionStorage.removeItem('pending_toast');
-      // Kısa gecikmeyle göster (bileşen tam mount olduktan sonra)
       setTimeout(() => showNotification(pendingMsg), 100);
     }
+  }, [dispatch]);
 
-    return () => {
-      window.removeEventListener('dashboard-data-updated', handleUpdate);
-    };
-  }, []);
-
-  // Seçilen etkinliği siler ve bildirim gösterir
   const confirmDelete = (id) => {
     setDeleteTarget(id);
   };
 
   const handleDelete = () => {
     if (!deleteTarget) return;
-    const updated = events.filter((e) => e.id !== deleteTarget);
-    localStorage.setItem('events_list', JSON.stringify(updated));
-    setEvents(updated);
+    dispatch(deleteEventAsync(deleteTarget)).then(() => {
+      window.dispatchEvent(new Event('dashboard-data-updated'));
+      showNotification('Etkinlik silindi');
+    });
     setDeleteTarget(null);
-    window.dispatchEvent(new Event('dashboard-data-updated'));
-    showNotification('Etkinlik silindi');
   };
 
-  // Arama filtresine uyan etkinlikleri süzer
   const filteredEvents = events.filter((e) =>
     e.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     e.category.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Sayfalama hesabı
   const totalPages = Math.ceil(filteredEvents.length / itemsPerPage);
   const paginatedEvents = filteredEvents.slice(
     (currentPage - 1) * itemsPerPage,
@@ -111,7 +74,6 @@ export default function EventsManagement() {
     <AdminLayout>
       <div className="space-y-8 max-w-6xl mx-auto relative">
 
-        {/* Fade Bildirim - Alt Orta */}
         <div
           style={{
             opacity: notification.visible ? 1 : 0,
@@ -127,7 +89,6 @@ export default function EventsManagement() {
           <span>{notification.message}</span>
         </div>
 
-        {/* Silme Onay Kartı */}
         {deleteTarget && (
           <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/20 backdrop-blur-sm">
             <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-xs w-full mx-4 text-center">
@@ -155,7 +116,7 @@ export default function EventsManagement() {
             </div>
           </div>
         )}
-        
+
         {/* Header bar with Add Event button */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="text-left">
@@ -175,11 +136,11 @@ export default function EventsManagement() {
 
         {/* Filters and List */}
         <div className="card-base shadow-xl shadow-slate-200/20 text-left p-0 overflow-hidden">
-          
+
           {/* Table Header & Search */}
           <div className="px-6 py-5 border-b border-slate-100 bg-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
             <h3 className="text-xs font-black text-inst-navy uppercase tracking-wider">TÜM ETKİNLİKLER LİSTESİ</h3>
-            
+
             <div className="search-input-wrapper w-full sm:w-64">
               <input
                 type="text"
@@ -196,7 +157,7 @@ export default function EventsManagement() {
               </svg>
             </div>
           </div>
-          
+
           <div className="overflow-x-auto">
             <table className="w-full text-xs text-left">
               <thead className="bg-slate-50/50 text-[10px] text-slate-400 font-extrabold uppercase tracking-wider border-b border-slate-100">
@@ -237,11 +198,10 @@ export default function EventsManagement() {
                       </td>
                       <td className="px-6 py-3 text-slate-500 font-mono">{evt.daysLeft} Gün</td>
                       <td className="px-6 py-3 text-center">
-                        <span className={`inline-flex px-2.5 py-0.5 rounded-full text-[9px] font-extrabold border ${
-                          isCompleted
-                            ? 'bg-amber-50 text-amber-700 border-amber-100/50'
-                            : 'bg-emerald-50 text-emerald-700 border-emerald-100/50'
-                        }`}>
+                        <span className={`inline-flex px-2.5 py-0.5 rounded-full text-[9px] font-extrabold border ${isCompleted
+                          ? 'bg-amber-50 text-amber-700 border-amber-100/50'
+                          : 'bg-emerald-50 text-emerald-700 border-emerald-100/50'
+                          }`}>
                           {isCompleted ? 'TAMAMLANDI' : 'AKTİF'}
                         </span>
                       </td>
@@ -289,9 +249,8 @@ export default function EventsManagement() {
                 {/* Prev Arrow */}
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
-                  className={`w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-450 hover:bg-slate-50 transition-all ${
-                    currentPage === 1 ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
-                  }`}
+                  className={`w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-450 hover:bg-slate-50 transition-all ${currentPage === 1 ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
+                    }`}
                   disabled={currentPage === 1}
                 >
                   <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -304,11 +263,10 @@ export default function EventsManagement() {
                   <button
                     key={page}
                     onClick={() => handlePageChange(page)}
-                    className={`w-8 h-8 flex items-center justify-center rounded-lg text-xs font-extrabold border transition-all ${
-                      currentPage === page
-                        ? 'bg-pine-teal text-white shadow-sm shadow-pine-teal/20 border-pine-teal cursor-default'
-                        : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50 cursor-pointer'
-                    }`}
+                    className={`w-8 h-8 flex items-center justify-center rounded-lg text-xs font-extrabold border transition-all ${currentPage === page
+                      ? 'bg-pine-teal text-white shadow-sm shadow-pine-teal/20 border-pine-teal cursor-default'
+                      : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50 cursor-pointer'
+                      }`}
                   >
                     {page}
                   </button>
@@ -317,9 +275,8 @@ export default function EventsManagement() {
                 {/* Next Arrow */}
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
-                  className={`w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-450 hover:bg-slate-50 transition-all ${
-                    currentPage === totalPages ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
-                  }`}
+                  className={`w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-450 hover:bg-slate-50 transition-all ${currentPage === totalPages ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
+                    }`}
                   disabled={currentPage === totalPages}
                 >
                   <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

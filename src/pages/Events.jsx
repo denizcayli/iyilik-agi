@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { fetchEvents, setSelectedCategory } from "../store/slices/eventSlice";
 import EventCard from "../components/Event/EventCard";
 
 export default function Events() {
-  const [events, setEvents] = useState([]);
+  const dispatch = useDispatch();
+  const events = useSelector((state) => state.events.list);
+  const selectedCategory = useSelector((state) => state.events.selectedCategory);
   const categories = [
     "Tümü",
     "Çevre",
@@ -16,14 +20,11 @@ export default function Events() {
     "Su",
   ];
 
-  const [selectedCategory, setSelectedCategory] = useState("Tümü");
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    fetch("/events.json")
-      .then((res) => res.json())
-      .then((data) => setEvents(data.events || data));
-  }, []);
+    dispatch(fetchEvents());
+  }, [dispatch]);
 
 
   const filteredEvents = events.filter((event) => {
@@ -71,7 +72,7 @@ export default function Events() {
           {categories.map((cat) => (
             <button
               key={cat}
-              onClick={() => setSelectedCategory(cat)}
+              onClick={() => dispatch(setSelectedCategory(cat))}
               className={
                 selectedCategory === cat ? "filter-btn-active" : "filter-btn"
               }

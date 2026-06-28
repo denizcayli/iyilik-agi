@@ -1,13 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchEvents, editEventAsync } from '../../store/slices/eventSlice';
 import AdminLayout from '../../components/AdminLayout';
 
 export default function EditEvent() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch();
+
+  const events = useSelector((state) => state.events.list);
+  const status = useSelector((state) => state.events.status);
+  const loading = status === 'loading';
+
   const [showNotification, setShowNotification] = useState(false);
-  
   const [eventData, setEventData] = useState({
     title: '',
     category: 'Çevre',
@@ -17,86 +23,47 @@ export default function EditEvent() {
     description: ''
   });
 
-  // Seçilen etkinliğin verilerini yerel depolama veya json dosyasından yükler
   useEffect(() => {
-    const stored = localStorage.getItem('events_list');
-    if (stored) {
-      try {
-        const list = JSON.parse(stored);
-        const found = list.find((e) => e.id === id);
-        if (found) {
-          setEventData(found);
-          setLoading(false);
-        } else {
-          navigate('/admin/events');
-        }
-      } catch (error) {
+    if (events.length === 0) {
+      dispatch(fetchEvents());
+    }
+  }, [dispatch, events.length]);
+
+  useEffect(() => {
+    if (events.length > 0) {
+      const found = events.find((e) => e.id === id);
+      if (found) {
+        setEventData(found);
+      } else {
         navigate('/admin/events');
       }
-    } else {
-      fetch('/events.json')
-        .then((res) => res.json())
-        .then((data) => {
-          localStorage.setItem('events_list', JSON.stringify(data));
-          const found = data.find((e) => e.id === id);
-          if (found) {
-            setEventData(found);
-            setLoading(false);
-          } else {
-            navigate('/admin/events');
-          }
-        });
     }
-  }, [id, navigate]);
+  }, [events, id, navigate]);
 
   const handleChange = (field, val) => {
     setEventData((prev) => ({ ...prev, [field]: val }));
   };
 
-  // Değişiklikleri yerel depolamaya yazar ve alt-orta toast gösterir
   const handleSave = () => {
-    // Sadece başlık zorunlu — description opsiyonel
     if (!eventData.title.trim()) {
       return;
     }
 
-    const applyUpdate = (list) => {
-      const updated = list.map((e) => {
-        if (e.id === id) {
-          return {
-            ...e,
-            title: eventData.title,
-            category: eventData.category,
-            targetAmount: Number(eventData.targetAmount) || 0,
-            daysLeft: Number(eventData.daysLeft) || 0,
-            imageUrl: eventData.imageUrl,
-            description: eventData.description || ''
-          };
-        }
-        return e;
-      });
-      // Önce localStorage'a yaz
-      localStorage.setItem('events_list', JSON.stringify(updated));
-      window.dispatchEvent(new Event('dashboard-data-updated'));
-      // EventsManagement açılınca göstermek için mesajı sessionStorage'a yaz
-      sessionStorage.setItem('pending_toast', 'Değişiklikler kaydedildi');
-      // Hemen listeye dön
-      navigate('/admin/events');
+    const updatedEvent = {
+      id,
+      title: eventData.title,
+      category: eventData.category,
+      targetAmount: Number(eventData.targetAmount) || 0,
+      daysLeft: Number(eventData.daysLeft) || 0,
+      imageUrl: eventData.imageUrl,
+      description: eventData.description || ''
     };
 
-    const stored = localStorage.getItem('events_list');
-    if (stored) {
-      try {
-        applyUpdate(JSON.parse(stored));
-      } catch (error) {
-        console.error('Kayıt hatası:', error);
-      }
-    } else {
-      fetch('/events.json')
-        .then((r) => r.json())
-        .then((data) => applyUpdate(data))
-        .catch((err) => console.error('Fetch hatası:', err));
-    }
+    dispatch(editEventAsync(updatedEvent)).then(() => {
+      window.dispatchEvent(new Event('dashboard-data-updated'));
+      sessionStorage.setItem('pending_toast', 'Değişiklikler kaydedildi');
+      navigate('/admin/events');
+    });
   };
 
   if (loading) {

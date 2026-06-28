@@ -1,73 +1,40 @@
-// react kütüphanesini içeri alıyoruz
-import React from 'react';
-// bakiye gösteren cüzdan kartını ve geçmiş işlemler tablosunu çağırıyoruz
+import React, { useEffect, useMemo, useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchWalletData } from '../store/slices/walletSlice';
 import WalletCard from '../components/Wallet/WalletCard';
 import TransactionTable from '../components/Wallet/TransactionTable';
 
-// oturum açılmamışsa yedek olarak duracak statik kullanıcı verisi
 const STATIC_USER = { name: 'Onur Baha Koç', email: 'koconurbaha@gmail.com', role: 'gönüllü' };
-const STATIC_WALLET = 15000;
 
-// kullanıcının geçmiş bağışlarını gösteren mock listesi
-const STATIC_DONATIONS = [
-  { id: 'd1', donorName: 'Onur Baha Koç', campaignTitle: 'Geleceğe Nefes: Orman Yangını', category: 'Çevre', amount: 500, date: '2026-06-26T22:14:00Z' },
-  { id: 'd2', donorName: 'Onur Baha Koç', campaignTitle: 'Köy Okullarına Bilgisayar Laboratuvarı', category: 'Eğitim', amount: 250, date: '2026-06-15T14:30:00Z' },
-  { id: 'd3', donorName: 'Onur Baha Koç', campaignTitle: 'Kırsal Bölgelere Temiz Su Kuyusu', category: 'Su', amount: 2000, date: '2026-06-01T09:45:00Z' },
-];
 
-// kullanıcının gönüllü katıldığı etkinliklerin mock listesi
-const STATIC_PARTICIPATED = [
-  {
-    id: 'evt-1',
-    title: 'Geleceğe Nefes: Orman Yangını Sonrası Rehabilitasyon',
-    category: 'Çevre',
-    daysLeft: 45,
-    imageUrl: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=200&q=80',
-    contributed: 500,
-  },
-  {
-    id: 'evt-2',
-    title: 'Köy Okullarına Bilgisayar Laboratuvarı',
-    category: 'Eğitim',
-    daysLeft: 22,
-    imageUrl: 'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=200&q=80',
-    contributed: 250,
-  },
-];
-
-const CATEGORIES = ['Tümü', 'Çevre', 'Eğitim', 'Hayvanlar', 'Su', 'Afet'];
-
-function formatMoney(val) {
-  return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', maximumFractionDigits: 0 }).format(val);
-}
 
 export default function UserProfile() {
-  // giriş yapmış kullanıcının bilgilerini tarayıcı hafızasından güvenle çekiyoruz
-  const currentUser = React.useMemo(() => {
+  const dispatch = useDispatch();
+
+  const authUser = useSelector((state) => state.auth.user);
+  const balance = useSelector((state) => state.wallet.balance);
+  const transactions = useSelector((state) => state.wallet.transactions);
+  const participatedEvents = useSelector((state) => state.wallet.participatedEvents);
+
+  const [activeTab, setActiveTab] = useState('donations'); // 'donations' | 'events'
+
+  const currentUser = useMemo(() => {
+    if (authUser) return authUser;
     try {
-      const rawUser = sessionStorage.getItem('user');
-      return rawUser ? JSON.parse(rawUser) : STATIC_USER;
+      const local = localStorage.getItem('user') || sessionStorage.getItem('user');
+      return local ? JSON.parse(local) : STATIC_USER;
     } catch (e) {
       return STATIC_USER;
     }
-  }, []);
+  }, [authUser]);
 
-  const [balance, setBalance] = React.useState(0);
-
-  // kullanıcının cüzdan bakiyesini sessionStorage üzerinden bulup güncelliyoruz
-  React.useEffect(() => {
-    const key = 'wallet_' + currentUser.email;
-    const stored = sessionStorage.getItem(key);
-    if (stored !== null) {
-      setBalance(Number(stored) || 0);
-    } else {
-      sessionStorage.setItem(key, '0');
-      setBalance(0);
+  useEffect(() => {
+    if (currentUser?.email) {
+      dispatch(fetchWalletData(currentUser.email));
     }
-  }, [currentUser]);
+  }, [currentUser, dispatch]);
 
-  // kullanıcının adının baş harflerini profil resmi gibi göstermek için ayırıyoruz
-  const initials = React.useMemo(() => {
+  const initials = useMemo(() => {
     if (!currentUser.name) return 'GN';
     return currentUser.name
       .split(' ')
@@ -77,9 +44,18 @@ export default function UserProfile() {
       .toUpperCase();
   }, [currentUser.name]);
 
+  const totalContributed = useMemo(() => {
+    return transactions
+      .filter((t) => t.category !== 'Cüzdan' && t.category !== 'Cüzdan Bakiye Yükleme')
+      .reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
+  }, [transactions]);
+
+  const totalDonationCount = useMemo(() => {
+    return transactions.filter((t) => t.category !== 'Cüzdan' && t.category !== 'Cüzdan Bakiye Yükleme').length;
+  }, [transactions]);
+
   return (
     <div className="page-container">
-
       {/* sayfa başlığı ve tanıtım yazısı */}
       <div className="header-wrapper">
         <span className="header-badge">
@@ -95,7 +71,6 @@ export default function UserProfile() {
 
       {/* kullanıcının adını, cüzdanını ve toplam katkısını gösteren kartlar */}
       <div className="grid-cols-responsive-3 mb-10">
-
         {/* Kullanıcı Kartı */}
         <div className="card-base flex items-center gap-4">
           <div className="w-16 h-16 rounded-2xl bg-pine-teal flex items-center justify-center text-white text-xl font-black shadow-md shadow-pine-teal/15 border border-white/10 shrink-0">
@@ -122,9 +97,9 @@ export default function UserProfile() {
           </div>
           <div>
             <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-0.5">Toplam İyilik Katkınız</span>
-            <div className="text-xl font-black font-mono text-slate-700">{formatMoney(2750)}</div>
+            <div className="text-xl font-black font-mono text-slate-700">{totalContributed.toLocaleString('tr-TR')}₺</div>
             <p className="text-[9px] text-slate-400 mt-0.5 font-semibold">
-              Toplam <strong>3</strong> adet bağışta bulundunuz.
+              Toplam <strong>{totalDonationCount}</strong> adet bağışta bulundunuz.
             </p>
           </div>
         </div>
@@ -132,16 +107,21 @@ export default function UserProfile() {
 
       {/* sekmeli alan ve veri tablosunun olduğu kısım */}
       <div className="card-base space-y-6">
-
         {/* sekme geçişleri ve dışa aktarma butonlarının satırı */}
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 border-b border-slate-100 pb-4">
-          {/* Tab Switcher — "Bağış Geçmişim" sabit aktif */}
+          {/* Tab Switcher */}
           <div className="flex gap-2 p-1 bg-slate-100 rounded-xl border border-slate-200/60 w-full lg:w-auto">
-            <button className="flex-1 lg:flex-none px-4 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer bg-white text-pine-teal shadow-sm">
+            <button
+              onClick={() => setActiveTab('donations')}
+              className={`flex-1 lg:flex-none px-4 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${activeTab === 'donations' ? 'bg-white text-pine-teal shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+            >
               Bağış Geçmişim
             </button>
-            <button className="flex-1 lg:flex-none px-4 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer text-slate-500 hover:text-slate-700">
-              Katıldığım Etkinlikler (2)
+            <button
+              onClick={() => setActiveTab('events')}
+              className={`flex-1 lg:flex-none px-4 py-2 text-xs font-bold rounded-lg transition-all cursor-pointer ${activeTab === 'events' ? 'bg-white text-pine-teal shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+            >
+              Katıldığım Etkinlikler ({participatedEvents.length})
             </button>
           </div>
 
@@ -163,63 +143,58 @@ export default function UserProfile() {
         </div>
 
         {/* TAB 1: Bağış Geçmişi — aktif gösterilen */}
-        <div className="space-y-4">
-          {/* kategoriye göre ve isme göre arama filtreleri */}
-          <div className="flex flex-col sm:flex-row gap-3 justify-end">
-            <div className="flex flex-wrap gap-1 bg-slate-50 border border-slate-200/60 p-1 rounded-xl">
-              <button className="px-3 py-1 text-[9px] font-bold rounded-lg transition-all cursor-pointer bg-white text-pine-teal shadow-sm">Tümü</button>
-              <button className="px-3 py-1 text-[9px] font-bold rounded-lg transition-all cursor-pointer text-slate-500 hover:text-slate-700">Çevre</button>
-              <button className="px-3 py-1 text-[9px] font-bold rounded-lg transition-all cursor-pointer text-slate-500 hover:text-slate-700">Eğitim</button>
-              <button className="px-3 py-1 text-[9px] font-bold rounded-lg transition-all cursor-pointer text-slate-500 hover:text-slate-700">Hayvanlar</button>
-              <button className="px-3 py-1 text-[9px] font-bold rounded-lg transition-all cursor-pointer text-slate-500 hover:text-slate-700">Su</button>
-              <button className="px-3 py-1 text-[9px] font-bold rounded-lg transition-all cursor-pointer text-slate-500 hover:text-slate-700">Afet</button>
+        {activeTab === 'donations' && (
+          <div className="space-y-4">
+            <div className="flex flex-col sm:flex-row gap-3 justify-end">
+              <div className="flex flex-wrap gap-1 bg-slate-50 border border-slate-200/60 p-1 rounded-xl">
+                <button className="px-3 py-1 text-[9px] font-bold rounded-lg transition-all cursor-pointer bg-white text-pine-teal shadow-sm">Tümü</button>
+                <button className="px-3 py-1 text-[9px] font-bold rounded-lg transition-all cursor-pointer text-slate-500 hover:text-slate-700">Çevre</button>
+                <button className="px-3 py-1 text-[9px] font-bold rounded-lg transition-all cursor-pointer text-slate-500 hover:text-slate-700">Eğitim</button>
+                <button className="px-3 py-1 text-[9px] font-bold rounded-lg transition-all cursor-pointer text-slate-500 hover:text-slate-700">Hayvanlar</button>
+                <button className="px-3 py-1 text-[9px] font-bold rounded-lg transition-all cursor-pointer text-slate-500 hover:text-slate-700">Su</button>
+                <button className="px-3 py-1 text-[9px] font-bold rounded-lg transition-all cursor-pointer text-slate-500 hover:text-slate-700">Afet</button>
+              </div>
+              <input
+                type="text"
+                placeholder="Etkinlik başlığı ara..."
+                className="px-3.5 py-1.5 bg-slate-50 hover:bg-slate-100/60 focus:bg-white border border-slate-200 focus:border-pine-teal rounded-xl text-xs font-semibold text-slate-700 outline-none transition-all w-full sm:w-48"
+              />
             </div>
-            <input
-              type="text"
-              placeholder="Etkinlik başlığı ara..."
-              className="px-3.5 py-1.5 bg-slate-50 hover:bg-slate-100/60 focus:bg-white border border-slate-200 focus:border-pine-teal rounded-xl text-xs font-semibold text-slate-700 outline-none transition-all w-full sm:w-48"
-            />
+
+            {/* Tablo */}
+            <TransactionTable />
           </div>
+        )}
 
-          {/* Tablo */}
-          <TransactionTable />
-        </div>
-
-        {/* kullanıcının katıldığı projelerin listelendiği alt bölüm */}
-        <div className="border-t border-slate-100 pt-6">
-          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Katıldığım Etkinlikler</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Katılınan Etkinlik 1 */}
-            <div className="border border-slate-100 rounded-2xl p-4 bg-slate-50/50 flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3 min-w-0">
-                <img src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=200&q=80" alt="Orman" className="w-16 h-12 rounded-lg object-cover bg-slate-200 shrink-0" />
-                <div className="min-w-0">
-                  <h4 className="font-bold text-slate-850 text-xs truncate">Geleceğe Nefes: Orman Yangını Sonrası Rehabilitasyon</h4>
-                  <span className="text-[9px] text-slate-400 block font-semibold mt-0.5">Çevre • 45 gün kaldı</span>
+        {/* TAB 2: Katıldığım Etkinlikler */}
+        {activeTab === 'events' && (
+          <div className="space-y-4">
+            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Katıldığım Etkinlikler</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {participatedEvents.length > 0 ? (
+                participatedEvents.map((evt) => (
+                  <div key={evt.id} className="border border-slate-100 rounded-2xl p-4 bg-slate-50/50 flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <img src={evt.imageUrl} alt={evt.title} className="w-16 h-12 rounded-lg object-cover bg-slate-200 shrink-0" />
+                      <div className="min-w-0">
+                        <h4 className="font-bold text-slate-850 text-xs truncate">{evt.title}</h4>
+                        <span className="text-[9px] text-slate-400 block font-semibold mt-0.5">{evt.category} • {evt.daysLeft} gün kaldı</span>
+                      </div>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <span className="text-[8px] text-slate-400 uppercase font-bold block">Katkınız</span>
+                      <span className="font-mono font-bold text-emerald-600 text-xs">{(evt.contributed || 0).toLocaleString('tr-TR')}₺</span>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="col-span-2 text-center py-8 text-slate-400 text-xs border border-dashed border-slate-100 rounded-2xl">
+                  Henüz katıldığınız bir etkinlik bulunmuyor.
                 </div>
-              </div>
-              <div className="text-right shrink-0">
-                <span className="text-[8px] text-slate-400 uppercase font-bold block">Katkınız</span>
-                <span className="font-mono font-bold text-emerald-600 text-xs">₺500</span>
-              </div>
-            </div>
-            {/* Katılınan Etkinlik 2 */}
-            <div className="border border-slate-100 rounded-2xl p-4 bg-slate-50/50 flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3 min-w-0">
-                <img src="https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=200&q=80" alt="Okul" className="w-16 h-12 rounded-lg object-cover bg-slate-200 shrink-0" />
-                <div className="min-w-0">
-                  <h4 className="font-bold text-slate-850 text-xs truncate">Köy Okullarına Bilgisayar Laboratuvarı</h4>
-                  <span className="text-[9px] text-slate-400 block font-semibold mt-0.5">Eğitim • 22 gün kaldı</span>
-                </div>
-              </div>
-              <div className="text-right shrink-0">
-                <span className="text-[8px] text-slate-400 uppercase font-bold block">Katkınız</span>
-                <span className="font-mono font-bold text-emerald-600 text-xs">₺250</span>
-              </div>
+              )}
             </div>
           </div>
-        </div>
-
+        )}
       </div>
     </div>
   );

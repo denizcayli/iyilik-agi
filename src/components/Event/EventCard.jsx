@@ -107,7 +107,7 @@ export default function EventCard({ event }) {
             ) : isExpired ? (
               <button disabled className="btn btn-disabled text-center">Süresi Bitti</button>
             ) : (
-              <Link to="/payment" className="btn btn-accent text-center">Bağış Yap</Link>
+              <Link to="/payment" state={{ eventId: id, eventTitle: title }} className="btn btn-accent text-center">Bağış Yap</Link>
             )}
           </div>
         </div>

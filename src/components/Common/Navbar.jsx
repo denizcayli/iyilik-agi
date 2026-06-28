@@ -1,64 +1,30 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { logout } from '../../store/slices/authSlice';
+import { fetchWalletData } from '../../store/slices/walletSlice';
 import Footer from './Footer';
 
 export default function Layout({ children }) {
   const location = useLocation();
   const activePath = location.pathname;
+  const dispatch = useDispatch();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState(null);
-  const [walletBalance, setWalletBalance] = useState(0);
+  const isLoggedIn = useSelector((state) => state.auth.isAuthenticated);
+  const user = useSelector((state) => state.auth.user);
+  const walletBalance = useSelector((state) => state.wallet.balance);
 
-  const syncAuthState = useCallback(() => {
-    const logged = localStorage.getItem('isLoggedIn') === 'true';
-
-    if (logged) {
-      setIsLoggedIn(true);
-
-      const rawUser = localStorage.getItem('user');
-      let userEmail = 'gonullu@gmail.com';
-
-      if (rawUser) {
-        try {
-          const parsed = JSON.parse(rawUser);
-          setUser(parsed);
-          userEmail = parsed.email;
-        } catch (e) {
-          setUser({ name: 'Onur Baha Koç', email: 'gonullu@gmail.com', role: 'gönüllü' });
-        }
-      } else {
-        setUser(null);
-      }
-
-      const storedBalance = sessionStorage.getItem('wallet_' + userEmail);
-      setWalletBalance(storedBalance !== null ? Number(storedBalance) || 0 : 0);
-    } else {
-      setIsLoggedIn(false);
-      setUser(null);
-      setWalletBalance(0);
+  useEffect(() => {
+    if (isLoggedIn && user?.email) {
+      dispatch(fetchWalletData(user.email));
     }
-  }, []);
-
-  useEffect(() => {
-    syncAuthState();
-  }, [location.pathname, syncAuthState]);
-
-  useEffect(() => {
-    window.addEventListener('storage', syncAuthState);
-    window.addEventListener('auth-state-changed', syncAuthState);
-    return () => {
-      window.removeEventListener('storage', syncAuthState);
-      window.removeEventListener('auth-state-changed', syncAuthState);
-    };
-  }, [syncAuthState]);
+  }, [isLoggedIn, user, dispatch, location.pathname]);
 
   const handleLogout = () => {
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('user');
-    setIsLoggedIn(false);
-    setUser(null);
+    dispatch(logout());
     setIsMobileMenuOpen(false);
     window.dispatchEvent(new Event('auth-state-changed'));
     window.location.href = '/';

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-// Sayıyı ₺ para birimi formatına çevirir
-const formatMoney = (val) => `₺${val.toLocaleString('tr-TR')}`;
+
 
 
 export default function ReportTable() {
@@ -250,9 +249,9 @@ export default function ReportTable() {
               {filteredRecords.map((rec) => (
                 <tr key={rec.id} className="hover:bg-slate-50/40 transition-colors">
                   <td className="px-6 py-4 font-bold text-slate-800 max-w-[220px] truncate">{rec.project}</td>
-                  <td className="px-6 py-4 font-mono text-slate-600">{formatMoney(rec.sponsor)}</td>
-                  <td className="px-6 py-4 font-mono font-bold text-pine-teal">{formatMoney(rec.raised)}</td>
-                  <td className="px-6 py-4 font-mono text-slate-700">{formatMoney(rec.spent)}</td>
+                  <td className="px-6 py-4 font-mono text-slate-600">{rec.sponsor.toLocaleString('tr-TR')}₺</td>
+                  <td className="px-6 py-4 font-mono font-bold text-pine-teal">{rec.raised.toLocaleString('tr-TR')}₺</td>
+                  <td className="px-6 py-4 font-mono text-slate-700">{rec.spent.toLocaleString('tr-TR')}₺</td>
                   <td className="px-6 py-4 text-center">
                     <span className={`inline-flex px-2.5 py-0.5 rounded-full text-[9px] font-extrabold border ${
                       rec.status === 'Onaylandı'

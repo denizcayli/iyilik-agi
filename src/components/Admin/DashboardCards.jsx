@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchEvents } from '../../store/slices/eventSlice';
 
-const formatMoney = (val) => `${val.toLocaleString('tr-TR')} ₺`;
 
 
 export default function DashboardCards() {
+  const dispatch = useDispatch();
+  const events = useSelector((state) => state.events.list);
+
   const [metrics, setMetrics] = useState({
     totalRaised: 25647500,
     avgCompletion: 67.3,
@@ -11,11 +15,11 @@ export default function DashboardCards() {
   });
 
   // Metrik verilerini etkinlik listesine göre hesaplar
-  const applyMetrics = (events) => {
-    const totalRaised = events.reduce((sum, e) => sum + e.raisedAmount, 0) + 16347500;
-    const activeCount = events.filter((e) => e.status !== 'TAMAMLANDI' && e.raisedAmount < e.targetAmount && e.daysLeft > 0).length + 2;
-    const avgCompletion = events.length > 0
-      ? events.reduce((sum, e) => sum + (e.raisedAmount / e.targetAmount) * 100, 0) / events.length
+  const applyMetrics = (eventsList) => {
+    const totalRaised = eventsList.reduce((sum, e) => sum + e.raisedAmount, 0) + 16347500;
+    const activeCount = eventsList.filter((e) => e.status !== 'TAMAMLANDI' && e.raisedAmount < e.targetAmount && e.daysLeft > 0).length + 2;
+    const avgCompletion = eventsList.length > 0
+      ? eventsList.reduce((sum, e) => sum + (e.raisedAmount / e.targetAmount) * 100, 0) / eventsList.length
       : 0;
     setMetrics({
       totalRaised,
@@ -24,33 +28,13 @@ export default function DashboardCards() {
     });
   };
 
-  const calculateMetrics = () => {
-    const stored = localStorage.getItem('events_list');
-    if (stored) {
-      try {
-        const events = JSON.parse(stored);
-        if (events.length > 0) { applyMetrics(events); return; }
-      } catch (error) { /* fall through */ }
-    }
-    // localStorage boşsa /events.json'dan yükle
-    fetch('/events.json')
-      .then((r) => r.json())
-      .then((data) => {
-        localStorage.setItem('events_list', JSON.stringify(data));
-        applyMetrics(data);
-      })
-      .catch((err) => console.error('events.json yüklenemedi:', err));
-  };
-
   useEffect(() => {
-    calculateMetrics();
-    window.addEventListener('dashboard-data-updated', calculateMetrics);
-    window.addEventListener('donation-list-updated', calculateMetrics);
-    return () => {
-      window.removeEventListener('dashboard-data-updated', calculateMetrics);
-      window.removeEventListener('donation-list-updated', calculateMetrics);
-    };
-  }, []);
+    if (events.length > 0) {
+      applyMetrics(events);
+    } else {
+      dispatch(fetchEvents());
+    }
+  }, [events, dispatch]);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
@@ -64,7 +48,7 @@ export default function DashboardCards() {
           </div>
         </div>
         <div className="text-2xl font-black font-mono text-slate-700 tracking-tight leading-none mb-1">
-          {formatMoney(metrics.totalRaised)}
+          {metrics.totalRaised.toLocaleString('tr-TR')}₺
         </div>
       </div>
 

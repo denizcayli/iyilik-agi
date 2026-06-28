@@ -1,24 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchEvents } from '../store/slices/eventSlice';
 import GlassCard from '../components/GlassCard';
 import EventCard from '../components/Event/EventCard';
 
 export default function Home() {
-  const [events, setEvents] = useState([]);
+  const dispatch = useDispatch();
+  const events = useSelector((state) => state.events.list);
   const [faqs, setFaqs] = useState([]);
   const [stories, setStories] = useState([]);
   const [openFaqIds, setOpenFaqIds] = useState([0]);
 
   useEffect(() => {
+    dispatch(fetchEvents());
     fetch("/events.json")
       .then((res) => res.json())
       .then((data) => {
-        setEvents(data.events || []);
         setFaqs(data.faqs || []);
         setStories(data.stories || []);
       })
       .catch((err) => console.error("Error fetching data:", err));
-  }, []);
+  }, [dispatch]);
 
   const toggleFaq = (id) => {
     if (openFaqIds.includes(id)) {
@@ -128,6 +131,7 @@ export default function Home() {
                   </Link>
                   <Link
                     to="/payment"
+                    state={{ eventId: featured.id, eventTitle: featured.title }}
                     className="btn btn-accent border-white/10"
                   >
                     Hemen Bağışla

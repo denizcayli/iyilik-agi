@@ -68,7 +68,7 @@
       "id": "evt-3",
       "title": "Mobil Sağlik Tarama Araci Projesi",
       "description": "Hastanelere uzak dağ köylerinde yaşayan yaşlilarimiz ve dezavantajli vatandaşlarimiz için tam donanimli mobil sağlik araçlari hazirliyoruz. Erken teşhis ve temel sağlik kontrollerini ücretsiz olarak ayaklarina götürüyoruz.",
-      "category": "Sağlik",
+      "category": "Sağlık",
       "targetAmount": 750000,
       "raisedAmount": 540000,
       "daysLeft": 60,
@@ -166,7 +166,7 @@
       "id": "evt-7",
       "title": "Yalniz Yaşayan Yaşlilarimiza Evde Bakim",
       "description": "Kimsesi olmayan yaşlilarimizin ev temizliği, kişisel bakimlari, sicak yemek ihtiyaçlari ve rutin hastane kontrollerini üstleniyoruz. Onlari yalniz birakmiyor, evlerinde konforlu ve sevgi dolu bir yaşam sağliyoruz.",
-      "category": "Yaşli",
+      "category": "Yaşlı",
       "targetAmount": 300000,
       "raisedAmount": 185000,
       "daysLeft": 42,
@@ -294,5 +294,49 @@
       "partner": "Proje Ortağı: Çocuklar Gülsün Diye Derneği & Gönüllü Öğretmenler",
       "imageUrl": "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=400&q=80"
     }
-  ]
+  ],
+  "users": [
+    {
+      "name": "Onur Baha Koç",
+      "email": "gonullu@gmail.com",
+      "role": "gönüllü"
+    },
+    {
+      "name": "Deniz Çaylı",
+      "email": "admin@gmail.com",
+      "role": "admin"
+    }
+  ],
+  "wallets": {
+    "gonullu@gmail.com": {
+      "balance": 15000,
+      "transactions": [
+        {
+          "id": "d1",
+          "campaignTitle": "Geleceğe Nefes: Orman Yangını",
+          "category": "Çevre",
+          "amount": 500,
+          "date": "2026-06-26T22:14:00Z"
+        },
+        {
+          "id": "d2",
+          "campaignTitle": "Köy Okullarına Bilgisayar Laboratuvarı",
+          "category": "Eğitim",
+          "amount": 250,
+          "date": "2026-06-15T14:30:00Z"
+        },
+        {
+          "id": "d3",
+          "campaignTitle": "Kırsal Bölgelere Temiz Su Kuyusu",
+          "category": "Su",
+          "amount": 2000,
+          "date": "2026-06-01T09:45:00Z"
+        }
+      ]
+    },
+    "admin@gmail.com": {
+      "balance": 50000,
+      "transactions": []
+    }
+  }
 }

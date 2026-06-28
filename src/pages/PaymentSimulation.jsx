@@ -1,21 +1,25 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchEvents, addDonationToEventAsync } from '../store/slices/eventSlice';
+import { fetchWalletData, depositMoneyAsync, makeDonationAsync } from '../store/slices/walletSlice';
 import CreditCardVisual from '../components/Wallet/CreditCardVisual';
 import GlassCard from '../components/GlassCard';
 
-
-
-// Sayısal değeri ₺ para birimi formatına çevirir
 const formatCurrency = (value) => `₺${Number(value).toLocaleString('tr-TR')}`;
 
 export default function PaymentSimulation() {
   const location = useLocation();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const balance = useSelector((state) => state.wallet.balance);
+  const events = useSelector((state) => state.events.list);
+
   const [step, setStep] = useState('form');
   const [mode, setMode] = useState(() => {
     return location.state?.eventTitle ? 'donate' : 'topup';
   });
-  const [balance, setBalance] = useState(0);
   const [cardNumber, setCardNumber] = useState('');
   const [cardHolder, setCardHolder] = useState('');
   const [expiryDate, setExpiryDate] = useState('');
@@ -27,7 +31,6 @@ export default function PaymentSimulation() {
   const [errorMessage, setErrorMessage] = useState('');
   const [secondsLeft, setSecondsLeft] = useState(167);
   const [isCardFlipped, setIsCardFlipped] = useState(false);
-
 
   useEffect(() => { localStorage.setItem('pay_amount', amount); }, [amount]);
 
@@ -55,9 +58,13 @@ export default function PaymentSimulation() {
 
   // Cüzdan bakiyesini getirir
   useEffect(() => {
-    const storedBalance = Number(sessionStorage.getItem(walletKey) || 0);
-    setBalance(Number.isFinite(storedBalance) ? storedBalance : 0);
-  }, [walletKey]);
+    if (currentUser) {
+      dispatch(fetchWalletData(currentUser.email));
+    }
+    if (events.length === 0) {
+      dispatch(fetchEvents());
+    }
+  }, [currentUser, events.length, dispatch]);
 
   // 3D Secure SMS kodu geri sayım sayacı
   useEffect(() => {
@@ -79,12 +86,6 @@ export default function PaymentSimulation() {
 
   const formattedTime = `${String(Math.floor(secondsLeft / 60)).padStart(2, '0')}:${String(secondsLeft % 60).padStart(2, '0')}`;
 
-  // Cüzdan bakiyesini yerel depolama ve state üzerinde günceller
-  const updateBalance = (nextBalance) => {
-    setBalance(nextBalance);
-    sessionStorage.setItem(walletKey, String(nextBalance));
-    window.dispatchEvent(new Event('auth-state-changed'));
-  };
 
   // Kart numarası girdisini formatlar
   const handleCardNumberChange = (e) => {
@@ -147,65 +148,38 @@ export default function PaymentSimulation() {
     const safeAmount = Number(amount) || 0;
 
     if (mode === 'donate') {
-      if (safeAmount > balance) {
+      if (currentUser && safeAmount > balance) {
         setTransactionAmount(safeAmount);
         setResultBalance(balance);
         setErrorMessage('Yetersiz Bakiye');
         setStep('error');
         return;
       }
-      const nextBalance = balance - safeAmount;
-      updateBalance(nextBalance);
+      const nextBalance = currentUser ? balance - safeAmount : 0;
 
       // İlgili etkinliğin bütçe ve bağış listesini günceller
       const eventId = location.state?.eventId;
+      const currentEvent = events.find((e) => e.id === eventId);
+      const currentEventCategory = currentEvent ? currentEvent.category : 'Genel';
+
+      if (currentUser) {
+        dispatch(makeDonationAsync({
+          amount: safeAmount,
+          eventId,
+          eventTitle: currentEventTitle,
+          category: currentEventCategory,
+          userEmail: currentUser?.email
+        }));
+      }
+
       if (eventId) {
-        const stored = localStorage.getItem('events_list');
-        let eventsList = [];
-        if (stored) {
-          try {
-            eventsList = JSON.parse(stored);
-          } catch (e) {
-            eventsList = [];
-          }
-        }
-
-        const updateEventInList = (list) => {
-          return list.map((evt) => {
-            if (evt.id === eventId) {
-              const updatedRaised = evt.raisedAmount + safeAmount;
-              const isCompleted = updatedRaised >= evt.targetAmount;
-              const newDonation = {
-                id: 'rd-' + Date.now(),
-                donorName: currentUser?.name || 'Gönüllü Bağışçı',
-                amount: safeAmount,
-                timeAgo: 'Az önce'
-              };
-              return {
-                ...evt,
-                raisedAmount: updatedRaised,
-                status: isCompleted ? 'TAMAMLANDI' : evt.status,
-                donorCount: (evt.donorCount || 0) + 1,
-                donations: [newDonation, ...(evt.donations || [])]
-              };
-            }
-            return evt;
-          });
-        };
-
-        if (eventsList.length > 0) {
-          const updatedList = updateEventInList(eventsList);
-          localStorage.setItem('events_list', JSON.stringify(updatedList));
+        dispatch(addDonationToEventAsync({
+          eventId,
+          donationAmount: safeAmount,
+          donorName: currentUser?.name || 'Gönüllü Bağışçı'
+        })).then(() => {
           window.dispatchEvent(new Event('dashboard-data-updated'));
-        } else {
-          fetch('/events.json')
-            .then((res) => res.json())
-            .then((data) => {
-              const updatedList = updateEventInList(data);
-              localStorage.setItem('events_list', JSON.stringify(updatedList));
-              window.dispatchEvent(new Event('dashboard-data-updated'));
-            });
-        }
+        });
       }
 
       setTransactionAmount(safeAmount);
@@ -215,7 +189,12 @@ export default function PaymentSimulation() {
     }
 
     const nextBalance = balance + safeAmount;
-    updateBalance(nextBalance);
+    dispatch(depositMoneyAsync({
+      amount: safeAmount,
+      userEmail: currentUser?.email
+    })).then(() => {
+      window.dispatchEvent(new Event('auth-state-changed'));
+    });
     setTransactionAmount(safeAmount);
     setResultBalance(nextBalance);
     setStep('success');
