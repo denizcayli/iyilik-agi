@@ -27,14 +27,14 @@ export default function Events() {
     dispatch(fetchEvents());
   }, [dispatch]);
 
-  // URL'de ?category=X parametresi varsa o kategoriyi seç
+
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const catParam = params.get('category');
     if (catParam && categories.includes(catParam)) {
       dispatch(setSelectedCategory(catParam));
     }
-  }, [location.search]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [location.search]); 
 
 
   const filteredEvents = events.filter((event) => {
@@ -42,7 +42,7 @@ export default function Events() {
       selectedCategory === "Tümü" || event.category === selectedCategory;
     const matchesSearch = searchQuery
       ? event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        event.description.toLowerCase().includes(searchQuery.toLowerCase())
+      event.description.toLowerCase().includes(searchQuery.toLowerCase())
       : true;
     return matchesCategory && matchesSearch;
   });
