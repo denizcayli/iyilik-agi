@@ -1,11 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { addEventAsync } from '../../store/slices/eventSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { addEventAsync, fetchCategories } from '../../store/slices/eventSlice';
 
 export default function EventForm() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const categories = useSelector((state) => state.events.categories).filter((cat) => cat !== 'Tümü');
+
+  useEffect(() => {
+    dispatch(fetchCategories());
+  }, [dispatch]);
 
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState('Çevre');
@@ -120,14 +125,11 @@ export default function EventForm() {
               value={category}
               onChange={(e) => setCategory(e.target.value)}
             >
-              <option value="Çevre">Çevre</option>
-              <option value="Eğitim">Eğitim</option>
-              <option value="Sağlık">Sağlık</option>
-              <option value="Hayvanlar">Hayvanlar</option>
-              <option value="Afet">Afet</option>
-              <option value="Çocuk">Çocuk</option>
-              <option value="Yaşlı">Yaşlı</option>
-              <option value="Su">Su</option>
+              {categories.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
+              ))}
             </select>
           </div>
         </div>

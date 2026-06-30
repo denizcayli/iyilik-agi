@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { fetchEvents, setSelectedCategory } from "../store/slices/eventSlice";
+import { fetchEvents, setSelectedCategory, fetchCategories } from "../store/slices/eventSlice";
 import EventCard from "../components/Event/EventCard";
 
 export default function Events() {
@@ -9,22 +9,13 @@ export default function Events() {
   const location = useLocation();
   const events = useSelector((state) => state.events.list);
   const selectedCategory = useSelector((state) => state.events.selectedCategory);
-  const categories = [
-    "Tümü",
-    "Çevre",
-    "Eğitim",
-    "Sağlık",
-    "Hayvanlar",
-    "Afet",
-    "Çocuk",
-    "Yaşlı",
-    "Su",
-  ];
+  const categories = useSelector((state) => state.events.categories);
 
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     dispatch(fetchEvents());
+    dispatch(fetchCategories());
   }, [dispatch]);
 
 

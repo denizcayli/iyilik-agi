@@ -369,6 +369,32 @@
     "admin@gmail.com": {
       "balance": 50000,
       "transactions": []
+    },
+    "koconurbaha@gmail.com": {
+      "balance": 15000,
+      "transactions": [
+        {
+          "id": "d1",
+          "campaignTitle": "Geleceğe Nefes: Orman Yangını",
+          "category": "Çevre",
+          "amount": 500,
+          "date": "2026-06-26T22:14:00Z"
+        },
+        {
+          "id": "d2",
+          "campaignTitle": "Köy Okullarına Bilgisayar Laboratuvarı",
+          "category": "Eğitim",
+          "amount": 250,
+          "date": "2026-06-15T14:30:00Z"
+        },
+        {
+          "id": "d3",
+          "campaignTitle": "Kırsal Bölgelere Temiz Su Kuyusu",
+          "category": "Su",
+          "amount": 2000,
+          "date": "2026-06-01T09:45:00Z"
+        }
+      ]
     }
   },
   "volunteers": [
@@ -558,5 +584,21 @@
       "spent": 398000,
       "status": "Onaylandı"
     }
+  ],
+  "static_user": {
+    "name": "Onur Baha Koç",
+    "email": "koconurbaha@gmail.com",
+    "role": "gönüllü"
+  },
+  "categories": [
+    "Tümü",
+    "Çevre",
+    "Eğitim",
+    "Sağlık",
+    "Hayvanlar",
+    "Afet",
+    "Çocuk",
+    "Yaşlı",
+    "Su"
   ]
 }

@@ -1,8 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
-// --- STORAGE UTILITIES ---
 const storage = {
-  getJson: (key) => {
+  get: (key) => {
     try {
       const item = localStorage.getItem(key);
       return item ? JSON.parse(item) : null;
@@ -10,72 +9,53 @@ const storage = {
       return null;
     }
   },
-  setJson: (key, value) => {
+  set: (key, value) => {
     try {
       localStorage.setItem(key, JSON.stringify(value));
     } catch (e) {
-      console.error(`localStorage setJson error for key ${key}:`, e);
+      console.error(`Storage error [${key}]:`, e);
     }
   },
-  getString: (key) => localStorage.getItem(key),
-  setString: (key, value) => localStorage.setItem(key, String(value)),
-  getWalletKey: (email) => `wallet_${email}`,
-  getTransactionsKey: (email) => `transactions_list_${email}`,
-  getParticipatedKey: (email) => `participated_events_${email}`
+  keys: {
+    wallet: (email) => `wallet_${email}`,
+    txs: (email) => `transactions_list_${email}`,
+    events: (email) => `participated_events_${email}`,
+  }
 };
 
-// --- ASYNC THUNKS ---
+
 export const fetchWalletData = createAsyncThunk(
-  'wallet/fetchWalletData',
+  'wallet/fetchData',
   async (userEmail, { rejectWithValue }) => {
     try {
-      const response = await fetch('/db.json');
-      if (!response.ok) throw new Error('Cüzdan verileri yüklenemedi.');
-      const data = await response.json();
-
       const email = userEmail || 'gonullu@gmail.com';
-      const walletKey = storage.getWalletKey(email);
-      const transactionsKey = storage.getTransactionsKey(email);
-      const participatedKey = storage.getParticipatedKey(email);
+      const res = await fetch('/db.json');
+      if (!res.ok) throw new Error('Cüzdan verileri yüklenemedi.');
+      const db = await res.json();
 
-      // 1. Resolve Wallet Balance
-      const storedBalance = storage.getString(walletKey);
-      const mockWallet = data.wallets?.[email];
-      const balance = storedBalance !== null
-        ? parseFloat(storedBalance)
-        : (mockWallet ? mockWallet.balance : 0);
+      const mockWallet = db.wallets?.[email];
 
-      if (storedBalance === null) {
-        storage.setString(walletKey, String(balance));
-      }
-
-      // 2. Resolve Transactions (Fetched from db.json instead of hardcoding)
-      let transactions = storage.getJson(transactionsKey);
-      if (!transactions) {
-        transactions = mockWallet ? mockWallet.transactions : [];
-        storage.setJson(transactionsKey, transactions);
-      }
-
-      // 3. Resolve Participated Events (Mapped dynamically from db.json events list)
-      let participatedEvents = storage.getJson(participatedKey);
+      const balance = storage.get(storage.keys.wallet(email)) ?? (mockWallet?.balance || 0);
+      const transactions = storage.get(storage.keys.txs(email)) || (mockWallet?.transactions || []);
+      
+      let participatedEvents = storage.get(storage.keys.events(email));
       if (!participatedEvents) {
-        const isDefaultEmail = email === 'gonullu@gmail.com' || email === 'koconurbaha@gmail.com';
-        participatedEvents = [];
-        if (isDefaultEmail && data.events) {
-          const defaultIds = ['evt-1', 'evt-2'];
-          participatedEvents = data.events
-            .filter(evt => defaultIds.includes(evt.id))
-            .map(evt => ({
-              id: evt.id,
-              title: evt.title,
-              category: evt.category,
-              daysLeft: evt.daysLeft,
-              imageUrl: evt.imageUrl,
-              contributed: evt.id === 'evt-1' ? 500 : 250
-            }));
-        }
-        storage.setJson(participatedKey, participatedEvents);
+        const defaultIds = ['evt-1', 'evt-2'];
+        const isDefaultUser = ['gonullu@gmail.com', 'koconurbaha@gmail.com'].includes(email);
+        
+        participatedEvents = isDefaultUser && db.events
+          ? db.events
+              .filter((evt) => defaultIds.includes(evt.id))
+              .map((evt) => ({
+                ...evt,
+                contributed: evt.id === 'evt-1' ? 500 : 250
+              }))
+          : [];
       }
+
+      storage.set(storage.keys.wallet(email), balance);
+      storage.set(storage.keys.txs(email), transactions);
+      storage.set(storage.keys.events(email), participatedEvents);
 
       return { balance, transactions, participatedEvents };
     } catch (error) {
@@ -85,31 +65,27 @@ export const fetchWalletData = createAsyncThunk(
 );
 
 export const depositMoneyAsync = createAsyncThunk(
-  'wallet/depositMoneyAsync',
+  'wallet/deposit',
   async ({ amount, userEmail }, { rejectWithValue }) => {
     try {
       await new Promise((resolve) => setTimeout(resolve, 500));
       const cleanAmount = parseFloat(amount) || 0;
 
-      if (!userEmail) return cleanAmount;
+      if (userEmail) {
+        const currentBalance = storage.get(storage.keys.wallet(userEmail)) || 0;
+        const txs = storage.get(storage.keys.txs(userEmail)) || [];
 
-      const walletKey = storage.getWalletKey(userEmail);
-      const transactionsKey = storage.getTransactionsKey(userEmail);
+        const newTx = {
+          id: `dep-${Date.now()}`,
+          campaignTitle: 'Bakiye Yükleme',
+          category: 'Cüzdan',
+          amount: cleanAmount,
+          date: new Date().toISOString()
+        };
 
-      // Update cached balance
-      const storedBalance = parseFloat(storage.getString(walletKey) || '0');
-      storage.setString(walletKey, String(storedBalance + cleanAmount));
-
-      // Append transaction entry
-      const list = storage.getJson(transactionsKey) || [];
-      list.unshift({
-        id: `dep-${Date.now()}`,
-        campaignTitle: 'Bakiye Yükleme',
-        category: 'Cüzdan',
-        amount: cleanAmount,
-        date: new Date().toISOString()
-      });
-      storage.setJson(transactionsKey, list);
+        storage.set(storage.keys.wallet(userEmail), currentBalance + cleanAmount);
+        storage.set(storage.keys.txs(userEmail), [newTx, ...txs]);
+      }
 
       return cleanAmount;
     } catch (error) {
@@ -119,62 +95,35 @@ export const depositMoneyAsync = createAsyncThunk(
 );
 
 export const makeDonationAsync = createAsyncThunk(
-  'wallet/makeDonationAsync',
+  'wallet/donate',
   async ({ amount, eventId, eventTitle, category, userEmail }, { rejectWithValue }) => {
     try {
       await new Promise((resolve) => setTimeout(resolve, 500));
       const cleanAmount = parseFloat(amount) || 0;
 
-      // Base case for anonymous/unauthenticated donations
-      if (!userEmail) {
-        return {
-          amount: cleanAmount,
-          eventId,
-          campaignTitle: eventTitle,
-          category: category || 'Genel',
-          date: new Date().toISOString()
-        };
-      }
-
-      const walletKey = storage.getWalletKey(userEmail);
-      const participatedKey = storage.getParticipatedKey(userEmail);
-      const transactionsKey = storage.getTransactionsKey(userEmail);
-
-      // Deduct balance with early validation check
-      const storedBalance = parseFloat(storage.getString(walletKey) || '0');
-      if (cleanAmount > storedBalance) {
-        throw new Error('Yetersiz Bakiye');
-      }
-      storage.setString(walletKey, String(storedBalance - cleanAmount));
-
-      // Update internal user contribution records
-      const participatedList = storage.getJson(participatedKey);
-      if (participatedList) {
-        const joined = participatedList.find(e => e.id === eventId);
-        if (joined) {
-          joined.contributed = (joined.contributed || 0) + cleanAmount;
-          storage.setJson(participatedKey, participatedList);
-        }
-      }
-
-      // Add debit transaction log
-      const list = storage.getJson(transactionsKey) || [];
-      list.unshift({
+      const newTx = {
         id: `don-${Date.now()}`,
         campaignTitle: eventTitle,
         category: category || 'Genel',
         amount: cleanAmount,
         date: new Date().toISOString()
-      });
-      storage.setJson(transactionsKey, list);
-
-      return {
-        amount: cleanAmount,
-        eventId,
-        campaignTitle: eventTitle,
-        category: category || 'Genel',
-        date: new Date().toISOString()
       };
+
+      if (userEmail) {
+        const balance = storage.get(storage.keys.wallet(userEmail)) || 0;
+        if (cleanAmount > balance) throw new Error('Yetersiz Bakiye');
+
+        storage.set(storage.keys.wallet(userEmail), balance - cleanAmount);
+        
+        const txs = storage.get(storage.keys.txs(userEmail)) || [];
+        storage.set(storage.keys.txs(userEmail), [newTx, ...txs]);
+
+        const events = storage.get(storage.keys.events(userEmail)) || [];
+        const updatedEvents = events.map(e => e.id === eventId ? { ...e, contributed: (e.contributed || 0) + cleanAmount } : e);
+        storage.set(storage.keys.events(userEmail), updatedEvents);
+      }
+
+      return { amount: cleanAmount, eventId, tx: newTx };
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -182,28 +131,18 @@ export const makeDonationAsync = createAsyncThunk(
 );
 
 export const joinEventAsync = createAsyncThunk(
-  'wallet/joinEventAsync',
+  'wallet/joinEvent',
   async ({ event, userEmail }, { rejectWithValue }) => {
     try {
       await new Promise((resolve) => setTimeout(resolve, 400));
 
-      if (!userEmail) return event;
-
-      const participatedKey = storage.getParticipatedKey(userEmail);
-      const list = storage.getJson(participatedKey) || [];
-
-      if (!list.some(e => e.id === event.id)) {
-        list.push({
-          id: event.id,
-          title: event.title,
-          category: event.category,
-          daysLeft: event.daysLeft,
-          imageUrl: event.imageUrl,
-          contributed: 0
-        });
-        storage.setJson(participatedKey, list);
+      if (userEmail) {
+        const events = storage.get(storage.keys.events(userEmail)) || [];
+        if (!events.some(e => e.id === event.id)) {
+          const newEvent = { ...event, contributed: 0 };
+          storage.set(storage.keys.events(userEmail), [...events, newEvent]);
+        }
       }
-
       return event;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -211,15 +150,16 @@ export const joinEventAsync = createAsyncThunk(
   }
 );
 
-// --- SLICE CONFIGURATION ---
+
 const initialState = {
   balance: 0,
   transactions: [],
   participatedEvents: [],
-  status: 'idle',
+  status: 'idle',       
+  actionStatus: 'idle', 
   error: null,
-  actionStatus: 'idle'
 };
+
 
 const walletSlice = createSlice({
   name: 'wallet',
@@ -231,9 +171,9 @@ const walletSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Fetch Wallet Async Reducers
       .addCase(fetchWalletData.pending, (state) => {
         state.status = 'loading';
+        state.error = null;
       })
       .addCase(fetchWalletData.fulfilled, (state, action) => {
         state.status = 'succeeded';
@@ -246,7 +186,6 @@ const walletSlice = createSlice({
         state.error = action.payload;
       })
 
-      // Deposit Bakiye Async Reducers
       .addCase(depositMoneyAsync.pending, (state) => {
         state.actionStatus = 'loading';
       })
@@ -266,24 +205,17 @@ const walletSlice = createSlice({
         state.error = action.payload;
       })
 
-      // Make Donation Async Reducers
       .addCase(makeDonationAsync.pending, (state) => {
         state.actionStatus = 'loading';
       })
       .addCase(makeDonationAsync.fulfilled, (state, action) => {
         state.actionStatus = 'succeeded';
         state.balance -= action.payload.amount;
-        state.transactions.unshift({
-          id: `don-${Date.now()}`,
-          campaignTitle: action.payload.campaignTitle,
-          category: action.payload.category,
-          amount: action.payload.amount,
-          date: action.payload.date
-        });
+        state.transactions.unshift(action.payload.tx);
         
-        const joinedEvent = state.participatedEvents.find(e => e.id === action.payload.eventId);
-        if (joinedEvent) {
-          joinedEvent.contributed = (joinedEvent.contributed || 0) + action.payload.amount;
+        const event = state.participatedEvents.find(e => e.id === action.payload.eventId);
+        if (event) {
+          event.contributed = (event.contributed || 0) + action.payload.amount;
         }
       })
       .addCase(makeDonationAsync.rejected, (state, action) => {
@@ -291,29 +223,20 @@ const walletSlice = createSlice({
         state.error = action.payload;
       })
 
-      // Join Event Async Reducers
       .addCase(joinEventAsync.pending, (state) => {
         state.actionStatus = 'loading';
       })
       .addCase(joinEventAsync.fulfilled, (state, action) => {
         state.actionStatus = 'succeeded';
-        const event = action.payload;
-        const alreadyJoined = state.participatedEvents.some(e => e.id === event.id);
+        const alreadyJoined = state.participatedEvents.some(e => e.id === action.payload.id);
         if (!alreadyJoined) {
-          state.participatedEvents.push({
-            id: event.id,
-            title: event.title,
-            category: event.category,
-            daysLeft: event.daysLeft,
-            imageUrl: event.imageUrl,
-            contributed: 0
-          });
+          state.participatedEvents.push({ ...action.payload, contributed: 0 });
         }
       })
       .addCase(joinEventAsync.rejected, (state) => {
         state.actionStatus = 'failed';
       });
-  }
+  },
 });
 
 export const { clearWalletError } = walletSlice.actions;

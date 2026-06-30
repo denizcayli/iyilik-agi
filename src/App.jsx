@@ -47,9 +47,7 @@ export default function App() {
         <Route path="/admin/events" element={<EventsManagement />} />
         <Route path="/admin/new-event" element={<NewEvent />} />
         <Route path="/admin/edit-event/:id" element={<EditEvent />} />
-        <Route path="/admin/yeni-kampanya" element={<NewEvent />} />
         <Route path="/admin/reports" element={<FinancialReports />} />
-        <Route path="/admin/finansal-raporlar" element={<FinancialReports />} />
         <Route path="/admin/volunteers" element={<Volunteers />} />
 
         <Route path="*" element={<Navigate to="/" replace />} />

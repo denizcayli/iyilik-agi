@@ -5,10 +5,6 @@ import { fetchWalletData } from '../store/slices/walletSlice';
 import WalletCard from '../components/Wallet/WalletCard';
 import TransactionTable from '../components/Wallet/TransactionTable';
 
-const STATIC_USER = { name: 'Onur Baha Koç', email: 'koconurbaha@gmail.com', role: 'gönüllü' };
-
-
-
 export default function UserProfile() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -18,39 +14,62 @@ export default function UserProfile() {
   const transactions = useSelector((state) => state.wallet.transactions);
   const participatedEvents = useSelector((state) => state.wallet.participatedEvents);
 
-  const [activeTab, setActiveTab] = useState('donations'); // 'donations' | 'events'
-  const [filterCategory, setFilterCategory] = useState('Tümü'); // aktif kategori filtresi
-  const [searchQuery, setSearchQuery] = useState(''); // arama metni
+  const [activeTab, setActiveTab] = useState('donations');
+  const [filterCategory, setFilterCategory] = useState('Tümü'); 
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const currentUser = useMemo(() => {
-    if (authUser) return authUser;
-    try {
-      const local = localStorage.getItem('user');
-      return local ? JSON.parse(local) : STATIC_USER;
-    } catch (e) {
-      return STATIC_USER;
-    }
+  const [currentUser, setCurrentUser] = useState(null);
+
+  useEffect(() => {
+    const loadUser = async () => {
+      if (authUser) {
+        setCurrentUser(authUser);
+        return;
+      }
+      try {
+        const local = localStorage.getItem('user');
+        if (local) {
+          setCurrentUser(JSON.parse(local));
+          return;
+        }
+      } catch (e) {
+        console.error(e);
+      }
+      try {
+        const res = await fetch('/db.json');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.static_user) {
+            setCurrentUser(data.static_user);
+          }
+        }
+      } catch (err) {
+        console.error('db.json yüklenemedi:', err);
+      }
+    };
+    loadUser();
   }, [authUser]);
 
   useEffect(() => {
-    if (currentUser?.role === 'admin') {
+    if (!currentUser) return;
+    if (currentUser.role === 'admin') {
       navigate('/admin');
       return;
     }
-    if (currentUser?.email) {
+    if (currentUser.email) {
       dispatch(fetchWalletData(currentUser.email));
     }
   }, [currentUser, dispatch, navigate]);
 
   const initials = useMemo(() => {
-    if (!currentUser.name) return 'GN';
+    if (!currentUser?.name) return 'GN';
     return currentUser.name
       .split(' ')
       .map((n) => n[0])
       .join('')
       .slice(0, 2)
       .toUpperCase();
-  }, [currentUser.name]);
+  }, [currentUser?.name]);
 
   const totalContributed = useMemo(() => {
     return transactions
@@ -126,8 +145,8 @@ export default function UserProfile() {
             {initials}
           </div>
           <div className="min-w-0">
-            <h3 className="text-base font-bold text-inst-navy truncate">{currentUser.name}</h3>
-            <p className="text-xs text-slate-400 truncate">{currentUser.email}</p>
+            <h3 className="text-base font-bold text-inst-navy truncate">{currentUser?.name || ''}</h3>
+            <p className="text-xs text-slate-400 truncate">{currentUser?.email || ''}</p>
             <span className="inline-block text-[9px] font-bold px-2 py-0.5 rounded-md mt-1 border text-emerald-600 bg-emerald-50 border-emerald-100/50">
               Aktif Gönüllü
             </span>

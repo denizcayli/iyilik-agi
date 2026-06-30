@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { editEventAsync } from '../../store/slices/eventSlice';
+import { editEventAsync, fetchCategories } from '../../store/slices/eventSlice';
 import AdminLayout from '../../components/AdminLayout';
 
 export default function EditEvent() {
@@ -12,6 +12,11 @@ export default function EditEvent() {
   const events = useSelector((state) => state.events.list);
   const eventStatus = useSelector((state) => state.events.status);
   const loading = eventStatus === 'loading';
+  const categories = useSelector((state) => state.events.categories).filter((cat) => cat !== 'Tümü');
+
+  useEffect(() => {
+    dispatch(fetchCategories());
+  }, [dispatch]);
 
   const [showNotification, setShowNotification] = useState(false);
   const [eventData, setEventData] = useState({
@@ -130,14 +135,11 @@ export default function EditEvent() {
                   onChange={(e) => handleChange('category', e.target.value)}
                   className="form-input w-full cursor-pointer"
                 >
-                  <option value="Çevre">Çevre</option>
-                  <option value="Eğitim">Eğitim</option>
-                  <option value="Sağlık">Sağlık</option>
-                  <option value="Hayvanlar">Hayvanlar</option>
-                  <option value="Afet">Afet</option>
-                  <option value="Çocuk">Çocuk</option>
-                  <option value="Yaşlı">Yaşlı</option>
-                  <option value="Su">Su</option>
+                  {categories.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>

@@ -5,15 +5,11 @@ export const fetchEvents = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const stored = localStorage.getItem('events_list')
-      if (stored) {
-        try {
-          return JSON.parse(stored)
-        } catch (e) {
-          // Fallback
-        }
-      }
+      if (stored) return JSON.parse(stored)
+
       const response = await fetch('/db.json')
       if (!response.ok) throw new Error('Etkinlik verileri yüklenemedi.')
+      
       const data = await response.json()
       const list = data.events || data
       localStorage.setItem('events_list', JSON.stringify(list))
@@ -23,6 +19,27 @@ export const fetchEvents = createAsyncThunk(
     }
   }
 )
+
+export const fetchCategories = createAsyncThunk(
+  'events/fetchCategories',
+  async (_, { rejectWithValue }) => {
+    try {
+      const stored = localStorage.getItem('categories_list')
+      if (stored) return JSON.parse(stored)
+
+      const response = await fetch('/db.json')
+      if (!response.ok) throw new Error('Kategoriler yüklenemedi.')
+      
+      const data = await response.json()
+      const categories = data.categories || ['Tümü', 'Çevre', 'Eğitim', 'Sağlık', 'Hayvanlar', 'Afet', 'Çocuk', 'Yaşlı', 'Su']
+      localStorage.setItem('categories_list', JSON.stringify(categories))
+      return categories
+    } catch (error) {
+      return rejectWithValue(error.message)
+    }
+  }
+)
+
 
 export const addEventAsync = createAsyncThunk(
   'events/addEventAsync',
@@ -40,8 +57,8 @@ export const addEventAsync = createAsyncThunk(
         secondsLeft: 0,
         ...eventData
       }
-      const currentList = getState().events.list
-      const newList = [newEvent, ...currentList]
+      
+      const newList = [newEvent, ...getState().events.list]
       localStorage.setItem('events_list', JSON.stringify(newList))
       return newEvent
     } catch (error) {
@@ -55,8 +72,7 @@ export const editEventAsync = createAsyncThunk(
   async (eventData, { getState, rejectWithValue }) => {
     try {
       await new Promise((resolve) => setTimeout(resolve, 600))
-      const currentList = getState().events.list
-      const newList = currentList.map(e => e.id === eventData.id ? { ...e, ...eventData } : e)
+      const newList = getState().events.list.map(e => e.id === eventData.id ? { ...e, ...eventData } : e)
       localStorage.setItem('events_list', JSON.stringify(newList))
       return eventData
     } catch (error) {
@@ -70,8 +86,7 @@ export const deleteEventAsync = createAsyncThunk(
   async (eventId, { getState, rejectWithValue }) => {
     try {
       await new Promise((resolve) => setTimeout(resolve, 600))
-      const currentList = getState().events.list
-      const newList = currentList.filter(e => e.id !== eventId)
+      const newList = getState().events.list.filter(e => e.id !== eventId)
       localStorage.setItem('events_list', JSON.stringify(newList))
       return eventId
     } catch (error) {
@@ -92,27 +107,26 @@ export const addDonationToEventAsync = createAsyncThunk(
         amount: cleanAmount,
         timeAgo: 'Az önce'
       }
-      const currentList = getState().events.list
-      const newList = currentList.map(evt => {
+      
+      const newList = getState().events.list.map(evt => {
         if (evt.id === eventId) {
           const updatedRaised = evt.raisedAmount + cleanAmount
-          const isCompleted = updatedRaised >= evt.targetAmount
           return {
             ...evt,
             raisedAmount: updatedRaised,
-            status: isCompleted ? 'TAMAMLANDI' : evt.status,
+            status: updatedRaised >= evt.targetAmount ? 'TAMAMLANDI' : evt.status,
             donorCount: (evt.donorCount || 0) + 1,
             donations: [newDonation, ...(evt.donations || [])]
           }
         }
         return evt
       })
+      
       localStorage.setItem('events_list', JSON.stringify(newList))
-      const updatedEvent = newList.find(evt => evt.id === eventId)
       return {
         eventId,
         donation: newDonation,
-        updatedEvent
+        updatedEvent: newList.find(evt => evt.id === eventId)
       }
     } catch (error) {
       return rejectWithValue(error.message)
@@ -125,9 +139,9 @@ const initialState = {
   selectedEvent: null,
   categories: ['Tümü', 'Çevre', 'Eğitim', 'Sağlık', 'Hayvanlar', 'Afet', 'Çocuk', 'Yaşlı', 'Su'],
   selectedCategory: 'Tümü',
-  status: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
+  status: 'idle',
   error: null,
-  actionStatus: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
+  actionStatus: 'idle',
 }
 
 const eventSlice = createSlice({
@@ -146,7 +160,6 @@ const eventSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Fetch
       .addCase(fetchEvents.pending, (state) => {
         state.status = 'loading'
       })
@@ -158,7 +171,9 @@ const eventSlice = createSlice({
         state.status = 'failed'
         state.error = action.payload
       })
-      // Add
+      .addCase(fetchCategories.fulfilled, (state, action) => {
+        state.categories = action.payload
+      })
       .addCase(addEventAsync.pending, (state) => {
         state.actionStatus = 'loading'
       })
@@ -169,7 +184,6 @@ const eventSlice = createSlice({
       .addCase(addEventAsync.rejected, (state) => {
         state.actionStatus = 'failed'
       })
-      // Edit
       .addCase(editEventAsync.pending, (state) => {
         state.actionStatus = 'loading'
       })
@@ -184,7 +198,6 @@ const eventSlice = createSlice({
       .addCase(editEventAsync.rejected, (state) => {
         state.actionStatus = 'failed'
       })
-      // Delete
       .addCase(deleteEventAsync.pending, (state) => {
         state.actionStatus = 'loading'
       })
@@ -195,7 +208,6 @@ const eventSlice = createSlice({
       .addCase(deleteEventAsync.rejected, (state) => {
         state.actionStatus = 'failed'
       })
-      // Add Donation
       .addCase(addDonationToEventAsync.pending, (state) => {
         state.actionStatus = 'loading'
       })
@@ -206,6 +218,9 @@ const eventSlice = createSlice({
         if (event) {
           event.raisedAmount += donation.amount
           event.donorCount += 1
+          if (event.raisedAmount >= event.targetAmount) {
+            event.status = 'TAMAMLANDI'
+          }
           if (!event.donations) {
             event.donations = []
           }

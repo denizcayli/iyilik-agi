@@ -7,24 +7,29 @@ import {
   addDonationToEventAsync
 } from './eventSlice';
 
-const getLocalStorageRecords = () => {
-  try {
-    const stored = localStorage.getItem('financial_records');
-    const parsed = stored ? JSON.parse(stored) : [];
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed : null;
-  } catch {
-    return null;
+const storage = {
+  get: () => {
+    try {
+      const stored = localStorage.getItem('financial_records');
+      const parsed = stored ? JSON.parse(stored) : [];
+      return Array.isArray(parsed) && parsed.length > 0 ? parsed : null;
+    } catch {
+      return null;
+    }
+  },
+  set: (records) => {
+    try {
+      localStorage.setItem('financial_records', JSON.stringify(records));
+    } catch (e) {
+      console.error('Storage error:', e);
+    }
   }
-};
-
-const saveToLocalStorage = (records) => {
-  localStorage.setItem('financial_records', JSON.stringify(records));
 };
 
 const determineStatus = (raised, target) => (raised >= target ? 'Onaylandı' : 'Süreçte');
 
 const createRecordFromEvent = (evt) => ({
-  id: `rec-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+  id: `rec-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
   eventId: evt.id,
   project: evt.title,
   sponsor: 0,
@@ -33,12 +38,11 @@ const createRecordFromEvent = (evt) => ({
   status: determineStatus(evt.raisedAmount, evt.targetAmount)
 });
 
-
 export const fetchRecords = createAsyncThunk(
   'financial/fetchRecords',
   async (_, { rejectWithValue }) => {
     try {
-      const cache = getLocalStorageRecords();
+      const cache = storage.get();
       if (cache) return cache;
 
       const response = await fetch('/db.json');
@@ -46,7 +50,7 @@ export const fetchRecords = createAsyncThunk(
 
       const data = await response.json();
       const list = data.financial_record || data.financial_records || [];
-      saveToLocalStorage(list);
+      storage.set(list);
       return list;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -55,13 +59,12 @@ export const fetchRecords = createAsyncThunk(
 );
 
 export const addRecordAsync = createAsyncThunk(
-  'financial/addRecordAsync',
+  'financial/addRecord',
   async (recordData, { getState, rejectWithValue }) => {
     try {
       await new Promise((resolve) => setTimeout(resolve, 500));
       const newRecord = { id: `rec-${Date.now()}`, sponsor: 0, raised: 0, spent: 0, status: 'Süreçte', ...recordData };
-      const newList = [newRecord, ...getState().financial.records];
-      saveToLocalStorage(newList);
+      storage.set([newRecord, ...getState().financial.records]);
       return newRecord;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -70,12 +73,12 @@ export const addRecordAsync = createAsyncThunk(
 );
 
 export const editRecordAsync = createAsyncThunk(
-  'financial/editRecordAsync',
+  'financial/editRecord',
   async (recordData, { getState, rejectWithValue }) => {
     try {
       await new Promise((resolve) => setTimeout(resolve, 500));
       const newList = getState().financial.records.map(r => r.id === recordData.id ? { ...r, ...recordData } : r);
-      saveToLocalStorage(newList);
+      storage.set(newList);
       return recordData;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -84,19 +87,18 @@ export const editRecordAsync = createAsyncThunk(
 );
 
 export const deleteRecordAsync = createAsyncThunk(
-  'financial/deleteRecordAsync',
+  'financial/deleteRecord',
   async (recordId, { getState, rejectWithValue }) => {
     try {
       await new Promise((resolve) => setTimeout(resolve, 500));
       const newList = getState().financial.records.filter(r => r.id !== recordId);
-      saveToLocalStorage(newList);
+      storage.set(newList);
       return recordId;
     } catch (error) {
       return rejectWithValue(error.message);
     }
   }
 );
-
 
 const initialState = {
   records: [],
@@ -115,8 +117,9 @@ const financialSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Fetch Core Actions
-      .addCase(fetchRecords.pending, (state) => { state.status = 'loading'; })
+      .addCase(fetchRecords.pending, (state) => { 
+        state.status = 'loading'; 
+      })
       .addCase(fetchRecords.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.records = action.payload;
@@ -125,20 +128,18 @@ const financialSlice = createSlice({
         state.status = 'failed';
         state.error = action.payload;
       })
-
-      // Direct CRUD Reducers
       .addCase(addRecordAsync.fulfilled, (state, action) => {
         state.records.unshift(action.payload);
       })
       .addCase(editRecordAsync.fulfilled, (state, action) => {
         const index = state.records.findIndex(r => r.id === action.payload.id);
-        if (index !== -1) state.records[index] = { ...state.records[index], ...action.payload };
+        if (index !== -1) {
+          state.records[index] = { ...state.records[index], ...action.payload };
+        }
       })
       .addCase(deleteRecordAsync.fulfilled, (state, action) => {
         state.records = state.records.filter(r => r.id !== action.payload);
       })
-
-      // --- CROSS-SLICE SYNCHRONIZATION (Cleaned up Loops) ---
       .addCase(fetchEvents.fulfilled, (state, action) => {
         const events = action.payload || [];
         if (events.length === 0) return;
@@ -170,22 +171,19 @@ const financialSlice = createSlice({
           }
         });
 
-        // Remove records whose event no longer exists
         const finalSyncedRecords = currentRecords.filter(r =>
           events.some(evt => evt.id === r.eventId || evt.title === r.project)
         );
 
         if (isStateChanged || finalSyncedRecords.length !== state.records.length || state.records.length === 0) {
           state.records = finalSyncedRecords;
-          saveToLocalStorage(finalSyncedRecords);
+          storage.set(finalSyncedRecords);
         }
       })
-
       .addCase(addEventAsync.fulfilled, (state, action) => {
         state.records.unshift(createRecordFromEvent(action.payload));
-        saveToLocalStorage(state.records);
+        storage.set(state.records);
       })
-
       .addCase(editEventAsync.fulfilled, (state, action) => {
         const updatedEvent = action.payload;
         state.records = state.records.map(r => {
@@ -198,14 +196,12 @@ const financialSlice = createSlice({
             status: determineStatus(updatedEvent.raisedAmount, updatedEvent.targetAmount)
           };
         });
-        saveToLocalStorage(state.records);
+        storage.set(state.records);
       })
-
       .addCase(deleteEventAsync.fulfilled, (state, action) => {
         state.records = state.records.filter(r => r.eventId !== action.payload);
-        saveToLocalStorage(state.records);
+        storage.set(state.records);
       })
-
       .addCase(addDonationToEventAsync.fulfilled, (state, action) => {
         const { eventId, updatedEvent } = action.payload;
         if (!updatedEvent) return;
@@ -218,7 +214,7 @@ const financialSlice = createSlice({
             status: determineStatus(updatedEvent.raisedAmount, updatedEvent.targetAmount)
           };
         });
-        saveToLocalStorage(state.records);
+        storage.set(state.records);
       });
   }
 });
