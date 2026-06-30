@@ -94,14 +94,12 @@ export default function EventDetail() {
     return <div className="py-xl text-center">Yükleniyor...</div>;
   }
 
-
   const eventDonations = currentEvent.donations || [];
   const urgency = getUrgencyStyles(timeLeft.days);
   const percentage = Math.min(
     Math.round((currentEvent.raisedAmount / currentEvent.targetAmount) * 100),
     100,
   );
-
 
   const handleVolunteerClick = () => {
     if (!isAuthenticated) {

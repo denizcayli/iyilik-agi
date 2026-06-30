@@ -81,7 +81,6 @@ export default function UserProfile() {
     return transactions.filter((t) => t.category !== 'Cüzdan' && t.category !== 'Cüzdan Bakiye Yükleme').length;
   }, [transactions]);
 
-  // Kullanıcının kendi bağışlarından gelen benzersiz kategoriler
   const userCategories = useMemo(() => {
     const cats = transactions
       .filter((t) => t.category && t.category !== 'Cüzdan' && t.category !== 'Cüzdan Bakiye Yükleme')
@@ -100,7 +99,6 @@ export default function UserProfile() {
 
   return (
     <div className="page-container">
-      {/* Toast Notification */}
       {toastVisible && (
         <div className="fixed top-24 right-6 z-50 bg-white border border-emerald-100 shadow-xl rounded-2xl p-4 max-w-sm flex items-start gap-3 toast-animate-in transition-all">
           <div className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
@@ -124,7 +122,6 @@ export default function UserProfile() {
         </div>
       )}
 
-      {/* sayfa başlığı ve tanıtım yazısı */}
       <div className="header-wrapper">
         <span className="header-badge">
           Hesabım
@@ -137,9 +134,7 @@ export default function UserProfile() {
         </p>
       </div>
 
-      {/* kullanıcının adını, cüzdanını ve toplam katkısını gösteren kartlar */}
       <div className="grid-cols-responsive-3 mb-10">
-        {/* Kullanıcı Kartı */}
         <div className="card-base flex items-center gap-4">
           <div className="w-16 h-16 rounded-2xl bg-pine-teal flex items-center justify-center text-white text-xl font-black shadow-md shadow-pine-teal/15 border border-white/10 shrink-0">
             {initials}
@@ -153,10 +148,8 @@ export default function UserProfile() {
           </div>
         </div>
 
-        {/* Cüzdan Kartı */}
         <WalletCard walletBalance={balance} />
 
-        {/* kullanıcının toplam yaptığı bağış miktarını gösteren kutu */}
         <div className="card-base flex items-center gap-4">
           <div className="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-600 shrink-0">
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -173,11 +166,8 @@ export default function UserProfile() {
         </div>
       </div>
 
-      {/* sekmeli alan ve veri tablosunun olduğu kısım */}
       <div className="card-base space-y-6">
-        {/* sekme geçişleri ve dışa aktarma butonlarının satırı */}
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 border-b border-slate-100 pb-4">
-          {/* Tab Switcher */}
           <div className="flex gap-2 p-1 bg-slate-100 rounded-xl border border-slate-200/60 w-full lg:w-auto">
             <button
               onClick={() => setActiveTab('donations')}
@@ -193,7 +183,6 @@ export default function UserProfile() {
             </button>
           </div>
 
-          {/* Export Butonları — görünür, işlevsiz */}
           <div className="flex gap-2 w-full lg:w-auto">
             <button 
               type="button" 
@@ -218,11 +207,9 @@ export default function UserProfile() {
           </div>
         </div>
 
-        {/* TAB 1: Bağış Geçmişi — aktif gösterilen */}
         {activeTab === 'donations' && (
           <div className="space-y-4">
             <div className="flex flex-col sm:flex-row gap-3 justify-end">
-              {/* Kullanıcının kendi bağışlarından gelen kategoriler */}
               <div className="flex flex-wrap gap-1 bg-slate-50 border border-slate-200/60 p-1 rounded-xl">
                 {userCategories.map((cat) => (
                   <button
@@ -247,12 +234,10 @@ export default function UserProfile() {
               />
             </div>
 
-            {/* Tablo — filtre ve arama ile */}
             <TransactionTable filterCategory={filterCategory} searchQuery={searchQuery} />
           </div>
         )}
 
-        {/* TAB 2: Katıldığım Etkinlikler */}
         {activeTab === 'events' && (
           <div className="space-y-4">
             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Katıldığım Etkinlikler</h3>

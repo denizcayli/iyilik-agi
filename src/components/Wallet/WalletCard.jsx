@@ -1,15 +1,14 @@
 
 import React from 'react';
-// buton tıklandığında ödeme sayfasına yönlendirme yapabilmek için navigate kancasını alıyoruz
+
 import { useNavigate } from 'react-router-dom';
 
-// kullanıcının cüzdan bakiyesini kutu şeklinde gösteren bileşen
 export default function WalletCard({ walletBalance }) {
-  // sayfa yönlendirmesi için react router hook'u
+
   const navigate = useNavigate();
 
   return (
-    // cüzdan bakiyesini gösteren gri renkli kart kutusu
+
     <div className="bg-slate-50 border border-slate-100 rounded-3xl p-6 flex flex-col justify-between h-40 text-left">
       <div className="flex justify-between items-start">
         <div>

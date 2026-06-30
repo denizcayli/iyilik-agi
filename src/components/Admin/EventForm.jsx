@@ -105,7 +105,6 @@ export default function EventForm() {
       )}
 
       <div className="space-y-6">
-        {/* Row 1: Başlık + Kategori */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">ETKİNLİK BAŞLIĞI *</label>
@@ -134,7 +133,6 @@ export default function EventForm() {
           </div>
         </div>
 
-        {/* Row 2: Hedef Bütçe + Süre */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">HEDEF BÜTÇE (₺) *</label>
@@ -160,7 +158,6 @@ export default function EventForm() {
           </div>
         </div>
 
-        {/* Row 3: Görsel URL */}
         <div>
           <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">GÖRSEL URL (İSTEĞE BAĞLI)</label>
           <input
@@ -172,7 +169,6 @@ export default function EventForm() {
           />
         </div>
 
-        {/* Row 4: Açıklama */}
         <div>
           <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">PROJE DETAYLI AÇIKLAMASI *</label>
           <textarea
@@ -185,7 +181,6 @@ export default function EventForm() {
           />
         </div>
 
-        {/* Butonlar */}
         <div className="flex justify-end gap-3 pt-4 border-t border-slate-50">
           <button
             type="button"
@@ -209,4 +204,3 @@ export default function EventForm() {
     </div>
   );
 }
-

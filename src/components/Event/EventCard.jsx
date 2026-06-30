@@ -21,9 +21,7 @@ export default function EventCard({ event }) {
 
   const percentage = Math.min(Math.round((raisedAmount / targetAmount) * 100), 100);
   const isCompleted = raisedAmount >= targetAmount;
-  // Genel Bağış kartı tespiti: imageUrl'de "genel-bagis" geçiyorsa veya title eşleşiyorsa
   const isGenelBagis = (imageUrl && imageUrl.includes('genel-bagis')) || title === 'Genel Bağış';
-  // Genel Bağış kartında süre bitiyor gibi davranmasını engelle
   const isExpired = !isGenelBagis && daysLeft <= 0 && hoursLeft <= 0 && minutesLeft <= 0;
   const urgency = getUrgencyStyles(isGenelBagis ? 999 : daysLeft);
 
@@ -77,7 +75,6 @@ export default function EventCard({ event }) {
         </div>
 
         <div>
-          {/* İlerleme barı — Genel Bağış kartında tamamen yok, diğerlerinde var */}
           {!isGenelBagis && (
             <div className="mb-4">
               <div className="flex justify-between items-end mb-1.5">
@@ -95,7 +92,6 @@ export default function EventCard({ event }) {
           <div className="border-t border-slate-100 my-4"></div>
 
           {isGenelBagis ? (
-            /* Genel Bağış kartı: DURUM/SÜRE yok, toplam bağış + gönüllü sayısı büyük rakam */
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div>
                 <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block mb-0.5">Toplam Bağış</span>
@@ -114,7 +110,6 @@ export default function EventCard({ event }) {
               </div>
             </div>
           ) : (
-            /* Normal kartlar: DURUM/SÜRE + Destekçi Sayısı */
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div>
                 <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block mb-0.5">Durum / Süre</span>

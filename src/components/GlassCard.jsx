@@ -1,9 +1,5 @@
 import React from 'react';
 
-/**
- * Reusable Glassmorphism Card Component
- * Supports light, heavy, and solid glass styles.
- */
 export default function GlassCard({ children, className = '', variant = 'light', ...props }) {
   let glassClass = 'glass-panel';
   if (variant === 'heavy') {

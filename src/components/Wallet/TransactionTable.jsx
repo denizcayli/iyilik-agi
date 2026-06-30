@@ -30,13 +30,10 @@ const formatDate = (dateStr) => {
   }
 };
 
-// filterCategory: 'Tümü' veya belirli bir kategori adı
-// searchQuery: etkinlik başlığı arama metni
 export default function TransactionTable({ filterCategory = 'Tümü', searchQuery = '' }) {
   const transactions = useSelector((state) => state.wallet.transactions);
   const events = useSelector((state) => state.events.list);
 
-  // Bir işlem için en uygun etkinlik linkini döndürür
   const getEventLink = (t) => {
     if (!t || t.category === 'Cüzdan' || t.campaignTitle === 'Bakiye Yükleme') return null;
     const matched = events && events.find((e) => e.title === t.campaignTitle || e.id === t.eventId);
@@ -45,7 +42,6 @@ export default function TransactionTable({ filterCategory = 'Tümü', searchQuer
     return '/events';
   };
 
-  // Filtre ve arama uygula
   const filteredTransactions = transactions.filter((t) => {
     const matchesCategory =
       filterCategory === 'Tümü' || t.category === filterCategory;

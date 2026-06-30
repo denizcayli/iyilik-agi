@@ -23,7 +23,6 @@ export default function CountdownTimer({ daysLeft, hoursLeft, minutesLeft, isCom
     );
   }
 
-  // Sadece daysLeft kullanarak temiz formatta göster
   const days = typeof daysLeft === 'number' ? daysLeft : (parseInt(daysLeft) || 0);
 
   return (

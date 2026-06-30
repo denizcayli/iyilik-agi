@@ -115,7 +115,6 @@ export default function EventsManagement() {
           </div>
         )}
 
-        {/* Header bar with Add Event button */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="text-left">
             <h1 className="text-2xl font-extrabold text-inst-navy tracking-tight">Etkinlik Yönetimi</h1>
@@ -132,10 +131,8 @@ export default function EventsManagement() {
           </Link>
         </div>
 
-        {/* Filters and List */}
         <div className="card-base shadow-xl shadow-slate-200/20 text-left p-0 overflow-hidden">
 
-          {/* Table Header & Search */}
           <div className="px-6 py-5 border-b border-slate-100 bg-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
             <h3 className="text-xs font-black text-inst-navy uppercase tracking-wider">TÜM ETKİNLİKLER LİSTESİ</h3>
 
@@ -233,18 +230,16 @@ export default function EventsManagement() {
             </table>
           </div>
 
-          {/* Pagination Bar */}
           <div className="px-6 py-4 border-t border-slate-100 bg-slate-50/40 flex flex-col sm:flex-row items-center justify-between gap-3">
-            {/* Info Text */}
+
             <p className="text-[11px] text-slate-400 font-medium">
               Toplam <span className="font-bold text-slate-600">{filteredEvents.length}</span> etkinlikten{' '}
               <span className="font-bold text-slate-600">{paginatedEvents.length}</span> tanesi gösteriliyor.
             </p>
 
-            {/* Page Buttons */}
             {totalPages > 1 && (
               <div className="flex items-center gap-1.5">
-                {/* Prev Arrow */}
+
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
                   className={`w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-450 hover:bg-slate-50 transition-all ${currentPage === 1 ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
@@ -256,7 +251,6 @@ export default function EventsManagement() {
                   </svg>
                 </button>
 
-                {/* Page Numbers */}
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                   <button
                     key={page}
@@ -270,7 +264,6 @@ export default function EventsManagement() {
                   </button>
                 ))}
 
-                {/* Next Arrow */}
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
                   className={`w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-450 hover:bg-slate-50 transition-all ${currentPage === totalPages ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'

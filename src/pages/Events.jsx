@@ -18,7 +18,6 @@ export default function Events() {
     dispatch(fetchCategories());
   }, [dispatch]);
 
-
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const catParam = params.get('category');
@@ -26,7 +25,6 @@ export default function Events() {
       dispatch(setSelectedCategory(catParam));
     }
   }, [location.search]); 
-
 
   const filteredEvents = events.filter((event) => {
     const matchesCategory =
@@ -40,7 +38,6 @@ export default function Events() {
 
   return (
     <div className="page-container">
-      {/* Header */}
       <div className="header-wrapper flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
           <span className="header-badge">Aktif Projeler</span>

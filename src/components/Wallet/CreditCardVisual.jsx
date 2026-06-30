@@ -1,15 +1,14 @@
 
 import React from 'react';
 
-
 export default function CreditCardVisual({
-  cardNumber = '', // kart numarası bilgisi
-  cardHolder = '', // kart sahibinin adı
-  expiry = '', // son kullanma tarihi
-  cvv = '', // 3 haneli güvenlik kodu
-  isFlipped = false // kartın arkasının dönük olup olmadığı durumu
+  cardNumber = '', 
+  cardHolder = '', 
+  expiry = '', 
+  cvv = '', 
+  isFlipped = false 
 }) {
-  // kart numarasını aralara boşluk koyarak 4'lü gruplara ayırıyoruz
+
   const formatCardNumber = (num) => {
     const cleanNum = (num || '').replace(/\D/g, '');
     let formatted = '';
@@ -24,13 +23,11 @@ export default function CreditCardVisual({
     return formatted;
   };
 
-  // son kullanma tarihi
   const formatExpiry = (exp) => {
     if (!exp) return 'AA/YY';
     return exp;
   };
 
-  // kartın arkasındaki güvenlik kodu
   const formatCvv = (val) => {
     if (!val) return 'CVV';
     return val;
@@ -40,7 +37,6 @@ export default function CreditCardVisual({
     <div className="card-container w-full max-w-[380px] aspect-[1.586/1] mx-auto cursor-pointer select-none">
       <div className={`card-inner w-full h-full relative ${isFlipped ? 'flipped' : ''}`}>
 
-        {/* kartın ön yüzü */}
         <div className="card-front w-full h-full absolute inset-0 bg-gradient-to-br from-pine-teal via-[#0e584d] to-inst-navy text-white p-6 shadow-2xl flex flex-col justify-between overflow-hidden">
 
           <div className="absolute -right-20 -top-20 w-48 h-48 bg-white/5 rounded-full blur-2xl pointer-events-none"></div>
@@ -60,7 +56,6 @@ export default function CreditCardVisual({
               <div className="absolute w-4 h-4 rounded-full border border-yellow-700/30 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-yellow-400/20"></div>
             </div>
 
-
             <div className="flex flex-col items-end">
               <span className="text-[10px] uppercase tracking-wider text-white/60 font-medium">İyilik Ağı</span>
               <div className="flex gap-1 mt-1 text-white/80">
@@ -71,14 +66,12 @@ export default function CreditCardVisual({
             </div>
           </div>
 
-
           <div className="z-10 mt-2 text-left">
             <div className="text-xl md:text-2xl font-mono tracking-widest text-shadow-md text-white/90 drop-shadow">
               {formatCardNumber(cardNumber)}
             </div>
           </div>
 
-          {/* isim tarih ve logo alanı */}
           <div className="flex justify-between items-end z-10 text-left">
             <div className="flex-1 mr-4 overflow-hidden">
               <div className="text-[9px] uppercase tracking-wider text-white/50 font-semibold mb-0.5">Kart Sahibi</div>
@@ -94,7 +87,6 @@ export default function CreditCardVisual({
               </div>
             </div>
 
-
             <div className="flex relative w-10 h-7 shrink-0">
               <div className="w-6 h-6 rounded-full bg-ember-coral/80 absolute left-0 z-0 mix-blend-screen"></div>
               <div className="w-6 h-6 rounded-full bg-amber-500/80 absolute right-0 z-10 mix-blend-screen"></div>
@@ -103,7 +95,6 @@ export default function CreditCardVisual({
 
         </div>
 
-        {/* kartın arka yüzü */}
         <div className="card-back w-full h-full absolute inset-0 bg-gradient-to-br from-inst-navy to-[#1f476e] text-white py-6 shadow-2xl flex flex-col justify-between overflow-hidden">
 
           <div className="w-full h-11 bg-slate-950/90 -mt-2"></div>
@@ -121,7 +112,6 @@ export default function CreditCardVisual({
               </div>
             </div>
           </div>
-
 
           <div className="px-6 mt-2 text-[7px] text-white/40 leading-normal text-left">
             Bu kart sanal bir ödeme simülasyonu amacıyla İyilik Ağı platformu için özel olarak üretilmiştir. Gerçek finansal işlemlerde kullanılamaz. Kartın kullanımı sırasında girilen hiçbir veri kaydedilmez veya saklanmaz.

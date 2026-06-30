@@ -2,7 +2,6 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
-// admin panelinin sol tarafındaki dikey menü çubuğu bileşeni
 export default function AdminSidebar({ onLogout }) {
   const location = useLocation();
   const navigate = useNavigate();
@@ -15,12 +14,9 @@ export default function AdminSidebar({ onLogout }) {
     window.location.href = '/';
   };
 
-
-
   return (
     <aside className="w-72 bg-white border-r border-slate-100 flex flex-col justify-between shrink-0 h-screen sticky top-0 py-6 px-5 text-left">
       <div className="space-y-6">
-        {/* yönetim panelinin logosu ve başlık kısmı */}
         <div className="flex flex-col gap-2 border-b border-slate-100 pb-4 mb-2 text-left">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-pine-teal flex items-center justify-center shadow-lg shadow-pine-teal/20 shrink-0">
@@ -38,7 +34,6 @@ export default function AdminSidebar({ onLogout }) {
           </div>
         </div>
 
-        {/* yeni bir kampanya/etkinlik ekleme sayfası butonu */}
         <Link
           to="/admin/new-event"
           className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-pine-teal hover:bg-emerald-800 text-white font-extrabold rounded-2xl text-xs transition-all shadow-md shadow-pine-teal/10 hover:shadow-lg hover:shadow-pine-teal/20 shrink-0 cursor-pointer"
@@ -49,7 +44,6 @@ export default function AdminSidebar({ onLogout }) {
           <span>Yeni Etkinlik Ekle</span>
         </Link>
 
-        {/* panel içi sayfalar arası geçiş menüsü */}
         <div className="pt-2">
           <span className="text-[10px] text-slate-400 font-black uppercase tracking-wider block mb-3 pl-2">MENÜ</span>
           <nav className="space-y-1">
@@ -116,7 +110,6 @@ export default function AdminSidebar({ onLogout }) {
         </div>
       </div>
 
-      {/* çıkış yapma ve ana sayfaya dönme butonları */}
       <div className="space-y-1.5 pt-4 border-t border-slate-100">
         <Link
           to="/"

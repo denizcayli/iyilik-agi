@@ -9,7 +9,6 @@ export default function AdminDashboard() {
   const [monthlyData, setMonthlyData] = useState([]);
   const [donations, setDonations] = useState([]);
 
-  // Dashboard verilerini yerel depolamadan okur ve dinamik olarak hesaplar
   const fetchDashboardData = () => {
     const storedDonations = localStorage.getItem('all_donations');
     let donationsList = [];
@@ -82,7 +81,6 @@ export default function AdminDashboard() {
     };
   }, []);
 
-  // En yüksek bağış hacmine sahip olan ayı tespit eder
   const maxValue = useMemo(() => {
     if (monthlyData.length === 0) return 0;
     return Math.max(...monthlyData.map((d) => d.value));

@@ -51,12 +51,10 @@ export default function Volunteers() {
           }
         };
 
-        // 1. Statik Gönüllüler
         jsonVolunteers.forEach(v => {
           addOrUpdate(v.name, v.email, v.task || 'Gönüllü Üye', v.hours || 0, v.status || 'AKTİF');
         });
 
-        // 2. Yeni Kayıt Olan Kullanıcılar (registeredUsers)
         const storedUsers = localStorage.getItem('registeredUsers');
         let registeredUsersList = [];
         if (storedUsers) {
@@ -72,7 +70,6 @@ export default function Volunteers() {
           }
         });
 
-        // 3. Bağış Yapan Kayıtlı Kişiler
         const storedDonations = localStorage.getItem('all_donations');
         let donationsList = [];
         if (storedDonations) {
@@ -86,7 +83,7 @@ export default function Volunteers() {
         donationsList.forEach(d => {
           const email = d.donorEmail || 'Anonim';
           const emailKey = email.toLowerCase();
-          
+
           if (emailKey && emailKey !== 'anonim' && emailKey !== 'anonim@iyilikagi.org') {
             const regUser = registeredUsersList.find(u => u.email.toLowerCase() === emailKey);
             const actualName = regUser ? regUser.name : (d.donorName || 'Anonim Bağışçı');
@@ -109,18 +106,15 @@ export default function Volunteers() {
     };
   }, []);
 
-  // Gönüllü adına göre arama filtrelemesi yapar
   const filteredVolunteers = volunteers.filter((vol) =>
     vol.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Toplu e-postaları sıraya alır
   const handleSendEmails = () => {
     setEmailStatus('E-postalar başarıyla sıraya alındı.');
     setTimeout(() => setEmailStatus(''), 4000);
   };
 
-  // Excel indirme simülasyonu başlatır
   const handleDownloadExcel = () => {
     setIsExcelLoading(true);
     setExcelStatus('');
@@ -132,7 +126,6 @@ export default function Volunteers() {
     }, 1000);
   };
 
-  // PDF indirme simülasyonu başlatır
   const handleDownloadPdf = () => {
     setIsPdfLoading(true);
     setTimeout(() => {
@@ -143,7 +136,7 @@ export default function Volunteers() {
 
   return (
     <AdminLayout>
-      {/* Toast Notification */}
+
       {toastVisible && (
         <div className="fixed top-24 right-6 z-50 bg-white border border-emerald-100 shadow-xl rounded-2xl p-4 max-w-sm flex items-start gap-3 toast-animate-in transition-all">
           <div className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">

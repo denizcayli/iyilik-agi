@@ -23,7 +23,6 @@ const storage = {
   }
 };
 
-
 export const fetchWalletData = createAsyncThunk(
   'wallet/fetchData',
   async (userEmail, { rejectWithValue }) => {
@@ -37,12 +36,12 @@ export const fetchWalletData = createAsyncThunk(
 
       const balance = storage.get(storage.keys.wallet(email)) ?? (mockWallet?.balance || 0);
       const transactions = storage.get(storage.keys.txs(email)) || (mockWallet?.transactions || []);
-      
+
       let participatedEvents = storage.get(storage.keys.events(email));
       if (!participatedEvents) {
         const defaultIds = ['evt-1', 'evt-2'];
         const isDefaultUser = ['gonullu@gmail.com', 'koconurbaha@gmail.com'].includes(email);
-        
+
         participatedEvents = isDefaultUser && db.events
           ? db.events
               .filter((evt) => defaultIds.includes(evt.id))
@@ -114,7 +113,7 @@ export const makeDonationAsync = createAsyncThunk(
         if (cleanAmount > balance) throw new Error('Yetersiz Bakiye');
 
         storage.set(storage.keys.wallet(userEmail), balance - cleanAmount);
-        
+
         const txs = storage.get(storage.keys.txs(userEmail)) || [];
         storage.set(storage.keys.txs(userEmail), [newTx, ...txs]);
 
@@ -150,7 +149,6 @@ export const joinEventAsync = createAsyncThunk(
   }
 );
 
-
 const initialState = {
   balance: 0,
   transactions: [],
@@ -159,7 +157,6 @@ const initialState = {
   actionStatus: 'idle', 
   error: null,
 };
-
 
 const walletSlice = createSlice({
   name: 'wallet',
@@ -212,7 +209,7 @@ const walletSlice = createSlice({
         state.actionStatus = 'succeeded';
         state.balance -= action.payload.amount;
         state.transactions.unshift(action.payload.tx);
-        
+
         const event = state.participatedEvents.find(e => e.id === action.payload.eventId);
         if (event) {
           event.contributed = (event.contributed || 0) + action.payload.amount;

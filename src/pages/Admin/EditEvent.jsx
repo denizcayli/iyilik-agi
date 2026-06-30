@@ -8,7 +8,7 @@ export default function EditEvent() {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  
+
   const events = useSelector((state) => state.events.list);
   const eventStatus = useSelector((state) => state.events.status);
   const loading = eventStatus === 'loading';
@@ -76,8 +76,6 @@ export default function EditEvent() {
   return (
     <AdminLayout>
       <div className="space-y-8 max-w-4xl mx-auto relative">
-
-        {/* Fade Bildirim - Alt Orta (her zaman DOM'da, opacity ile görünüp kaybolur) */}
         <div
           style={{
             opacity: showNotification ? 1 : 0,
@@ -93,7 +91,6 @@ export default function EditEvent() {
           <span>Değişiklikler kaydedildi</span>
         </div>
 
-        {/* Header */}
         <div className="flex justify-between items-center pb-2 border-b border-slate-100/60">
           <div className="text-left">
             <h1 className="text-2xl font-extrabold text-inst-navy tracking-tight">Etkinliği Düzenle</h1>
@@ -110,14 +107,12 @@ export default function EditEvent() {
           </Link>
         </div>
 
-        {/* Edit Form */}
         <div className="card-base md:p-8 text-left">
           <div className="border-b border-slate-100 pb-4 mb-6">
             <h3 className="text-xs font-black text-inst-navy uppercase tracking-wider">KAMPANYA DETAYLARI</h3>
           </div>
 
           <div className="space-y-6">
-            {/* Row 1: Başlık + Kategori */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">ETKİNLİK BAŞLIĞI *</label>
@@ -144,7 +139,6 @@ export default function EditEvent() {
               </div>
             </div>
 
-            {/* Row 2: Hedef Bütçe + Süre */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">HEDEF BÜTÇE (₺) *</label>
@@ -166,7 +160,6 @@ export default function EditEvent() {
               </div>
             </div>
 
-            {/* Row 3: Görsel URL */}
             <div>
               <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">GÖRSEL URL</label>
               <input
@@ -177,7 +170,6 @@ export default function EditEvent() {
               />
             </div>
 
-            {/* Row 4: Açıklama */}
             <div>
               <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-2">PROJE DETAYLI AÇIKLAMASI *</label>
               <textarea
@@ -188,7 +180,6 @@ export default function EditEvent() {
               />
             </div>
 
-            {/* Butonlar */}
             <div className="flex justify-end gap-3 pt-4 border-t border-slate-50">
               <Link
                 to="/admin/events"

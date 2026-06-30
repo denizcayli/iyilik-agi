@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchEvents } from '../../store/slices/eventSlice';
 
-
-
 export default function DashboardCards() {
   const dispatch = useDispatch();
   const events = useSelector((state) => state.events.list);

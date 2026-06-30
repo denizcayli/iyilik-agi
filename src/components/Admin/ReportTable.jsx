@@ -20,7 +20,6 @@ export default function ReportTable() {
   const [searchTerm, setSearchTerm] = useState('');
   const [showFeedback, setShowFeedback] = useState(false);
 
-  // Proje adına göre filtreleme yapar
   const filteredRecords = records.filter((rec) =>
     rec.project.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -32,17 +31,14 @@ export default function ReportTable() {
     donationDate: new Date().toISOString().split('T')[0]
   });
 
-  // Dynamic initialization of the selected project
   useEffect(() => {
     if (events && events.length > 0) {
-      // If the current selected project is empty or not in the events list, pick the first one
       if (!formData.project || !events.some(e => e.title === formData.project)) {
         setFormData(prev => ({ ...prev, project: events[0].title }));
       }
     }
   }, [events, formData.project]);
 
-  // Form gönderildiğinde bağışı kaydeder ve bütçeyi günceller
   const handleSubmit = () => {
     const val = Number(formData.amount);
     if (!formData.donorName.trim() || isNaN(val) || val <= 0 || !formData.project) {
@@ -53,12 +49,11 @@ export default function ReportTable() {
       return;
     }
 
-    // Find the event to update
     const matchedEvent = events.find(e => e.title === formData.project);
     if (matchedEvent) {
       const nextRaised = (matchedEvent.raisedAmount || 0) + val;
       const isCompleted = nextRaised >= (matchedEvent.targetAmount || 0);
-      
+
       const updatedEvent = {
         ...matchedEvent,
         raisedAmount: nextRaised,
@@ -66,11 +61,9 @@ export default function ReportTable() {
         daysLeft: isCompleted ? 0 : matchedEvent.daysLeft
       };
 
-      // Update through Redux (this will automatically sync and update the financial records state/storage)
       dispatch(editEventAsync(updatedEvent));
     }
 
-    // all_donations listesine ekleme yapar
     const storedDonations = localStorage.getItem('all_donations');
     let donations = [];
     try {
@@ -112,7 +105,6 @@ export default function ReportTable() {
     });
   };
 
-  // Excel indirme simülasyonu başlatır
   const handleDownloadExcel = () => {
     setIsExcelLoading(true);
     setExcelStatus('');
@@ -205,11 +197,10 @@ export default function ReportTable() {
                   <td className="px-6 py-4 font-mono font-bold text-pine-teal">{rec.raised.toLocaleString('tr-TR')}₺</td>
                   <td className="px-6 py-4 font-mono text-slate-700">{rec.spent.toLocaleString('tr-TR')}₺</td>
                   <td className="px-6 py-4 text-center">
-                    <span className={`inline-flex px-2.5 py-0.5 rounded-full text-[9px] font-extrabold border ${
-                      rec.status === 'Onaylandı'
+                    <span className={`inline-flex px-2.5 py-0.5 rounded-full text-[9px] font-extrabold border ${rec.status === 'Onaylandı'
                         ? 'bg-emerald-50 text-emerald-700 border-emerald-100/50'
                         : 'bg-amber-50 text-amber-700 border-amber-100/50'
-                    }`}>
+                      }`}>
                       {rec.status}
                     </span>
                   </td>
@@ -256,9 +247,8 @@ export default function ReportTable() {
               transform: showFeedback ? 'translateY(0)' : 'translateY(-5px)',
               transition: 'opacity 0.3s ease, transform 0.3s ease'
             }}
-            className={`mt-4 px-4 py-3 rounded-2xl text-xs font-bold ${
-              feedback.type === 'success' ? 'bg-emerald-50 border border-emerald-200 text-emerald-800' : 'bg-rose-50 border border-rose-200 text-rose-800'
-            }`}
+            className={`mt-4 px-4 py-3 rounded-2xl text-xs font-bold ${feedback.type === 'success' ? 'bg-emerald-50 border border-emerald-200 text-emerald-800' : 'bg-rose-50 border border-rose-200 text-rose-800'
+              }`}
           >
             {feedback.message}
           </div>

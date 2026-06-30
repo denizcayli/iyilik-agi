@@ -86,7 +86,7 @@ export default function Home() {
                   <span className="text-[10px] font-extrabold uppercase tracking-wider text-emerald-300 bg-white/10 border border-white/15 px-2.5 py-1 rounded-full inline-block">
                     {featured.category}
                   </span>
-                  {/* Sağ üst badge: Genel Bağış için son gün gösterilmez */}
+
                   {!featuredIsGenelBagis && (
                     <span className="text-[9px] font-extrabold px-2.5 py-1 rounded-lg border shadow-sm backdrop-blur-md flex items-center gap-1 bg-white/15 border-white/20 text-amber-300">
                       Son {featured.daysLeft} Gün
@@ -101,7 +101,6 @@ export default function Home() {
                   {featured.description}
                 </p>
 
-                {/* İlerleme barı — Genel Bağış değilse göster */}
                 {!featuredIsGenelBagis && (
                   <div className="mb-4 bg-white/5 border border-white/10 rounded-xl p-3 shadow-inner text-left">
                     <div className="flex justify-between items-end mb-1">
@@ -118,7 +117,6 @@ export default function Home() {
                   </div>
                 )}
 
-                {/* Alt istatistikler — Genel Bağış ve normal kart farklı */}
                 <div className="flex justify-between text-xs mb-5 font-semibold text-left">
                   {featuredIsGenelBagis ? (
                     <>
@@ -240,7 +238,6 @@ export default function Home() {
         </div>
       </section>
 
-
       <section id="how-it-works" className="bg-white py-20 px-4 sm:px-6 lg:px-8 border-b border-slate-100">
         <div className="max-w-7xl mx-auto">
           <div className="header-wrapper max-w-xl mx-auto mb-16 text-center">
@@ -276,7 +273,6 @@ export default function Home() {
         </div>
       </section>
 
-
       <section className="bg-inst-navy text-white py-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 bg-pine-teal/15 rounded-full filter blur-[80px] pointer-events-none z-0"></div>
         <div className="max-w-5xl mx-auto text-center space-y-8 relative z-10">
@@ -303,7 +299,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
 
       <section id="active-campaigns" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 bg-white">
         <div>

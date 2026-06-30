@@ -8,7 +8,6 @@ export default function NewEvent() {
     <AdminLayout>
       <div className="space-y-8 max-w-4xl mx-auto">
 
-        {/* Header */}
         <div className="flex justify-between items-center pb-2 border-b border-slate-100/60">
           <div className="text-left">
             <h1 className="text-2xl font-extrabold text-inst-navy tracking-tight">Yeni Etkinlik Başlat</h1>
@@ -25,7 +24,6 @@ export default function NewEvent() {
           </Link>
         </div>
 
-        {/* Form — prop'suz çağrılıyor, EventForm kendi içinde statikleştirilecek */}
         <EventForm />
 
       </div>

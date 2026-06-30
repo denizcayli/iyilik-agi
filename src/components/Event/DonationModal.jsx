@@ -4,15 +4,13 @@ export default function DonationModal() {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
       <div className="w-full max-w-md bg-white border border-slate-100 shadow-2xl rounded-3xl overflow-hidden p-6 relative text-left">
-        
-        {/* Close Button */}
+
         <button className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 cursor-pointer">
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
 
-        {/* Header */}
         <div className="mb-6">
           <span className="text-[10px] font-bold uppercase tracking-wider text-pine-teal bg-pine-teal/5 px-2.5 py-1 rounded-md inline-block mb-2">
             Bağış Yap
@@ -21,13 +19,11 @@ export default function DonationModal() {
           <p className="text-[11px] text-slate-400 mt-0.5">Cüzdan bakiyeniz üzerinden kolayca bağışınızı tamamlayın.</p>
         </div>
 
-        {/* Wallet Info */}
         <div className="bg-slate-50 border border-slate-100 rounded-2xl p-3 flex justify-between items-center mb-5">
           <span className="text-[11px] text-slate-500 font-bold">Mevcut Bakiyeniz</span>
           <span className="font-mono text-sm font-black text-pine-teal">₺15.000</span>
         </div>
 
-        {/* Donation Amount Form */}
         <div className="space-y-4">
           <div>
             <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Bağış Miktarını Seçin</label>
@@ -50,7 +46,6 @@ export default function DonationModal() {
             </div>
           </div>
 
-          {/* Buttons */}
           <div className="pt-2 flex gap-3">
             <button className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold rounded-xl text-xs transition-all cursor-pointer text-center">
               Vazgeç

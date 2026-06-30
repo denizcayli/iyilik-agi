@@ -9,7 +9,7 @@ export const fetchEvents = createAsyncThunk(
 
       const response = await fetch('/db.json')
       if (!response.ok) throw new Error('Etkinlik verileri yüklenemedi.')
-      
+
       const data = await response.json()
       const list = data.events || data
       localStorage.setItem('events_list', JSON.stringify(list))
@@ -29,7 +29,7 @@ export const fetchCategories = createAsyncThunk(
 
       const response = await fetch('/db.json')
       if (!response.ok) throw new Error('Kategoriler yüklenemedi.')
-      
+
       const data = await response.json()
       const categories = data.categories || ['Tümü', 'Çevre', 'Eğitim', 'Sağlık', 'Hayvanlar', 'Afet', 'Çocuk', 'Yaşlı', 'Su']
       localStorage.setItem('categories_list', JSON.stringify(categories))
@@ -39,7 +39,6 @@ export const fetchCategories = createAsyncThunk(
     }
   }
 )
-
 
 export const addEventAsync = createAsyncThunk(
   'events/addEventAsync',
@@ -57,7 +56,7 @@ export const addEventAsync = createAsyncThunk(
         secondsLeft: 0,
         ...eventData
       }
-      
+
       const newList = [newEvent, ...getState().events.list]
       localStorage.setItem('events_list', JSON.stringify(newList))
       return newEvent
@@ -107,7 +106,7 @@ export const addDonationToEventAsync = createAsyncThunk(
         amount: cleanAmount,
         timeAgo: 'Az önce'
       }
-      
+
       const newList = getState().events.list.map(evt => {
         if (evt.id === eventId) {
           const updatedRaised = evt.raisedAmount + cleanAmount
@@ -121,7 +120,7 @@ export const addDonationToEventAsync = createAsyncThunk(
         }
         return evt
       })
-      
+
       localStorage.setItem('events_list', JSON.stringify(newList))
       return {
         eventId,

@@ -1,6 +1,5 @@
 import React from 'react';
 
-// Statik ScrollReveal — Intersection Observer yok, içerik her zaman görünür
 function ScrollReveal({ children, className = '' }) {
   return (
     <div className={`opacity-100 translate-y-0 transition-all duration-1000 ease-out ${className}`}>
@@ -13,10 +12,8 @@ export default function About() {
   return (
     <div className="page-container py-16 space-y-24 text-left">
 
-      {/* Introduction Section (Biz Kimiz?) */}
       <ScrollReveal className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
 
-        {/* Text Content */}
         <div className="lg:col-span-7 space-y-6">
           <span className="header-badge">
             Biz Kimiz?
@@ -32,7 +29,6 @@ export default function About() {
             Geleneksel bağış ve yardımlaşma yöntemlerinde sıklıkla karşılaşılan güvenilirlik ve izlenebilirlik sorunlarını aşmak adına kurulan İyilik Ağı; rol bazlı cüzdan yapısı, gerçek zamanlı bütçe takibi, interaktif etki göstergeleri ve anlık veri entegrasyonları ile bağışçılarına benzersiz bir şeffaflık deneyimi yaşatır. Burada toplanan her bir kuruşun sahadaki somut yansıması, anlık durum güncellemeleri ve belgeli raporlarla anında takip edilebilir.
           </p>
 
-          {/* Value Highlights */}
           <div className="grid-cols-responsive-3 pt-4 border-t border-slate-100">
             <div className="border-l-2 border-pine-teal pl-4 space-y-1">
               <h4 className="text-xs font-bold text-inst-navy uppercase tracking-wider">Radikal Şeffaflık</h4>
@@ -55,7 +51,6 @@ export default function About() {
           </div>
         </div>
 
-        {/* Side Image */}
         <div className="lg:col-span-5 aspect-[4/3] rounded-3xl overflow-hidden shadow-lg border border-slate-200/60 bg-white">
           <img
             src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=800&q=80"
@@ -66,7 +61,6 @@ export default function About() {
 
       </ScrollReveal>
 
-      {/* History & Founding Story Section (Tarihçemiz ve Kuruluş Hikayemiz) */}
       <ScrollReveal className="card-base bg-slate-50 border-slate-200/40 md:p-12 space-y-8">
         <div className="max-w-3xl space-y-4">
           <span className="header-badge bg-ember-coral/5 text-ember-coral">
@@ -186,7 +180,6 @@ export default function About() {
           </div>
         </div>
 
-        {/* Right Side Cards */}
         <div className="lg:col-span-6 grid-cols-responsive-2 gap-6">
           <div className="card-base hover:shadow-md hover:border-slate-200/60 transition-all space-y-3">
             <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-600 font-bold font-mono">
@@ -237,7 +230,6 @@ export default function About() {
 
       </ScrollReveal>
 
-      {/* WORKING PRINCIPLES & STK PROCESS SECTION (YENİ - AÇIK GRİ ARKA PLAN) */}
       <ScrollReveal className="card-base bg-slate-50/70 border-slate-200/40 md:p-12 space-y-10">
         <div className="header-wrapper max-w-xl mx-auto text-center">
           <span className="header-badge mb-3">
@@ -253,7 +245,6 @@ export default function About() {
 
         <div className="grid-cols-responsive-3">
 
-          {/* Prensip 1 */}
           <div className="space-y-3 text-left">
             <span className="text-sm font-black text-pine-teal font-mono">01. STK Akreditasyonu</span>
             <h4 className="text-xs font-bold text-inst-navy uppercase tracking-wider">Kapsamlı Ön İnceleme</h4>
@@ -262,7 +253,6 @@ export default function About() {
             </p>
           </div>
 
-          {/* Prensip 2 */}
           <div className="space-y-3 md:border-l border-slate-200 pt-6 md:pt-0 md:pl-8 text-left">
             <span className="text-sm font-black text-ember-coral font-mono">02. Bütçe Fizibilitesi</span>
             <h4 className="text-xs font-bold text-inst-navy uppercase tracking-wider">Hedef ve Plan Analizi</h4>
@@ -271,7 +261,6 @@ export default function About() {
             </p>
           </div>
 
-          {/* Prensip 3 */}
           <div className="space-y-3 md:border-l border-slate-200 pt-6 md:pt-0 md:pl-8 text-left">
             <span className="text-sm font-black text-amber-500 font-mono">03. Etki ve Fatura Denetimi</span>
             <h4 className="text-xs font-bold text-inst-navy uppercase tracking-wider">Sonuç Raporlama</h4>

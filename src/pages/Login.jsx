@@ -1,11 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
 
-// tarayıcı oturumundaki kayıtlı kullanıcı listesini okuyan yardımcı fonksiyon
 const getRegisteredUsers = () => {
   const storedUsers = localStorage.getItem('registeredUsers');
 
-  // eğer tarayıcıda kullanıcılar zaten kayıtlıysa onları çekip diziye dönüştürüyoruz
   if (storedUsers) {
     try {
       const parsedUsers = JSON.parse(storedUsers);
@@ -21,10 +19,9 @@ const getRegisteredUsers = () => {
 };
 
 export default function Login() {
-  // giriş yap ve kayıt ol sekmelerinin durumunu tutuyoruz
+
   const [activeTab, setActiveTab] = useState('login');
 
-  // İlk yüklemede /db.json'dan varsayılan kullanıcıları localStorage'a yükler
   useEffect(() => {
     const existing = localStorage.getItem('registeredUsers');
     if (!existing) {
@@ -37,42 +34,37 @@ export default function Login() {
     }
   }, []);
 
-  // giriş yaparken doldurulan form alanlarının durumları
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  // kayıt olurken doldurulan form alanlarının durumları
+
   const [name, setName] = useState('');
   const [registerEmail, setRegisterEmail] = useState('');
   const [registerPassword, setRegisterPassword] = useState('');
-  // şifrelerin görünür olup olmadığını kontrol eden durumlar
+
   const [showLoginPassword, setShowLoginPassword] = useState(false);
   const [showRegisterPassword, setShowRegisterPassword] = useState(false);
-  // kullanıcıya gösterilecek hata veya başarı bildirim mesajı
+
   const [feedback, setFeedback] = useState({ type: '', message: '' });
 
-  // test yaparken hızlıca gönüllü bilgilerini yazdıran buton fonksiyonu
   const handleVolunteerQuickFill = () => {
     setEmail('gonullu@gmail.com');
     setPassword('123456');
     setFeedback({ type: '', message: '' });
   };
 
-  // test yaparken hızlıca admin bilgilerini yazdıran buton fonksiyonu
   const handleAdminQuickFill = () => {
     setEmail('admin@gmail.com');
     setPassword('123456');
     setFeedback({ type: '', message: '' });
   };
 
-  // giriş yap butonuna basıldığında çalışacak fonksiyon
   const handleLogin = (event) => {
-    // sayfanın kendi kendine yenilenmesini (reload) durduruyoruz
+
     event.preventDefault();
-    // e-posta ve şifrenin kenarındaki boşlukları siliyoruz
+
     const trimmedEmail = email.trim();
     const trimmedPassword = password.trim();
 
-    // eğer e-posta veya şifre boş bırakıldıysa uyarı veriyoruz
     if (!trimmedEmail || !trimmedPassword) {
       setFeedback({ type: 'error', message: 'Kayıtlı kullanıcı bulunamamaktadır.' });
       return;
@@ -88,16 +80,14 @@ export default function Login() {
       return;
     }
 
-    // giriş başarılı olunca tarayıcı oturumuna giriş yaptı bilgisini kaydediyoruz
     localStorage.setItem('isLoggedIn', 'true');
-    // kullanıcının adı, e-postası ve rolünü metne çevirip tarayıcı hafızasına yazıyoruz
+
     localStorage.setItem('user', JSON.stringify({
       name: matchedUser.name,
       email: matchedUser.email,
       role: matchedUser.role
     }));
 
-    // eğer kullanıcının cüzdanı yoksa ilk kez 0 lira ile oluşturuyoruz
     const walletKey = 'wallet_' + matchedUser.email;
     if (localStorage.getItem(walletKey) === null) {
       localStorage.setItem(walletKey, '0');
@@ -106,16 +96,14 @@ export default function Login() {
     window.location.href = matchedUser.role === 'admin' ? '/admin' : '/';
   };
 
-  // yeni bir kullanıcı kayıt olma butonuna basınca çalışacak fonksiyon
   const handleRegister = (event) => {
-    // sayfanın kendi kendine yenilenmesini engelliyoruz
+
     event.preventDefault();
-    // girdi alanlarındaki gereksiz sağ-sol boşlukları siliyoruz
+
     const trimmedName = name.trim();
     const trimmedEmail = registerEmail.trim();
     const trimmedPassword = registerPassword.trim();
 
-    // eğer alanlardan herhangi biri boş bırakıldıysa hata mesajı gösteriyoruz
     if (!trimmedName || !trimmedEmail || !trimmedPassword) {
       setFeedback({ type: 'error', message: 'Lütfen tüm alanları doldurun.' });
       return;
@@ -139,17 +127,16 @@ export default function Login() {
       }
     ];
 
-    // yeni kullanıcı listesini tarayıcı hafızasına güncellenmiş haliyle kaydediyoruz
     localStorage.setItem('registeredUsers', JSON.stringify(updatedUsers));
-    // kayıt formundaki kutuları temizliyoruz
+
     setName('');
     setRegisterEmail('');
     setRegisterPassword('');
-    // kullanıcıyı doğrudan giriş ekranına aktarıp, yazdığı e-posta şifreyi otomatik dolduruyoruz
+
     setActiveTab('login');
     setEmail(trimmedEmail);
     setPassword(trimmedPassword);
-    // kayıt işleminin başarılı olduğunu gösteren yeşil mesaj kutusu çıkarıyoruz
+
     setFeedback({ type: 'success', message: 'Kayıt başarılı, giriş yapabilirsiniz.' });
   };
 
@@ -163,9 +150,8 @@ export default function Login() {
       />
       <div className="max-w-md w-full relative z-10 space-y-4">
 
-        {/* cam görünümlü şık giriş kartı kutusu */}
         <div className="liquid-glass border-white/40 text-slate-800 shadow-2xl p-6 md:p-8 rounded-[2rem] bg-white/80">
-          {/* kartın en üstündeki logo ve başlık alanı */}
+
           <div className="text-center mb-8">
             <div className="w-12 h-12 rounded-2xl bg-pine-teal flex items-center justify-center text-white mx-auto mb-3 shadow-md shadow-pine-teal/20 border border-white/20">
               <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -264,8 +250,6 @@ export default function Login() {
                   <span className="bg-slate-50 border border-slate-200/60 px-3 text-slate-500 rounded-full py-0.5">veya hızlı giriş</span>
                 </div>
               </div>
-
-              {/* şifre yazmadan hızlıca denemek için test butonları */}
 
               <div className="grid grid-cols-2 gap-3">
                 <button

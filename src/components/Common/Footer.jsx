@@ -6,7 +6,6 @@ export default function Footer() {
     <footer className="footer-wrap">
       <div className="footer-container">
         <div className="footer-grid">
-          {/* Brand Column */}
           <div className="footer-brand-col space-y-4">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-pine-teal flex items-center justify-center">
@@ -26,7 +25,6 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Links Column */}
           <div className="footer-links-col">
             <h4 className="footer-heading mb-4">Hızlı Bağlantılar</h4>
             <ul className="footer-list">
@@ -37,7 +35,6 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Principles Column */}
           <div className="footer-links-col">
             <h4 className="footer-heading mb-4">Temel İlkelerimiz</h4>
             <ul className="footer-list text-slate-400">
@@ -48,7 +45,6 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Contact Column */}
           <div className="footer-links-col">
             <h4 className="footer-heading mb-4">İletişim</h4>
             <ul className="footer-list text-slate-400">
